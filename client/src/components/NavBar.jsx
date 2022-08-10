@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Outlet, Link } from 'react-router-dom';
 import { createStyles, Header, Container, Group, Paper, Transition, Burger, Autocomplete } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { IconSearch } from '@tabler/icons';
@@ -83,47 +82,26 @@ const useStyles = createStyles((theme) => ({
 
 export default function NavBar({ links }) {
   const [opened, { toggle, close }] = useDisclosure(false);
-  const [active, setActive] = useState('/');
+  const [active, setActive] = useState(links[0].link);
   const { classes, cx } = useStyles();
 
    // prolly don't need to link to a different page with the NavBar, but just change the state
   // and update the posts rendered based on state.tagSelected
 
-  (links) && (
-  const items = links.map((link) => {
-    console.log(link.link, typeof link.link);
-    return (
-      <nav>
-        <a
-          key={'home'}
-          component={Link}
-          to={'/'}
-          className={cx(classes.link, { [classes.linkActive]: active === '/' })}
-          onClick={(event) => {
-            event.preventDefault();
-            setActive('home');
-            close();
-          }}
-        >
-        {'home'}
-        </a> | {" "}
-        <a
-          key={link.label}
-          component={Link}
-          to={link.link}
-          className={cx(classes.link, { [classes.linkActive]: active === link.link })}
-          onClick={(event) => {
-            event.preventDefault();
-            setActive(link.link);
-            close();
-          }}
-        >
-          {link.label}
-        </a>
-      </nav>
-    )
-  });
-  )
+  const items = links.map((link) => (
+      <a
+        key={link.label}
+        href={link.link}
+        className={cx(classes.link, { [classes.linkActive]: active === link.link })}
+        onClick={(event) => {
+          event.preventDefault();
+          setActive(link.link);
+          close();
+        }}
+      >
+        {link.label}
+      </a>
+  ));
 
 
 
@@ -149,7 +127,6 @@ export default function NavBar({ links }) {
               </Paper>
             )}
           </Transition>
-          <Outlet />
       </Container>
     </Header>
   );
