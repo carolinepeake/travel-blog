@@ -6,6 +6,7 @@
     "@emotion/react": "^11.10.0",
     "@emotion/styled": "^11.10.0",
     "@mantine/core": "^5.1.1",
+    "@mantine/dates": "^5.1.1",
     "@mantine/hooks": "^5.1.1",
     "@mui/material": "^5.10.0",
     "@reduxjs/toolkit": "^1.8.3",

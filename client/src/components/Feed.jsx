@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { ScrollArea } from '@mantine/core';
 import Post from './Post.jsx';
 
 export default function Feed() {
@@ -11,12 +12,14 @@ export default function Feed() {
   }, []);
 
   return(
-    <div>
+    <Container>
+      <ScrollArea style={{ height: 900 }}>
       {posts.map(post => (
         <Post
         key={post.id} post={post}></Post>
       ))}
-    </div>
+      </ScrollArea>
+    </Container>
   )
 }
 

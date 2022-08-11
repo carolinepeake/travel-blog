@@ -4,14 +4,14 @@ const useStyles = createStyles((theme) => ({
   hero: {
     position: 'relative',
     backgroundImage:
-      'url(https://unsplash.com/photos/98WPMlTl5xo)',
-    //     https://images.unsplash.com/photo-1519389950473-47ba0277781c?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80)',
-    // backgroundSize: 'cover',
+      'url(https://images.unsplash.com/photo-1578894381163-e72c17f2d45f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MXwxfDB8MXxhbGx8fHx8fHx8fA&ixlib=rb-1.2.1&q=80&w=1080&utm_source=unsplash_source&utm_medium=referral&utm_campaign=api-credit)',
+    backgroundSize: 'cover',
     backgroundPosition: 'center',
   },
 
   container: {
-    height: 700,
+    height: 400,
+    width: 1000,
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'flex-end',
@@ -23,6 +23,11 @@ const useStyles = createStyles((theme) => ({
     [theme.fn.smallerThan('sm')]: {
       height: 500,
       paddingBottom: theme.spacing.xl * 3,
+    },
+
+    [theme.fn.smallerThan('xs')]: {
+      height: 300,
+      paddingBottom: theme.spacing.xl,
     },
   },
 

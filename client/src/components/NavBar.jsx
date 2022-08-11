@@ -106,14 +106,14 @@ export default function NavBar({ links }) {
 
 
   return (
-    <Header height={HEADER_HEIGHT} mb={120} className={classes.root}>
+    <Header height={HEADER_HEIGHT} mb={40} className={classes.root}>
       <Container className={classes.header}>
           <Group spacing={10} className={classes.links}>
             {items}
           </Group>
           <Autocomplete
               className={classes.search}
-              placeholder="Search"
+              placeholder="search by region"
               icon={<IconSearch size={16} stroke={1.5} />}
               data={['snowboarding', 'europe', 'brazil', 'march']} // can make these dynamic to last searched for user
             />
