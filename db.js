@@ -4,6 +4,10 @@ require("dotenv").config();
 mongoose.connect(`mongodb://localhost:27017/${process.env.DBNAME}`)
   .then(() => console.log('database connected'))
 
+const db = mongoose.connection;
+
+db.on('error', console.error.bind(console, 'MongoDB connection error:'));
+
 const { Schema } = mongoose;
 
 const examplePost = {id: 1, title: 'Shark Diving in Jupiter, FL', tags: ['scuba'], region: ['Florida', 'United States', 'North America'], language: ['English'], city: 'Jupiter, FL', country: 'United States', description: 'A sleepy southern coastal town an hour and a half drive north from Miami, Jupiter, Florida is home to some of the best shark diving in the world. Here, experienced divers have a rare opportunity to go deep and get personal with several species of shark including tiger, bull, nurse, reef, and the ellusive hammerhead. Emerald Charters is the better known of two (number per Google) dive companies providing this boutique dive experience.', photos: [], author: {name: 'carolinep', city: 'san francisco', country: 'usa', image: ''}, created_at: 'Aug 2022'};
@@ -26,7 +30,7 @@ const Posts = new Schema({
     type: subSchema,
     default: {}
   },
-  created_at: String,
+  created_at: { type: Date, default: Date.now() }
 });
 
 const Tags = new Schema({
