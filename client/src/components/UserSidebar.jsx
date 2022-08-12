@@ -6,6 +6,7 @@ const useStyles = createStyles((theme) => ({
   root: {
     position: 'relative',
     alignContent: 'space around',
+    top: 0,
     zIndex: 1,
   },
 }));
@@ -15,7 +16,7 @@ export default function UserSidebar() {
   const [opened, setOpened] = useState(false);
 
   return (
-    <Aside className={classes.root} width={{ base: 300 }} height={500} p="xs">
+    <Aside className={classes.root} width={{ base: 300 }} p="xs">
       <Aside.Section>
         <Box>
           <Avatar size="xl * 10"></Avatar>

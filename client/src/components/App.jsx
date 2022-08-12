@@ -10,7 +10,7 @@ const useStyles = createStyles((theme) => ({
   main: {
     display: 'flex',
     marginLeft: 'auto',
-    maxWidth: '960px',
+    //maxWidth: '960px',
     overflow: 'auto',
     position: 'relative',
   }
