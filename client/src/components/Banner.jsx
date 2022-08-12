@@ -50,11 +50,13 @@ const useStyles = createStyles((theme) => ({
 
   control: {
     marginTop: theme.spacing.xl * 1.5,
-
     [theme.fn.smallerThan('sm')]: {
       width: '100%',
     },
+    backgroundColor: 'burlywood',
+    border: 'solid',
   },
+  // make background of button transparent
 }));
 
 export default function Banner() {
@@ -69,7 +71,7 @@ export default function Banner() {
       />
       <Container className={classes.container}>
         <Title className={classes.title}>let's go somewhere</Title>
-        <Button variant="gradient" size="xl" radius="xl" className={classes.control}>
+        <Button size="xl" radius="xl" className={classes.control}>
           where would you like to go?
         </Button>
       </Container>
