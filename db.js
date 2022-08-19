@@ -1,41 +1,40 @@
 const mongoose = require("mongoose");
 require("dotenv").config();
 
-mongoose.connect(`mongodb://localhost:27017/${process.env.DBNAME}`)
-  .then(() => console.log('database connected'))
+// mongoose.connect(`mongodb://localhost:27017/${process.env.DBNAME}`)
+//   .then(() => console.log('database connected'))
 
-const db = mongoose.connection;
+mongoose.connect(process.env.MONGO_DB, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => app.listen(process.env.PORT, () => console.log(`Listening at ${process.env.PORT}`)))
+ .catch(err => console.log(err))
 
-db.on('error', console.error.bind(console, 'MongoDB connection error:'));
+// const db = mongoose.connection;
+
+// db.on('error', console.error.bind(console, 'MongoDB connection error:'));
+
 
 const { Schema } = mongoose;
 
-const examplePost = {id: 1, title: 'Shark Diving in Jupiter, FL', tags: ['scuba'], region: ['Florida', 'United States', 'North America'], language: ['English'], city: 'Jupiter, FL', country: 'United States', description: 'A sleepy southern coastal town an hour and a half drive north from Miami, Jupiter, Florida is home to some of the best shark diving in the world. Here, experienced divers have a rare opportunity to go deep and get personal with several species of shark including tiger, bull, nurse, reef, and the ellusive hammerhead. Emerald Charters is the better known of two (number per Google) dive companies providing this boutique dive experience.', photos: [], author: {name: 'carolinep', city: 'san francisco', country: 'usa', image: ''}, created_at: 'Aug 2022'};
 const Posts = new Schema({
   title: String,
-  tags: {
-    type: subSchema,
-    default: []
-  },
-  region:{
-    type: subSchema,
-    default: []
-  },
-  language: [{type: 'string', unique: false}],
-  city: {type: 'string', unique: false},
-  county: {type: 'string', unique: false},
+  tags: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Tag' }],
+  location: {type: mongoose.Schema.Types.ObjectId, ref: 'Location'},
   description: String,
   photos: [String],
-  user: {
-    type: subSchema,
-    default: {}
-  },
+  author: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
   created_at: { type: Date, default: Date.now() }
 });
 
 const Tags = new Schema({
-  tag: String,
-  posts: [Number]
+  name: String,
+  posts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Post' }]
+});
+
+const Locations = new Schema({
+  city: {type: 'string', unique: false},
+  state: {type: 'string', unique: false, default: null},
+  country:{type: 'string', unique: false},
+  region: {type: 'string', unique: false},
 });
 
 const Users = new Schema({
@@ -43,15 +42,11 @@ const Users = new Schema({
   city: {type: String, unique: false},
   country: {type: String, unique: false},
   image: String,
-  bucketList: [{type: Number, unique: false}],
+  bucketList: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Post' }],
 });
 
-const Regions = new Schema({
-  name: {type: String, unique: false},
-  type: {type: String, unique: false}
-})
-
 const Post = mongoose.model('Post', Posts);
-const Users = mongoose.model('User', Users);
+const User = mongoose.model('User', Users);
 const Tag = mongoose.model('Tag', Tags);
-const Region = mongoose.model('Region', Region);
+const Location = mongoose.model('Location', Locations);
+

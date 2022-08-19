@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Aside, createStyles, Avatar, Stack, Button, Container, Box, Center } from '@mantine/core';
+import { Aside, createStyles, Avatar, Stack, Button, Container, Box, Center, Modal } from '@mantine/core';
 import { Calendar } from '@mantine/dates';
+// import AddPost from './AddPost.jsx';
 
 const useStyles = createStyles((theme) => ({
   root: {
@@ -15,7 +16,19 @@ export default function UserSidebar() {
   const { classes, cx } = useStyles();
   const [opened, setOpened] = useState(false);
 
+  function handleAddPost(e) {
+
+  };
+
   return (
+  <>
+    <Modal
+        opened={opened}
+        onClose={() => setOpened(false)}
+        title="Add a post!"
+      >
+
+    </Modal>
     <Aside className={classes.root} width={{ base: 300 }} p="xs">
       <Aside.Section>
         <Box>
@@ -30,9 +43,11 @@ export default function UserSidebar() {
           <Button variant="outline" color="cyan" radius="lg" size="md">plan a trip</Button>
           <Button variant="outline" color="cyan" radius="lg" size="md">upcoming trips</Button>
           <Button variant="outline" color="cyan" radius="lg" size="md">past trips</Button>
+          <Button variant="outline" color="cyan" radius="lg" size="md" onClick={() => setOpened(true)}>add a post</Button>
         </Stack>
       </Aside.Section>
     </Aside>
+  </>
   )
 }
 

@@ -40,6 +40,7 @@ const useStyles = createStyles((theme) => ({
 }));
 
 
+
 export default function Post({ post }) {
   const { classes, theme } = useStyles();
 
@@ -59,7 +60,7 @@ export default function Post({ post }) {
             <IconHeart size={18} color={theme.colors.red[6]} stroke={1.5} />
           </ActionIcon>
         </Group>
-        <Badge size="sm">{post.country}</Badge>
+        <Badge size="sm">{post.location.country}</Badge>
         <Text size="sm" mt="xs">
           {post.description}
         </Text>
