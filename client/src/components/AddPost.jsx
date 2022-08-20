@@ -52,19 +52,19 @@ export default function AddPost({user}) {
     },
   });
 
-  // const fields = form.tags.map((item, index) => (
-  //   <Group key={index} mt="xs">
-  //     <TextInput
-  //       placeholder="e.g., surfing"
-  //       sx={{ flex: 1 }}
-  //       {...form.getInputProps(`tags.${index}.tag`)}
-  //     />
-  //   </Group>
-  // ));
+  const fields = form.tags.map((item, index) => (
+    <Group key={index} mt="xs">
+      <TextInput
+        placeholder="e.g., surfing"
+        sx={{ flex: 1 }}
+        {...form.getInputProps(`tags.${index}.tag`)}
+      />
+    </Group>
+  ));
 
   return (
 
-    {/* <form onSubmit={form.onSubmit(values => console.log(values))}> */}
+    <form onSubmit={form.onSubmit(values => console.log(values))}>
 
       <TextInput label="post title" placeholder="e.g., bungee jumping in South Africa" classNames={classes} />
 
@@ -78,30 +78,30 @@ export default function AddPost({user}) {
         classNames={classes}
       />
 
-      // <Group>
-      //   <TextInput label="add a new tag" placeholder="e.g., surfing" classNames={classes} {...form.getInputProps('tags.tag')}/>
-      //   {/* {fields} */}
-      //   <Button
-      //       onClick={() => form.insertListItem('tags', { tag: ''})}
-      //     >
-      //       add a new tag
-      //   </Button>
+         <Group>
+          <TextInput label="add a new tag" placeholder="e.g., surfing" classNames={classes} {...form.getInputProps('tags.tag')}/>
+            {fields}
+          <Button
+            onClick={() => form.insertListItem('tags', { tag: ''})}
+          >
+            add a new tag
+        </Button>
 
-      // </Group>
+      </Group>
 
-      // <Group>
-      //   location:
-      //   <TextInput label="city" placeholder="city" classNames={classes} {...form.getInputProps('location.city')}/>
-      //   <TextInput label="state" placeholder="option" classNames={classes} {...form.getInputProps('location.state')}/>
-      //   <TextInput label="country" placeholder="country" classNames={classes} {...form.getInputProps('location.country')}/>
-      //   <TextInput label="region" placeholder="region" classNames={classes} {...form.getInputProps('location.region')}/>
-      // </Group>
+      <Group>
+        location:
+        <TextInput label="city" placeholder="city" classNames={classes} {...form.getInputProps('location.city')}/>
+        <TextInput label="state" placeholder="option" classNames={classes} {...form.getInputProps('location.state')}/>
+        <TextInput label="country" placeholder="country" classNames={classes} {...form.getInputProps('location.country')}/>
+        <TextInput label="region" placeholder="region" classNames={classes} {...form.getInputProps('location.region')}/>
+      </Group>
 
 
       <Group position="right" mt="md">
           <Button type="submit">Add Post</Button>
       </Group>
-    {/* </form> */}
+     </form>
 
   );
 }
