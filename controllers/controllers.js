@@ -77,6 +77,18 @@ const getPosts = function(req, res) {
 //   })
 // };
 
+const getTags = function(req, res) {
+  console.log('request from getTags controller: ', req);
+  return models.getTags()
+  .then((result) => {
+    res.status(201).send(result.data);
+  })
+  .catch((err) => {
+    console.log('error in controller getPosts: ', err);
+    res.status(401);
+  })
+};
+
 
 
 export default controllers;

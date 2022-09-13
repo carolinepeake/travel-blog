@@ -1,12 +1,12 @@
 const mongoose = require("mongoose");
 require("dotenv").config();
 
-// mongoose.connect(`mongodb://localhost:27017/${process.env.DBNAME}`)
-//   .then(() => console.log('database connected'))
+mongoose.connect(`mongodb://localhost:27017/${process.env.DBNAME}`)
+  .then(() => console.log('database connected'))
 
-mongoose.connect(process.env.MONGO_DB, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => app.listen(process.env.PORT, () => console.log(`Listening at ${process.env.PORT}`)))
- .catch(err => console.log(err))
+// mongoose.connect(process.env.DBNAME, { useNewUrlParser: true, useUnifiedTopology: true })
+//   .then(() => app.listen(process.env.PORT, () => console.log(`Listening at ${process.env.PORT}`)))
+//  .catch(err => console.log(err))
 
 // const db = mongoose.connection;
 
@@ -49,4 +49,6 @@ const Post = mongoose.model('Post', Posts);
 const User = mongoose.model('User', Users);
 const Tag = mongoose.model('Tag', Tags);
 const Location = mongoose.model('Location', Locations);
+
+//const lonely = new Word({word: 'lonely', definition: 'to be alone'}).save();
 

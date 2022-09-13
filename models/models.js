@@ -4,7 +4,7 @@ const db = require('./../server/db.js');
 
 new User({name: 'Eric', city: 'San Francisco', country: 'usa', image: '', bucketList: []}).save()
 
-// module.exports.models = {
+module.exports.models = {
 //   saveUser: function(entry) {
 //     return new User(entry).save();
 //   },
@@ -21,7 +21,9 @@ new User({name: 'Eric', city: 'San Francisco', country: 'usa', image: '', bucket
 //     return new Location(entry).save()
 //   }
 
-// };
+  getTags:
+
+};
 
 
 
