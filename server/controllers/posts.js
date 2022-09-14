@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-//const db = require('../server/db'); // this might be unnecessary
+const db = require('../../db/connection'); // this might be unnecessary
 // const models = require('../models/models');
 // const Test = require('../db/schemas/test');
 const Post = require('../../db/schemas').Post;
