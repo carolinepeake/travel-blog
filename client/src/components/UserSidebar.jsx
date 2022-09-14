@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Aside, createStyles, Avatar, Stack, Button, Container, Box, Center, Modal } from '@mantine/core';
 import { Calendar } from '@mantine/dates';
 import AddPost from './AddPost.jsx';
+import AuthenticateUser from './AuthenticateUser.jsx';
 
 const useStyles = createStyles((theme) => ({
   root: {
@@ -12,9 +13,10 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
-export default function UserSidebar() {
+export default function UserSidebar({user, setUser}) {
   const { classes, cx } = useStyles();
   const [opened, setOpened] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   function handleAddPost(e) {
 
@@ -27,13 +29,16 @@ export default function UserSidebar() {
       onClose={() => setOpened(false)}
       title="Add a post!"
       >
-      <AddPost />
+      <AddPost user={user} setUser={setUser}/>
     </Modal>
     <Aside className={classes.root} width={{ base: 300 }} p="xs">
-      <Aside.Section>
+      <Aside.Section style={{ display: isLoggedIn ? 'block' : 'none' }}>
         <Box>
           <Avatar size="xl * 10"></Avatar>
         </Box>
+      </Aside.Section>
+      <Aside.Section style={{ display: isLoggedIn ? 'none' : 'block' }}>
+        <AuthenticateUser user={user} setUser={setUser} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn}/>
       </Aside.Section>
       <Aside.Section>
         <Calendar />

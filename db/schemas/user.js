@@ -1,0 +1,23 @@
+// Require Mongoose
+const mongoose = require('mongoose');
+
+// Define a schema
+const Schema = mongoose.Schema;
+
+const Users = new Schema(
+  {
+    name: String,
+    email: String,
+    password: String,
+    terms: Boolean,
+    city: {type: String, unique: false},
+    country: {type: String, unique: false},
+    image: {type: String, default: null},
+    // bucketList: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Post', default: null }]
+  },
+  // will automatically create and set createdAt and updatedAt timestamps
+  { timestamps: true }
+);
+
+// Export function to create "User" model class
+module.exports = mongoose.model('User', Users);

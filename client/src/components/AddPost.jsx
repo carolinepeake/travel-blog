@@ -1,4 +1,5 @@
 import React, { useReducer, useState, useEffect } from "react";
+import axios from 'axios';
 import { createStyles, Select, TextInput, TextArea, Button, onSubmit, Group, Box } from '@mantine/core';
 // import { useForm } from '@mantine/form';
 
@@ -67,6 +68,11 @@ const formReducer = function(state, action) {
         ...state,
         [action.field]: [...state[action.field], action.payload],
       };
+    case 'HANDLE ADD USER INFO':
+      return {
+        ...state,
+        [action.field]: action.payload,
+      };
     case 'HANDLE SUBMIT':
       return {
         ...formInitialState
@@ -76,7 +82,7 @@ const formReducer = function(state, action) {
   }
 };
 
-export default function AddPost({ user }) {
+export default function AddPost({ user, setUser }) {
   const [formState, dispatch] = useReducer(formReducer, initialFormState);
   const [tags, setTags] = useState(['Scuba', 'Snowboarding']);
 
@@ -84,7 +90,23 @@ export default function AddPost({ user }) {
   //   axios.get('/tags')
   //     .then(setTags(result.data))
   //     .catch(err => console.log(err))
+  //   handleAddUserInfo(user)
   // }, []);
+
+  function handleAddUserInfo(author) {
+    const authorInfo = {
+      name: author.name,
+      city: author.city,
+      country: author.country,
+      avatar: author.image
+    };
+    dispatch({
+      type: "HANDLE ADD USER INFO",
+      field: 'author',
+      payload: authorInfo,
+    });
+    console.log(formState);
+  };
 
   function handleTextChange(e) {
     dispatch({
@@ -132,13 +154,25 @@ export default function AddPost({ user }) {
   };
 
   function handleSubmitForm(e) {
-    console.log('event target value from handleformSubmit: ', e.target.value);
-    console.log('form state from handleFormSubmit: ', formState);
-    axios.post('/posts', e.target.value)
-    .then(response => console.log(response.status))
+    console.log('event target value from handleSubmitForm: ', e.target.value);
+    console.log('form state from handleSubmitForm: ', formState);
+    const postBody = {
+      title: formState.title,
+      description: formState.description,
+    };
+    axios.post('http://localhost:3001/posts', postBody)
+    .then(response => console.log('response from handleSubmitForm: ', response))
     .catch(err => console.log('error caught in handleSubmitForm: ', err))
     e.preventDefault();
-  }
+    // close module
+  };
+
+  function handleClickGetPosts(e) {
+    axios.get('http://localhost:3001/posts')
+    .then(response => console.log('response from  handleClickGetPosts: ', response.data))
+    .catch(err => console.log('error caught in handleClickGetPosts: ', err))
+    e.preventDefault();
+  };
 
   return(
     <form onSubmit={(e) => console.log(e.target)}>
@@ -192,6 +226,8 @@ export default function AddPost({ user }) {
           ></input>
         <button type="button" onClick={(e) => handleAddTag(e)}>add tag</button>
       </label>
+      <br />
+      <button type="button" onClick={(e) => handleClickGetPosts(e)}>get posts</button>
       <br />
       {formState.newTags
       && (
