@@ -18,11 +18,11 @@ import {
   Stack,
   createStyles,
 } from '@mantine/core';
-// import { GoogleButton, TwitterButton } from '../SocialButtons/SocialButtons';
-// import { GoogleIcon } from './GoogleIcon';
 import { FcGoogle } from 'react-icons/Fc';
-import facebookLogo from '../assets/f_logo_RGB_Blue_58.png';
+import facebookLogo from '../assets/f_logo_RGB-Blue_58.png';
 import CreateAccount from './CreateAccount.jsx';
+
+console.log(facebookLogo);
 
 const useStyles = createStyles((theme) => ({
   root: {
@@ -110,24 +110,22 @@ export default function AuthenticateUser({ PaperProps, ButtonProps, user, setUse
         {type} with
       </Text>
 
-      <Group grow mb="md" mt="md">
+      <Stack grow mb="md" mt="md">
         <Button radius="xl"
         leftIcon={<FcGoogle />}
         variant="default" color="gray"
         // {...props}
-        >google</Button>
+        >Google</Button>
         {/* <GoogleButton radius="xl">Google</GoogleButton> */}
         <Button
           radius="xl"
           component="a"
-          // leftIcon={<TwitterIcon size={16} color="#00ACEE" />}
+          leftIcon={<img src={facebookLogo} alt="Facebook Logo" style={{width: "16px" }}/>}
           variant="default"
-        //  {...props}
         >
-        twitter
+        Facebook
         </Button>
-        {/* <TwitterButton radius="xl">Twitter</TwitterButton> */}
-      </Group>
+      </Stack>
 
       <Divider label="or continue with email" labelPosition="center" my="lg" />
 

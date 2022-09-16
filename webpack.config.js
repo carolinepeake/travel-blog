@@ -9,9 +9,6 @@ module.exports = {
     filename: 'bundle.js'
   },
   devtool: "source-map",
-  experiments: {
-    asset: true
-  },
   module: {
     rules: [
       {
@@ -21,6 +18,12 @@ module.exports = {
         },
         exclude: /node_modules/
       },
+      // {
+      //   test: /\.png/,
+      //   use: {
+      //     loader: "file-loader"
+      //   }
+      // }
       {
         test: /\.png/,
         type: 'asset/resource'
