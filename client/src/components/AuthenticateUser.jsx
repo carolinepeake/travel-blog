@@ -20,6 +20,8 @@ import {
 } from '@mantine/core';
 // import { GoogleButton, TwitterButton } from '../SocialButtons/SocialButtons';
 // import { GoogleIcon } from './GoogleIcon';
+import { FcGoogle } from 'react-icons/Fc';
+import facebookLogo from '../assets/f_logo_RGB_Blue_58.png';
 import CreateAccount from './CreateAccount.jsx';
 
 const useStyles = createStyles((theme) => ({
@@ -71,11 +73,11 @@ export default function AuthenticateUser({ PaperProps, ButtonProps, user, setUse
     axios.post('http://localhost:3001/users', accountBody)
     .then((res) => {
       console.log('response from handleCreateAccount', res.data);
-      // is setting user (tested), even though logging user to console within this function doesn't work
+      // is setting user state (tested), even though logging user to console within this function doesn't work
       setUser(res.data);
       setIsLoggedIn(true);
     })
-    .catch(err => console.log('error from handleCreateAccount: ', err))
+    .catch(err => console.log('error from handleCreateAccount in Authentication component: ', err))
     e.preventDefault();
   };
 
@@ -110,7 +112,7 @@ export default function AuthenticateUser({ PaperProps, ButtonProps, user, setUse
 
       <Group grow mb="md" mt="md">
         <Button radius="xl"
-        // leftIcon={<GoogleIcon />}
+        leftIcon={<FcGoogle />}
         variant="default" color="gray"
         // {...props}
         >google</Button>

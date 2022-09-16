@@ -16,7 +16,7 @@ const useStyles = createStyles((theme) => ({
 export default function UserSidebar({user, setUser}) {
   const { classes, cx } = useStyles();
   const [opened, setOpened] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   function handleAddPost(e) {
 

@@ -1,7 +1,5 @@
 // require db connection and all models and export an instance of each model class (shouldn't need to require db connection anywhere else then)
 
-
-
 const models = require(./models);
 
 const Test = models.Test;

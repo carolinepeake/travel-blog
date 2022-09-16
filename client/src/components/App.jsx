@@ -10,6 +10,7 @@ import UserSidebar from './UserSidebar.jsx';
 // import CreateAccountSidebar from './CreateAccountSidebar.jsx';
 import Feed from './Feed.jsx';
 import LgCalendar from './LgCalendar.jsx';
+import facebookLogo from '../assets/f_logo_RGB_Blue_58.png';
 
 const useStyles = createStyles((theme) => ({
   main: {

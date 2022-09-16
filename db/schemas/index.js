@@ -7,6 +7,7 @@ module.exports.Location = require('./location');
 module.exports.Tag = require('./tag');
 module.exports.User = require('./user');
 
+// think I'd want to move this to directly under db
 
 // new User({name: 'Eric', city: 'San Francisco', country: 'usa', image: '', bucketList: []}).save()
 

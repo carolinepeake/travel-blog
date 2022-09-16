@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require('mongoose'); // do I need this?
 //const db = require('../server/db'); // this might be unnecessary
 const User = require('../../db/schemas').User;
 

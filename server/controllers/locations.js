@@ -4,50 +4,37 @@ const Location = require('../../db/schemas').Location;
 
 module.exports.controllers = {
 
-  postPost: function(req, res) {
-    var entry = req.body;
-    console.log('request body from postPost in controllers: ', req.body);
-    new Post(entry).save()
-    .then((savedPost) => {
-      console.log('success saving post: ', savedPost);
-      res.status(201).send(savedPost);
+  postLocation: function(req, res) {
+    let entry = req.body;
+    console.log('request body from postLocation in controllers: ', req.body);
+    new Location(entry).save()
+    // should I just be sending back savedLocation.data here?
+    .then((savedLocation) => {
+      console.log('success saving location: ', savedLocation);
+      res.status(201).send(savedLocation);
     })
     .catch((err) => {
-      console.log('error saving post: ', err);
+      console.log('error saving location: ', err);
       res.status(401).send('error');
     })
   },
 
-  getPosts: function(req, res) {
-    Post.find()
+  getLocations: function(req, res) {
+    Location.find()
     .then((result) => {
       res.status(200).send(result);
     })
     .catch((err) => {
-      console.log('error in controller getPosts: ', err);
-      res.status(400);
+      console.log('error getting: ', err);
+      res.status(400).send('error gettin locations');
     })
   },
 
-  postTest: function(req, res) {
-    var entry = req.body;
-    console.log('request body from postPost in controllers: ', req.body);
-  //   if (err) {
-  //     res.status(401).send('error');
-  //   } else {
-  //     res.status(201).send('success');
-  //   }
-  // }
+  // might want to refactor to use async/await
 
-    new Test(entry).save()
-    .then((result) => {
-      console.log('success saving test');
-      res.status(201).send(result.data);
-    })
-    .catch((err) => {
-      console.log('error saving test', err);
-      res.status(401).send('error');
-    })
+  // check if 400 the correct error code
+
+
 
   // const newAttendee = new Attendee({
   //   firstName: req.body.firstname,
@@ -76,7 +63,6 @@ module.exports.controllers = {
     //   console.log('error saving test', err);
     //   res.status(401).send('error');
     // })
-  }
 
 //   postRegion: function(req, res) {
 //     var entry = req.body;
