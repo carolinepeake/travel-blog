@@ -22,8 +22,6 @@ import { FcGoogle } from 'react-icons/Fc';
 import facebookLogo from '../assets/f_logo_RGB-Blue_58.png';
 import CreateAccount from './CreateAccount.jsx';
 
-console.log(facebookLogo);
-
 const useStyles = createStyles((theme) => ({
   root: {
     position: 'relative',
@@ -58,6 +56,8 @@ export default function AuthenticateUser({ PaperProps, ButtonProps, user, setUse
     },
   });
 
+
+  // refactor to use async/await
   function handleCreateAccount(e) {
     console.log('form state from handleCreateAccount: ', form.values);
     const accountBody = {
@@ -76,15 +76,30 @@ export default function AuthenticateUser({ PaperProps, ButtonProps, user, setUse
       // is setting user state (tested), even though logging user to console within this function doesn't work
       setUser(res.data);
       setIsLoggedIn(true);
+      setOpened(false);
     })
     .catch(err => console.log('error from handleCreateAccount in Authentication component: ', err))
+    // show message to user that account failed to create -- handle errors differently based on what they are
     e.preventDefault();
   };
 
   function handleLogin(e) {
-   // setUser(res.data);
-    setIsLoggedIn(true);
-     // e.preventDefault();
+    console.log('form state from handleLogin: ', form.values);
+    const accountBody = {
+      email: form.values.email,
+      password: form.values.password,
+    };
+    axios.post('http://localhost:3001/users/login', accountBody)
+    .then((res) => {
+      console.log('response from handleLogin', res.data);
+      setUser(res.data);
+      setIsLoggedIn(true);
+      setOpened(false);
+    })
+    .catch((err) => {
+      console.log('error from handleLogin in Authentication component: ', err);
+    })
+    e.preventDefault();
   };
 
   return (
@@ -93,7 +108,7 @@ export default function AuthenticateUser({ PaperProps, ButtonProps, user, setUse
     opened={opened}
     onClose={() => setOpened(false)}
     // make title dynamic using state.type
-    title="create account"
+    title={type === "register" ? "create account" : "login"}
     >
     <CreateAccount user={user} setUser={setUser} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} onSubmit={() => setOpened(false)}/>
   </Modal>

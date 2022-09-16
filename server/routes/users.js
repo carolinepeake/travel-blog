@@ -1,15 +1,18 @@
 // posts.js - Posts route module
 const express = require('express');
 const users = express.Router();
-const { getUsers, postUser} = require('.././controllers').UsersController;
+const { getUsers, handleUserSignup, handleUserLogin } = require('.././controllers').UsersController;
 
-// const express = require("express");
-// const router = express.Router();
 
-// Home page route
 users.get('/', getUsers);
 
-users.post('/', postUser);
+// signup route
+users.post('/signup', handleUserSignup);
+
+//login route
+users.post('/login', handleUserLogin);
+
+
 
 // About page route
 // PostsRouter.get("/about", function (req, res) {

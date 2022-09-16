@@ -1,7 +1,6 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { MantineProvider } from '@mantine/core';
-//import facebookLogo from './assets/f_logo_RGB_Blue_58.png';
 
 import App from './components/App.jsx';
 

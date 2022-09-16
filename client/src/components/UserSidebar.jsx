@@ -26,6 +26,7 @@ export default function UserSidebar({user, setUser}) {
   <>
     <Modal
       opened={opened}
+      setOpened={setOpened}
       onClose={() => setOpened(false)}
       title="Add a post!"
       >
@@ -38,7 +39,7 @@ export default function UserSidebar({user, setUser}) {
         </Box>
       </Aside.Section>
       <Aside.Section style={{ display: isLoggedIn ? 'none' : 'block' }}>
-        <AuthenticateUser user={user} setUser={setUser} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn}/>
+        <AuthenticateUser user={user} setUser={setUser} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
       </Aside.Section>
       <Aside.Section>
         <Calendar />

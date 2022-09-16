@@ -65,7 +65,7 @@ export default function CreateAccount({ PaperProps, ButtonProps, user, setUser, 
       image: form.values.image,
       // bucketList: ''
     };
-    axios.post('http://localhost:3001/users', accountBody)
+    axios.post('http://localhost:3001/users/signup', accountBody)
     .then((res) => {
       console.log('response from handleCreateAccount', res.data);
       // is setting user (tested), even though logging user to console within this function doesn't work
@@ -74,6 +74,7 @@ export default function CreateAccount({ PaperProps, ButtonProps, user, setUser, 
     })
     .catch(err => console.log('error from handleCreateAccount: ', err))
     e.preventDefault();
+    // clear form state
     // close modal
   };
 
