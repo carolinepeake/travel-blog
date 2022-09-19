@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useToggle, upperFirst } from '@mantine/hooks';
 import { useForm } from '@mantine/form';
@@ -56,6 +56,18 @@ export default function AuthenticateUser({ PaperProps, ButtonProps, user, setUse
     },
   });
 
+  useEffect(() => {
+    const loggedInUser = localStorage.getItem("user");
+    if (loggedInUser) {
+      const foundUser = JSON.parse(loggedInUser);
+      setUser(foundUser);
+      console.log('foundUser: ', foundUser);
+      setIsLoggedIn(true);
+    }
+  }, []);
+
+  // user is getting set on change, not just once the button is clicked
+  console.log('user2: ', user);
 
   // refactor to use async/await
   function handleCreateAccount(e) {
@@ -75,6 +87,7 @@ export default function AuthenticateUser({ PaperProps, ButtonProps, user, setUse
       console.log('response from handleCreateAccount', res.data);
       // is setting user state (tested), even though logging user to console within this function doesn't work
       setUser(res.data);
+      localStorage.setItem('user', JSON.stringify(res.data))
       setIsLoggedIn(true);
       setOpened(false);
     })
@@ -93,6 +106,7 @@ export default function AuthenticateUser({ PaperProps, ButtonProps, user, setUse
     .then((res) => {
       console.log('response from handleLogin', res.data);
       setUser(res.data);
+      localStorage.setItem('user', JSON.stringify(res.data))
       setIsLoggedIn(true);
       setOpened(false);
     })
@@ -131,7 +145,6 @@ export default function AuthenticateUser({ PaperProps, ButtonProps, user, setUse
         variant="default" color="gray"
         // {...props}
         >Google</Button>
-        {/* <GoogleButton radius="xl">Google</GoogleButton> */}
         <Button
           radius="xl"
           component="a"

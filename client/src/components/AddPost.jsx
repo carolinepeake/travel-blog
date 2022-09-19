@@ -75,7 +75,7 @@ const formReducer = function(state, action) {
       };
     case 'HANDLE SUBMIT':
       return {
-        ...formInitialState
+        ...initialFormState
       };
     default:
       throw new Error(`Unknown action type: ${action.type}`);
@@ -139,7 +139,7 @@ export default function AddPost({ user, setUser }) {
     dispatch({
       type: "HANDLE INPUT TEXT",
       field: 'newTag',
-      payload: '',
+      payload: initialFormState.newTag,
     })
    // console.log('newTags: ', formState.newTags);
   };

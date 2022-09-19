@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Aside, createStyles, Avatar, Stack, Button, Container, Box, Center, Modal } from '@mantine/core';
+import { Aside, createStyles, Avatar, Stack, Button, Container, Box, Center, Modal, Text } from '@mantine/core';
 import { Calendar } from '@mantine/dates';
 import AddPost from './AddPost.jsx';
 import AuthenticateUser from './AuthenticateUser.jsx';
@@ -11,6 +11,16 @@ const useStyles = createStyles((theme) => ({
     top: 0,
     zIndex: 1,
   },
+
+  logout: {
+    textAlign: 'right',
+    alignSelf: 'right',
+
+    '&:hover': {
+      backgroundColor: theme. colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[0],
+      textStyle: 'underline',
+    },
+  },
 }));
 
 export default function UserSidebar({user, setUser}) {
@@ -20,6 +30,12 @@ export default function UserSidebar({user, setUser}) {
 
   function handleAddPost(e) {
 
+  };
+
+  function handleLogout(e) {
+    setIsLoggedIn(false);
+    setUser({});
+    localStorage.clear();
   };
 
   return (
@@ -37,6 +53,8 @@ export default function UserSidebar({user, setUser}) {
         <Box>
           <Avatar size="xl * 10"></Avatar>
         </Box>
+          <Text span >logged in as {user.name}</Text>
+          <Text span className={classes.logout} onClick={(e) => handleLogout(e)}>logout</Text>
       </Aside.Section>
       <Aside.Section style={{ display: isLoggedIn ? 'none' : 'block' }}>
         <AuthenticateUser user={user} setUser={setUser} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useToggle, upperFirst } from '@mantine/hooks';
 import { useForm } from '@mantine/form';
@@ -53,6 +53,15 @@ export default function CreateAccount({ PaperProps, ButtonProps, user, setUser, 
     },
   });
 
+  useEffect(() => {
+    const loggedInUser = localStorage.getItem("user");
+    if (loggedInUser) {
+      const foundUser = JSON.parse(loggedInUser);
+      setUser(foundUser);
+      setIsLoggedIn(true);
+    }
+  }, []);
+
   function handleCreateAccount(e) {
     console.log('form state from handleCreateAccount: ', form.values);
     const accountBody = {
@@ -70,6 +79,7 @@ export default function CreateAccount({ PaperProps, ButtonProps, user, setUser, 
       console.log('response from handleCreateAccount', res.data);
       // is setting user (tested), even though logging user to console within this function doesn't work
       setUser(res.data);
+      localStorage.setItem('user', JSON.stringify(res.data))
       setIsLoggedIn(true);
     })
     .catch(err => console.log('error from handleCreateAccount: ', err))
@@ -79,9 +89,10 @@ export default function CreateAccount({ PaperProps, ButtonProps, user, setUser, 
   };
 
   function handleLogin(e) {
-    // setUser(res.data);
+     setUser(res.data);
+     localStorage.setItem('user', JSON.stringify(res.data);
      setIsLoggedIn(true);
-      // e.preventDefault();
+     e.preventDefault();
    };
 
   return (
