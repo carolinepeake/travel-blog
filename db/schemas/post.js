@@ -9,7 +9,7 @@ const Posts = new Schema(
     title: String,
     description: { type: String, maxLength: [500, 'description too long'] },
     // location: { type: Schema.Types.ObjectId, ref: 'Location' },
-    // photos: [String],
+    photos: [String],
     // can be mongoose.Schema or Schema b/c Schema is defined above as mongoose.Schema
     tags: [{ type: String, lowercase: true, trim: true }],
     //tags: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Tag', lowercase: true }],

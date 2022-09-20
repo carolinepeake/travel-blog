@@ -2,7 +2,15 @@ const mongoose = require('mongoose');
 const db = require('../../db/connection'); // this might be unnecessary
 // const models = require('../models/models');
 // const Test = require('../db/schemas/test');
+const cloudinary = require('cloudinary').v2;
+require('dotenv').config();
 const Post = require('../../db/schemas').Post;
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 module.exports.controllers= {
 
@@ -40,6 +48,19 @@ module.exports.controllers= {
       console.log('error in controller getPosts: ', err);
       res.status(400);
     })
+  },
+
+  uploadImage: async (req, res) => {
+    try {
+      const file = req.body.image;
+      const uploadedResponse = await cloudinary.uploader.upload(file, {
+        upload_preset: 'travel_blog',
+      });
+      console.log('successfully uploaded image to cloudinary: ', uploadedResponse);
+      res.status(201).send(uploadedResponse);
+    } catch (err) {
+      console.log('error uplodaing image to cloudinary: ', err);
+    }
   },
 
 

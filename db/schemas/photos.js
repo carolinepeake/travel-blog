@@ -1,0 +1,1 @@
+photos: [{ assetId: String, access_mode: String, api_key: String, bytes: Number, created_at: String, etag: String, folder: String, format: String, height: Number, placeholder: Boolean, public_id: String, resource_type: String, secure_url: String, tags: [String], signature: String, type: String, url: String, version: Number, version_id: String, width: Number }],

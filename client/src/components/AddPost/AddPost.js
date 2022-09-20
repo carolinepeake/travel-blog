@@ -38,7 +38,7 @@ const initialFormState = {
   },
   language: '',
   description: '',
-  photos: [],
+  fileList: [],
   author: {
     name: '',
     city: '',
@@ -88,6 +88,7 @@ const formReducer = function(state, action) {
 export default function AddPost({ user, setUser }) {
   const [formState, dispatch] = useReducer(formReducer, initialFormState);
   const [selectedTags, setSelectedTags] = useState(['select tags']);
+  const [previews, setPreviews] = useState([]);
 
   function handleAddUserInfo(author) {
     const authorInfo = {
@@ -154,41 +155,50 @@ export default function AddPost({ user, setUser }) {
   };
 
   function handleSubmitForm(e) {
-    console.log('event target value from handleSubmitForm: ', e.target.value);
-    console.log('form state from handleSubmitForm: ', formState);
-    console.log('author from handle submit post: ', user._id);
-    console.log('newTags from handle submit post: ', formState.newTags);
-    console.log('all tags: ', selectedTags.concat(formState.newTags));
+    e.preventDefault();
+
     const postBody = {
       title: formState.title,
       description: formState.description,
       author: user._id,
       tags: selectedTags.concat(formState.newTags),
+      photos: [],
     };
-    axios.post('http://localhost:3001/posts', postBody)
-    .then(response => console.log('response from handleSubmitForm: ', response))
-    .catch(err => console.log('error caught in handleSubmitForm: ', err))
-    e.preventDefault();
-    // close module
-    // const tagBody = {
-    //   tags: formState.newTags,
-    // };
-    // axios.post('http://localhost:3001/tags/addTags', tagBody)
-    // .then(response => console.log('response from handleSubmitForm add tags: ', response))
-    // .catch(err => console.log('error caught in handleSubmitForm add tags: ', err))
-  };
 
-  function handleClickGetPosts(e) {
-    axios.get('http://localhost:3001/tests/authors')
-    .then(response => console.log('response from  handleClickGetauthors: ', response.data))
-    .catch(err => console.log('error caught in handleClickGetauthors: ', err))
-    e.preventDefault();
+    const promises = [];
+    for (let i = 0; i < previews.length; i += 1) {
+      const promise = axios.post('posts/cloudinary/upload', {
+        image: previews[i],
+      });
+      promises.push(promise);
+    }
+
+    Promise.all(promises)
+      .then(async (results) => {
+        await results.forEach((result) => {
+          postBody.photos.push(result.data.url);
+        });
+
+        axios
+          .post('/posts', postBody)
+          .then((response) => {
+            console.log('response from handleSubmitForm: ', response);
+          })
+          .catch((err) => {
+            console.log('error posting postBody: ', err);
+          });
+      })
+      .catch((err) => {
+        console.log('error uploading images and submitting form: ', err);
+      });
+    };
+
+    function handleClickGetPosts(e) {
+      axios.get('http://localhost:3001/tests/authors')
+      .then(response => console.log('response from  handleClickGetauthors: ', response.data))
+      .catch(err => console.log('error caught in handleClickGetauthors: ', err))
+      e.preventDefault();
   };
-  //   axios.get('http://localhost:3001/posts')
-  //   .then(response => console.log('response from  handleClickGetPosts: ', response.data))
-  //   .catch(err => console.log('error caught in handleClickGetPosts: ', err))
-  //   e.preventDefault();
-  // };
 
   return(
     <form onSubmit={(e) => console.log(e.target)}>
@@ -229,7 +239,7 @@ export default function AddPost({ user, setUser }) {
 
       <br />
 
-      <FileUpload formState={formState} dispatch={dispatch} handleDeleteOne={handleDeleteOne}/>
+      <FileUpload formState={formState} dispatch={dispatch} handleDeleteOne={handleDeleteOne} previews={previews} setPreviews={setPreviews} />
 
       <button type="submit" value={formState} onClick={(e) => handleSubmitForm(e)}>add post</button>
 

@@ -56,9 +56,21 @@ const useStyles = createStyles((theme) => ({
       cursor: 'pointer',
     },
   },
+
+  photoPreviews: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gridColumn: '1 / 3',
+  },
+
+  imagePreview: {
+    width: '20%',
+    height: '20%',
+    marginRight: '1%',
+  },
+
 }));
-
-
 // const ValueComponent: FileInputProps['valueComponent'] = ({ value }) => {
 //   if (Array.isArray(value)) {
 //     return (
@@ -82,17 +94,24 @@ const useStyles = createStyles((theme) => ({
 //   );
 // }
 
-export default function FileUpload({ formState, dispatch, handleDeleteOne }) {
+export default function FileUpload({ formState, dispatch, handleDeleteOne, previews, setPreviews }) {
   const fileInput = React.createRef();
   const { classes, cx } = useStyles();
 
   const handleUploadFile = (event) => {
     dispatch({
       type: "HANDLE MULTIPLE INPUTS",
-      field: 'photos',
+      field: 'fileList',
       payload: event.target.files[0],
     });
-	};
+    const file = event.target.files[0];
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onloadend = () => {
+      const base48image = reader.result;
+      setPreviews([...previews, base48image]);
+    };
+	 };
 
   return (
     <>
@@ -107,9 +126,9 @@ export default function FileUpload({ formState, dispatch, handleDeleteOne }) {
           ref={fileInput}
           onChange={handleUploadFile} />
       </label>
-      {formState.photos
+      {formState.fileList
       && (
-        formState.photos.map((photo, i) => {
+        formState.fileList.map((file, i) => {
           return (
             <Center
               key={i}
@@ -118,14 +137,19 @@ export default function FileUpload({ formState, dispatch, handleDeleteOne }) {
             >
               <IconPhoto size={14} style={{ marginRight: 5 }} />
               <span className={classes.file}>
-                {photo.name}
-                <span className={classes.close} onClick={(e) => handleDeleteOne(i, 'photos', e)}>x</span>
+                {file.name}
+                <span className={classes.close} onClick={(e) => handleDeleteOne(i, 'fileList', e)}>x</span>
               </span>
             </Center>
           );
         })
 			)}
       <br />
+      <div className={classes.photoPreviews}>
+        {previews.map((photo) => (
+          <img src={photo} alt="" key={photo} className={classes.imagePreview} />
+        ))}
+      </div>
     </>
   );
 };

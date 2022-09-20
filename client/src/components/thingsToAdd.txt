@@ -31,6 +31,8 @@ fileUpload:
   loadingState
   preview of Images
 
+propTypes
+
 
 
 
