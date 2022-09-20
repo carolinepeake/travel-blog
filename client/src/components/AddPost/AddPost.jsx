@@ -2,6 +2,9 @@ import React, { useReducer, useState, useEffect } from "react";
 import axios from 'axios';
 import { createStyles, Select, TextInput, TextArea, Button, onSubmit, Group, Box } from '@mantine/core';
 // import { useForm } from '@mantine/form';
+import FileUpload from './FileUpload.jsx';
+import AddTag from './AddTag.jsx';
+import SelectTags from './SelectTags.jsx';
 
 const useStyles = createStyles((theme) => ({
   root: {
@@ -25,7 +28,6 @@ const useStyles = createStyles((theme) => ({
 
 const initialFormState = {
   title: '',
-  selectedTags: [],
   newTag: '',
   newTags: [],
   location: {
@@ -36,7 +38,7 @@ const initialFormState = {
   },
   language: '',
   description: '',
-  photos: '',
+  photos: [],
   author: {
     name: '',
     city: '',
@@ -53,26 +55,22 @@ const formReducer = function(state, action) {
         ...state,
         [action.field]: action.payload,
       };
-    case 'HANDLE SELECT MULTIPLE':
+    case 'HANDLE MULTIPLE INPUTS':
       return {
         ...state,
         [action.field]: [...state[action.field], action.payload],
-      };
-    // case 'HANDLE ADD MULTIPLE':
-    //   return {
-    //     ...state,
-    //     [action.field]: [...state[action.field], action.payload],
-    //   };
-    case 'HANDLE ADD TAG':
-      return {
-        ...state,
-        [action.field]: [...state[action.field], action.payload],
-      };
+      }
     case 'HANDLE ADD USER INFO':
       return {
         ...state,
         [action.field]: action.payload,
       };
+    case 'HANDLE DELETE INPUT':
+      state[action.field].splice(action.payload, 1);
+      return {
+        ...state,
+        [action.field]: state[action.field],
+      }
     case 'HANDLE SUBMIT':
       return {
         ...initialFormState
@@ -84,14 +82,7 @@ const formReducer = function(state, action) {
 
 export default function AddPost({ user, setUser }) {
   const [formState, dispatch] = useReducer(formReducer, initialFormState);
-  const [tags, setTags] = useState(['Scuba', 'Snowboarding']);
-
-  // useEffect(() => {
-  //   axios.get('/tags')
-  //     .then(setTags(result.data))
-  //     .catch(err => console.log(err))
-  //   handleAddUserInfo(user)
-  // }, []);
+  const [selectedTags, setSelectedTags] = useState(['select tags']);
 
   function handleAddUserInfo(author) {
     const authorInfo = {
@@ -117,14 +108,6 @@ export default function AddPost({ user, setUser }) {
     console.log(formState);
   };
 
-  // function handleAddMultiple(e) {
-  //   dispatch({
-  //     type: "HANDLE ADD MULTIPLE",
-  //     field: e.target.name,
-  //     payload: e.target.value,
-  //   });
- // };
-
  // could make add tag feature a form element nested inside the module form
    // add tag button could serve as submit button
    // name could be addTag, or newTag(s)
@@ -132,7 +115,7 @@ export default function AddPost({ user, setUser }) {
 
    function handleAddTag(e) {
     dispatch({
-      type: "HANDLE ADD TAG",
+      type: "HANDLE MULTIPLE INPUTS",
       field: 'newTags',
       payload: formState.newTag,
     });
@@ -140,17 +123,29 @@ export default function AddPost({ user, setUser }) {
       type: "HANDLE INPUT TEXT",
       field: 'newTag',
       payload: initialFormState.newTag,
-    })
-   // console.log('newTags: ', formState.newTags);
+    });
   };
 
-  function handleSelectMultiple(e) {
+  const handleDeleteOne = (i, field, e) => {
+    console.log('name: ', e.target);
     dispatch({
-      type: "HANDLE SELECT MULTIPLE",
-      field: e.target.name,
-      payload: e.target.value,
+      type: "HANDLE DELETE INPUT",
+      field: field,
+      payload: i,
     });
-    // console.log('selected tags: ', formState.selectedTags);
+    e.preventDefault();
+  }
+
+  function handleSelectMultiple(e) {
+    let value = Array.from(
+      event.target.selectedOptions,
+      (option) => option.value
+    );
+    dispatch({
+      type: "HANDLE MULTIPLE INPUTS",
+      field: e.target.name,
+      payload: value,
+    });
   };
 
   function handleSubmitForm(e) {
@@ -176,6 +171,7 @@ export default function AddPost({ user, setUser }) {
 
   return(
     <form onSubmit={(e) => console.log(e.target)}>
+
       <label>
         title:
         <input
@@ -185,7 +181,9 @@ export default function AddPost({ user, setUser }) {
           onChange={(e) => handleTextChange(e)}
           ></input>
       </label>
+
       <br />
+
       <label>
         description:
         <textarea
@@ -195,58 +193,22 @@ export default function AddPost({ user, setUser }) {
           onChange={(e) => handleTextChange(e)}
         ></textarea>
       </label>
-      <br />
-      <label>
-        select tags:
-        <select
-        name="selectedTags"
-        multiple={true}
-        value={formState.selectedTags}
-        onChange={(e) => handleSelectMultiple(e)}
-      >
-        {tags
-        && (tags.map((tag, i) => {
-          return <option
-            type="select"
-            value={tag}
-            key={i}
-            >{tag}</option>
-         }))
-        }
-      </select>
-      </label>
-      <br />
-      <label>
-        add a new tag:
-        <input
-          type="text"
-          name="newTag"
-          value={formState.newTag}
-          onChange={(e) => handleTextChange(e)}
-          ></input>
-        <button type="button" onClick={(e) => handleAddTag(e)}>add tag</button>
-      </label>
-      <br />
-      <button type="button" onClick={(e) => handleClickGetPosts(e)}>get posts</button>
-      <br />
-      {formState.newTags
-      && (
-        formState.newTags.map((nTag, i) => {
-          return <span key={i}>{nTag}</span>
-        }))
-      }
+
       <br />
 
-      {/* <label>
-        add photos:
-        <input
-          type="file"
-          value={e.target.value}
-          ></input>
-        <button
-        // possibly supposed to be a different button type
-        type="button" onClick={(e) => handleAddTag(e)}>add tag</button>
-      </label> */}
+      <SelectTags selectedTags={selectedTags} setSelectedTags={setSelectedTags}/>
+
+      <br />
+
+      <AddTag formState={formState} dispatch={dispatch} handleTextChange={handleTextChange} handleAddTag={handleAddTag} handleDeleteOne={handleDeleteOne}/>
+
+      <br />
+
+      <button type="button" onClick={(e) => handleClickGetPosts(e)}>get posts</button>
+
+      <br />
+
+      <FileUpload formState={formState} dispatch={dispatch} handleDeleteOne={handleDeleteOne}/>
 
       <button type="submit" value={formState} onClick={(e) => handleSubmitForm(e)}>add post</button>
 

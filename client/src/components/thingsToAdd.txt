@@ -1,0 +1,16 @@
+user settings:
+  add profile picture
+    also when hover over placeholder avatar
+
+login:
+  remember me checkbox
+
+
+regions:
+
+
+refactor:
+  make styles DRY
+    figure out how to either add 2 classes per component or fix another way
+
+

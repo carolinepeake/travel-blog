@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Aside, createStyles, Avatar, Stack, Button, Container, Box, Center, Modal, Text } from '@mantine/core';
+//make alphabetical
+import { Aside, createStyles, Avatar, Stack, Button, Container, Box, Center, Modal, Text, Group } from '@mantine/core';
 import { Calendar } from '@mantine/dates';
-import AddPost from './AddPost.jsx';
+import AddPost from './AddPost/AddPost.jsx';
 import AuthenticateUser from './AuthenticateUser.jsx';
 
 const useStyles = createStyles((theme) => ({
@@ -12,13 +13,33 @@ const useStyles = createStyles((theme) => ({
     zIndex: 1,
   },
 
+  profile: {
+    display: 'block',
+    lineHeight: 1,
+    padding: '8px 12px',
+    borderRadius: theme.radius.sm,
+    textDecoration: 'none',
+    color: theme.colorScheme === 'dark' ? theme.colors.dark[0] : theme.colors.gray[7],
+    fontSize: theme.fontSizes.sm,
+    fontWeight: 500,
+  },
+
   logout: {
+    display: 'block',
+    lineHeight: 1,
+    padding: '8px 12px',
+    borderRadius: theme.radius.sm,
+    textDecoration: 'none',
+    color: theme.colorScheme === 'dark' ? theme.colors.dark[0] : theme.colors.gray[7],
+    fontSize: theme.fontSizes.sm,
+    fontWeight: 500,
     textAlign: 'right',
     alignSelf: 'right',
 
     '&:hover': {
       backgroundColor: theme. colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[0],
-      textStyle: 'underline',
+      textDecoration: 'underline',
+      cursor: 'pointer',
     },
   },
 }));
@@ -42,7 +63,6 @@ export default function UserSidebar({user, setUser}) {
   <>
     <Modal
       opened={opened}
-      setOpened={setOpened}
       onClose={() => setOpened(false)}
       title="Add a post!"
       >
@@ -53,8 +73,14 @@ export default function UserSidebar({user, setUser}) {
         <Box>
           <Avatar size="xl * 10"></Avatar>
         </Box>
-          <Text span >logged in as {user.name}</Text>
-          <Text span className={classes.logout} onClick={(e) => handleLogout(e)}>logout</Text>
+        <Group style={{alignItems: 'space between'}}>
+          <Text span className={classes.profile}>logged in as {user.name}</Text>
+          <Text
+            span
+            // className={classes.profile}
+            className={cx(classes.logout)}
+            onClick={(e) => handleLogout(e)}>logout</Text>
+        </Group>
       </Aside.Section>
       <Aside.Section style={{ display: isLoggedIn ? 'none' : 'block' }}>
         <AuthenticateUser user={user} setUser={setUser} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />

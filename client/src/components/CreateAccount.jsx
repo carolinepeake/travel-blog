@@ -18,8 +18,6 @@ import {
   Stack,
   createStyles,
 } from '@mantine/core';
-// import { GoogleButton, TwitterButton } from '../SocialButtons/SocialButtons';
-// import { GoogleIcon } from './GoogleIcon';
 
 const useStyles = createStyles((theme) => ({
   root: {
@@ -90,7 +88,7 @@ export default function CreateAccount({ PaperProps, ButtonProps, user, setUser, 
 
   function handleLogin(e) {
      setUser(res.data);
-     localStorage.setItem('user', JSON.stringify(res.data);
+     localStorage.setItem('user', JSON.stringify(res.data));
      setIsLoggedIn(true);
      e.preventDefault();
    };

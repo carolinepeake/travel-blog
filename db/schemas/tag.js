@@ -5,8 +5,8 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const Tags = new Schema({
-  name: String,
-  posts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Post' }]
+  name: { type: String, lowercase: true, required: true }
+  posts: [{ type: Schema.Types.ObjectId, ref: 'Post' }]
 });
 
 // Export function to create "Tag" model class
