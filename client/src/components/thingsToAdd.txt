@@ -27,5 +27,10 @@ tags:
   possibly combine multiselect, search, and add new tag
   check spelling on add new tag
 
+fileUpload:
+  loadingState
+  preview of Images
+
+
 
 
