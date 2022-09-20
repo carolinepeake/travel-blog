@@ -1,7 +1,7 @@
 // posts.js - Posts route module
 const express = require('express');
 const posts = express.Router();
-const { getPosts, postPost} = require('.././controllers').PostsController;
+const { getPosts, postPost, getTags } = require('.././controllers').PostsController;
 
 // const express = require("express");
 // const router = express.Router();
@@ -10,6 +10,8 @@ const { getPosts, postPost} = require('.././controllers').PostsController;
 posts.get('/', getPosts);
 
 posts.post('/', postPost);
+
+posts.get('/getTags', getTags);
 
 // About page route
 // PostsRouter.get("/about", function (req, res) {

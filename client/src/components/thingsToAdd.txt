@@ -4,7 +4,8 @@ user settings:
 
 login:
   remember me checkbox
-
+  loginSidebar
+  refactor authenticateUser and rename files
 
 regions:
 
@@ -20,6 +21,11 @@ database:
     tags,
   delete:
     tests,
+
+tags:
+  on select input make unique
+  possibly combine multiselect, search, and add new tag
+  check spelling on add new tag
 
 
 

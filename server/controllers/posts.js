@@ -31,6 +31,17 @@ module.exports.controllers= {
     })
   },
 
+  getTags: function(req, res) {
+    Post.distinct( "tags" )
+    .then((result) => {
+      res.status(200).send(result);
+    })
+    .catch((err) => {
+      console.log('error in controller getPosts: ', err);
+      res.status(400);
+    })
+  },
+
 
   postTest: function(req, res) {
     var entry = req.body;
