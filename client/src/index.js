@@ -2,7 +2,7 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { MantineProvider } from '@mantine/core';
 
-import App from './components/App.jsx';
+import App from './components/App.js';
 
 const container = document.getElementById('root');
 

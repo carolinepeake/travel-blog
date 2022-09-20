@@ -19,8 +19,9 @@ import {
   createStyles,
 } from '@mantine/core';
 import { FcGoogle } from 'react-icons/Fc';
-import facebookLogo from '../assets/f_logo_RGB-Blue_58.png';
-import CreateAccount from './CreateAccount.jsx';
+import facebookLogo from '../../assets/f_logo_RGB-Blue_58.png';
+import AuthenticationForm from './AuthenticationForm.js';
+import LoginSidebar from './LoginSidebar.js';
 
 const useStyles = createStyles((theme) => ({
   root: {
@@ -82,7 +83,7 @@ export default function AuthenticateUser({ PaperProps, ButtonProps, user, setUse
       image: form.values.image,
       // bucketList: ''
     };
-    axios.post('http://localhost:3001/users', accountBody)
+    axios.post('http://localhost:3001/users/signup', accountBody)
     .then((res) => {
       console.log('response from handleCreateAccount', res.data);
       // is setting user state (tested), even though logging user to console within this function doesn't work
@@ -116,6 +117,11 @@ export default function AuthenticateUser({ PaperProps, ButtonProps, user, setUse
     e.preventDefault();
   };
 
+ const handleClickRegister = () => {
+  setOpened(true);
+  toggle();
+ };
+
   return (
     <>
     <Modal
@@ -124,7 +130,7 @@ export default function AuthenticateUser({ PaperProps, ButtonProps, user, setUse
     // make title dynamic using state.type
     title={type === "register" ? "create account" : "login"}
     >
-    <CreateAccount user={user} setUser={setUser} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} onSubmit={() => setOpened(false)}/>
+    <AuthenticationForm user={user} setUser={setUser} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} handleCreateAccount={handleCreateAccount} handleLogin={handleLogin} type={type} toggle={toggle} form={form} onSubmit={() => setOpened(false)}/>
   </Modal>
     <Paper radius="md" p="xl"
      {...PaperProps}
@@ -136,7 +142,7 @@ export default function AuthenticateUser({ PaperProps, ButtonProps, user, setUse
       <br />
 
       <Text size="lg" weight={500}>
-        {type} with
+        login with
       </Text>
 
       <Stack grow mb="md" mt="md">
@@ -167,15 +173,6 @@ export default function AuthenticateUser({ PaperProps, ButtonProps, user, setUse
         }
       }}>
         <Stack>
-          {type === 'register' && (
-            <TextInput
-              label="name"
-              placeholder="your name"
-              value={form.values.name}
-              onChange={(event) => form.setFieldValue('name', event.currentTarget.value)}
-            />
-          )}
-
           <TextInput
             required
             label="email"
@@ -193,41 +190,6 @@ export default function AuthenticateUser({ PaperProps, ButtonProps, user, setUse
             onChange={(event) => form.setFieldValue('password', event.currentTarget.value)}
             error={form.errors.password && 'password should include at least 6 characters'}
           />
-
-          {type === 'register' && (
-            <TextInput
-              label="city"
-              placeholder="your city"
-              value={form.values.city}
-              onChange={(event) => form.setFieldValue('city', event.currentTarget.value)}
-            />
-          )}
-
-          {type === 'register' && (
-            <TextInput
-              label="image"
-              placeholder="upload your photo"
-              value={form.values.image}
-              onChange={(event) => form.setFieldValue('image', event.currentTarget.value)}
-            />
-          )}
-
-          {type === 'register' && (
-            <TextInput
-              label="county"
-              placeholder="your country"
-              value={form.values.country}
-              onChange={(event) => form.setFieldValue('country', event.currentTarget.value)}
-            />
-          )}
-
-          {type === 'register' && (
-            <Checkbox
-              label="I accept terms and conditions"
-              checked={form.values.terms}
-              onChange={(event) => form.setFieldValue('terms', event.currentTarget.checked)}
-            />
-          )}
         </Stack>
 
         <Group position="apart" mt="xl">
@@ -236,7 +198,7 @@ export default function AuthenticateUser({ PaperProps, ButtonProps, user, setUse
             type="button"
             color="dimmed"
             // onClick={() => toggle()}
-            onClick={() => setOpened(true)}
+            onClick={() => handleClickRegister()}
             size="xs"
           >
             {type === 'register'

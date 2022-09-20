@@ -30,11 +30,25 @@ module.exports.controllers = {
     })
   },
 
+  // getRegion: function(req, res) {
+  //   // req params or query value will be region name
+  //   Location.find()
+  //     .where('region').equals(`${}`)
+  //  // .sort()  sort alphabetical
+  //     .select('country')
+  //     .exec()
+  //   .then((result) => {
+  //     res.status(200).send(result);
+  //   })
+  //   .catch((err) => {
+  //     console.log('error in controller getRegion : ', err);
+  //     res.status(400).send(`error getting countried for ${} region`);
+  //   })
+  // },
+
   // might want to refactor to use async/await
 
   // check if 400 the correct error code
-
-
 
   // const newAttendee = new Attendee({
   //   firstName: req.body.firstname,
@@ -64,17 +78,6 @@ module.exports.controllers = {
     //   res.status(401).send('error');
     // })
 
-//   postRegion: function(req, res) {
-//     var entry = req.body;
-//   console.log(req.body.json);
-//   return saveRegion(entry)
-//   .then((result) => {
-//     res.status(201).send(result);
-//   })
-//   .catch((err) => {
-//     console.log('error in controller handlingAddRegion : ', err);
-//     res.status(401);
-//   })
-// };
+
 
 };

@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
-//const db = require('../server/db'); // this might be unnecessary
+const db = require('../../db/connection'); // this might be unnecessary
 const Test = require('../../db/schemas').Test;
+const Post = require('../../db/schemas').Post;
 
 module.exports.controllers = {
 
@@ -53,8 +54,11 @@ module.exports.controllers = {
     // })
   },
 
-  getTests: function(req, res) {
-    Test.find()
+  getAuthors: function(req, res) {
+    Post.find()
+    .populate('author')
+    .select('author')
+    .exec()
     .then((result) => {
       res.status(200).send(result);
     })
@@ -62,6 +66,10 @@ module.exports.controllers = {
       console.log('error in controller getPosts: ', err);
       res.status(400);
     })
-  }
+  },
+
+  // getAuthors: function(req, res) {
+
+  // }
 
 };

@@ -1,5 +1,5 @@
 const mongoose = require('mongoose'); // do I need this?
-//const db = require('../server/db'); // this might be unnecessary
+const db = require('../../db/connection'); // this might be unnecessary
 const bcrypt = require("bcrypt");
 const User = require('../../db/schemas').User;
 

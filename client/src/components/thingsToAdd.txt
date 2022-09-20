@@ -13,4 +13,13 @@ refactor:
   make styles DRY
     figure out how to either add 2 classes per component or fix another way
 
+database:
+  clean up:
+    users,
+    posts
+    tags,
+  delete:
+    tests,
+
+
 

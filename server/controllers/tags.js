@@ -1,8 +1,24 @@
 const mongoose = require('mongoose');
-//const db = require('../server/db'); // this might be unnecessary
+const db = require('../../db/connection'); // this might be unnecessary
 const Tag = require('../../db/schemas').Tag;
 
 module.exports.controllers = {
+
+  postTags: function(req, res) {
+    var tags = req.body.tags;
+    console.log('request body from postTags in controllers: ', req.body.tags);
+    Promise.all( tags.forEach((tag) => {
+      return new Tag({tag}).save()
+    }))
+    .then((savedTags) => {
+      console.log('success saving tags: ', savedTags);
+      res.status(201).send(savedTags);
+    })
+    .catch((err) => {
+      console.log('error saving tags', err);
+      res.status(401).send('error saving tags');
+    })
+  },
 
   postPost: function(req, res) {
     var entry = req.body;

@@ -28,70 +28,69 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
-export default function CreateAccount({ PaperProps, ButtonProps, user, setUser, isLoggedIn, setIsLoggedIn }
+export default function AuthenticationForm({ PaperProps, ButtonProps, user, setUser, isLoggedIn, setIsLoggedIn, handleCreateAccount, handleLogin, type, toggle, form }
   // React.ComponentPropsWithoutRef<'a'>
   ) {
   const { classes, cx } = useStyles();
-  const [type, toggle] = useToggle(['register', 'log in']);
   const [opened, setOpened] = useState(true);
-  const form = useForm({
-    initialValues: {
-      email: '',
-      name: '',
-      password: '',
-      city: '',
-      country: '',
-      image: '',
-      terms: true,
-    },
+  // const form = useForm({
+  //   initialValues: {
+  //     email: '',
+  //     name: '',
+  //     password: '',
+  //     city: '',
+  //     country: '',
+  //     image: '',
+  //     terms: true,
+  //   },
 
-    validate: {
-      email: (val) => (/^\S+@\S+$/.test(val) ? null : 'Invalid email'),
-      password: (val) => (val.length <= 6 ? 'Password should include at least 6 characters' : null),
-    },
-  });
+  //   validate: {
+  //     email: (val) => (/^\S+@\S+$/.test(val) ? null : 'Invalid email'),
+  //     password: (val) => (val.length <= 6 ? 'Password should include at least 6 characters' : null),
+  //   },
+  // });
 
-  useEffect(() => {
-    const loggedInUser = localStorage.getItem("user");
-    if (loggedInUser) {
-      const foundUser = JSON.parse(loggedInUser);
-      setUser(foundUser);
-      setIsLoggedIn(true);
-    }
-  }, []);
+  // useEffect(() => {
+  //   const loggedInUser = localStorage.getItem("user");
+  //   if (loggedInUser) {
+  //     const foundUser = JSON.parse(loggedInUser);
+  //     setUser(foundUser);
+  //     setIsLoggedIn(true);
+  //   }
+  // }, []);
 
-  function handleCreateAccount(e) {
-    console.log('form state from handleCreateAccount: ', form.values);
-    const accountBody = {
-      name: form.values.name,
-      email: form.values.email,
-      password: form.values.password,
-      terms: form.values.terms,
-      city: form.values.city,
-      country: form.values.country,
-      image: form.values.image,
+  // function handleCreateAccount(e) {
+  //   console.log('form state from handleCreateAccount: ', form.values);
+  //   const accountBody = {
+  //     name: form.values.name,
+  //     email: form.values.email,
+  //     password: form.values.password,
+  //     terms: form.values.terms,
+  //     city: form.values.city,
+  //     country: form.values.country,
+  //     image: form.values.image,
       // bucketList: ''
-    };
-    axios.post('http://localhost:3001/users/signup', accountBody)
-    .then((res) => {
-      console.log('response from handleCreateAccount', res.data);
-      // is setting user (tested), even though logging user to console within this function doesn't work
-      setUser(res.data);
-      localStorage.setItem('user', JSON.stringify(res.data))
-      setIsLoggedIn(true);
-    })
-    .catch(err => console.log('error from handleCreateAccount: ', err))
-    e.preventDefault();
-    // clear form state
-    // close modal
-  };
+  //   };
+  //   axios.post('http://localhost:3001/users/signup', accountBody)
+  //   .then((res) => {
+  //     console.log('response from handleCreateAccount', res.data);
+  //     // is setting user (tested), even though logging user to console within this function doesn't work
+  //     setUser(res.data);
+  //     localStorage.setItem('user', JSON.stringify(res.data))
+  //     setIsLoggedIn(true);
+  //   })
+  //   .catch(err => console.log('error from handleCreateAccount: ', err))
+  //   e.preventDefault();
+  //   // clear form state
+  //   // close modal
+  // };
 
-  function handleLogin(e) {
-     setUser(res.data);
-     localStorage.setItem('user', JSON.stringify(res.data));
-     setIsLoggedIn(true);
-     e.preventDefault();
-   };
+  // function handleLogin(e) {
+  //    setUser(res.data);
+  //    localStorage.setItem('user', JSON.stringify(res.data));
+  //    setIsLoggedIn(true);
+  //    e.preventDefault();
+  //  };
 
   return (
       <form onSubmit={(e) => {
@@ -177,10 +176,14 @@ export default function CreateAccount({ PaperProps, ButtonProps, user, setUser, 
           >
             {type === "register"
               ? 'Already have an account? Login'
-              : "Don't have an account? Register"}
+              : 'Don\'t have an account? Register'}
           </Anchor>
           {/* <Button type="submit">{upperFirst(type)}</Button> */}
-          <Button type="submit">create account</Button>
+          <Button type="submit">
+            {type === "register"
+              ? 'create account'
+              : 'login'}
+          </Button>
         </Group>
       </form>
   );

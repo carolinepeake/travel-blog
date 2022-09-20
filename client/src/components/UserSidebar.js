@@ -2,8 +2,8 @@ import { useState } from 'react';
 //make alphabetical
 import { Aside, createStyles, Avatar, Stack, Button, Container, Box, Center, Modal, Text, Group } from '@mantine/core';
 import { Calendar } from '@mantine/dates';
-import AddPost from './AddPost/AddPost.jsx';
-import AuthenticateUser from './AuthenticateUser.jsx';
+import AddPost from './AddPost/AddPost.js';
+import AuthenticateUser from './AuthenticateUser';
 
 const useStyles = createStyles((theme) => ({
   root: {

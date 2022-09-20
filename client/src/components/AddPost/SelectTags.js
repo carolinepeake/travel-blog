@@ -5,17 +5,17 @@ import { createStyles, MultiSelect } from '@mantine/core';
 export default function SelectTags({ selectedTags, setSelectedTags }) {
   const [tags, setTags] = useState(['Scuba', 'Snowboarding']);
 
-  useEffect(() => {
+  // useEffect(() => {
     // dispatch({
     //   type: "HANDLE INPUT TEXT",
     //   field: 'selectedTags',
     //   payload: 'select tag',
     // });
-    axios.get('http://localhost:3001/tags')
-      .then((res) => setTags(res.data))
-      .catch(err => console.log('error getting tags', err))
-    // handleAddUserInfo(user)
-  }, []);
+  //   axios.get('http://localhost:3001/tags')
+  //     .then((res) => setTags(res.data))
+  //     .catch(err => console.log('error getting tags', err))
+  //   // handleAddUserInfo(user)
+  // }, []);
 
   return (
     <MultiSelect label="select tags" placeholder="select tags" value={selectedTags} name="selectedTags" data={['Scuba', 'Snowboarding']} onChange={setSelectedTags} />

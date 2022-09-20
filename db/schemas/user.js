@@ -7,8 +7,8 @@ const Schema = mongoose.Schema;
 const Users = new Schema(
   {
     name: String,
-    email: { type: String, lowercase: true, required: true }
-    password: String,
+    email: { type: String, lowercase: true, required: [true, 'missing user email'] },
+    password: { type: String, required: [true, 'missing user password'] },
     terms: Boolean,
     city: {type: String, unique: false},
     country: {type: String, unique: false},

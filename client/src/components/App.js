@@ -1,15 +1,15 @@
 import {
-  // React,
+  React,
   useRef,
   useState
 } from "react";
 import { ScrollArea, Aside, createStyles } from '@mantine/core';
-import NavBar from './NavBar.jsx';
-import Banner from './Banner.jsx';
-import UserSidebar from './UserSidebar.jsx';
+import NavBar from './NavBar.js';
+import Banner from './Banner.js';
+import UserSidebar from './UserSidebar.js';
 // import CreateAccountSidebar from './CreateAccountSidebar.jsx';
-import Feed from './Feed.jsx';
-import LgCalendar from './LgCalendar.jsx';
+import Feed from './Feed.js';
+import LgCalendar from './LgCalendar.js';
 
 const useStyles = createStyles((theme) => ({
   main: {
