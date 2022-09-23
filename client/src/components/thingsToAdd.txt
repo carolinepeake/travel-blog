@@ -6,6 +6,12 @@ login:
   remember me checkbox
   loginSidebar
   refactor authenticateUser and rename files
+  email validation isn't working (should be on leave focus)
+  user sidebar login email input changes when end-user types in create account modal email input (same with password)
+  confirm password validation isn't working
+  image error is on when the create account modal is first opened
+  user sidebar login button changes to register when modal is opened
+  passwords are not showing error if confirmed pw and pw are not the same on create account modal
 
 regions:
 
@@ -13,6 +19,7 @@ regions:
 refactor:
   make styles DRY
     figure out how to either add 2 classes per component or fix another way
+  make authentication DRY
 
 database:
   clean up:
@@ -30,8 +37,26 @@ tags:
 fileUpload:
   loadingState
   preview of Images
+    x to delete image
+    include arrows so can move image how you want centered and zoom in and out
+    include arrows so can rotate image
+    include ability to decide cover image
+  the ability to search unsplash if they don't have a pic of their own
+    max 64 mb
 
 propTypes
+
+locations:
+  refactor so not hardcoded
+  map/road trip feature
+  optional state input
+
+addPost:
+  show message to end user relaying whether post was added/created successfully
+
+deletPost:
+  isn't re-rendering posts after delete, maybe add posts to dependency array in useEffects in feed
+
 
 
 

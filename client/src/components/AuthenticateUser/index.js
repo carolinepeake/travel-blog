@@ -18,6 +18,7 @@ import {
   Stack,
   createStyles,
 } from '@mantine/core';
+//import { showNotification } from '@mantine/notifications';
 import { FcGoogle } from 'react-icons/Fc';
 import facebookLogo from '../../assets/f_logo_RGB-Blue_58.png';
 import AuthenticationForm from './AuthenticationForm.js';
@@ -37,6 +38,7 @@ const useStyles = createStyles((theme) => ({
 export default function AuthenticateUser({ PaperProps, ButtonProps, user, setUser, isLoggedIn, setIsLoggedIn }
   // React.ComponentPropsWithoutRef<'a'>
   ) {
+  const [avatar, setAvatar] = useState('');
   const { classes, cx } = useStyles();
   const [type, toggle] = useToggle(['log in', 'register']);
   const [opened, setOpened] = useState(false);
@@ -45,16 +47,29 @@ export default function AuthenticateUser({ PaperProps, ButtonProps, user, setUse
       email: '',
       name: '',
       password: '',
+      confirmPassword: '',
       city: '',
       country: '',
       image: '',
       terms: true,
     },
 
-    validate: {
+    validate: (values) => ({
       email: (val) => (/^\S+@\S+$/.test(val) ? null : 'Invalid email'),
       password: (val) => (val.length <= 6 ? 'Password should include at least 6 characters' : null),
-    },
+      confirmPassword: (value, values) =>
+      value !== values.password ? 'Passwords do not match' : null,
+    }),
+
+    validateInputOnChange: [
+      'password',
+      'confirmPassword',
+      'image',
+    ],
+
+    validateInputOnBlur: [
+      'email',
+    ],
   });
 
   useEffect(() => {
@@ -67,34 +82,33 @@ export default function AuthenticateUser({ PaperProps, ButtonProps, user, setUse
     }
   }, []);
 
-  // user is getting set on change, not just once the button is clicked
-  console.log('user2: ', user);
+  const accountBody = {
+    name: form.values.name,
+    email: form.values.email,
+    password: form.values.password,
+    terms: form.values.terms,
+    city: form.values.city,
+    country: form.values.country,
+    image: form.values.image,
+    // bucketList: ''
+  };
 
   // refactor to use async/await
-  function handleCreateAccount(e) {
-    console.log('form state from handleCreateAccount: ', form.values);
-    const accountBody = {
-      name: form.values.name,
-      email: form.values.email,
-      password: form.values.password,
-      terms: form.values.terms,
-      city: form.values.city,
-      country: form.values.country,
-      image: form.values.image,
-      // bucketList: ''
-    };
-    axios.post('http://localhost:3001/users/signup', accountBody)
-    .then((res) => {
-      console.log('response from handleCreateAccount', res.data);
-      // is setting user state (tested), even though logging user to console within this function doesn't work
-      setUser(res.data);
-      localStorage.setItem('user', JSON.stringify(res.data))
+  const handleCreateAccount = async (e) => {
+    // e.preventDefault();
+    try {
+      console.log('accountBody from handleCreateAccount: ', accountBody);
+      let response = await axios.post('http://localhost:3001/users/signup', accountBody);
+      console.log('response from handleCreateAccount', response.data);
+      setUser(response.data);
+      localStorage.setItem('user', JSON.stringify(response.data))
       setIsLoggedIn(true);
       setOpened(false);
-    })
-    .catch(err => console.log('error from handleCreateAccount in Authentication component: ', err))
-    // show message to user that account failed to create -- handle errors differently based on what they are
+    } catch(err) {
+      console.log('error from handleCreateAccount in Authentication component: ', err)
+    };
     e.preventDefault();
+    return;
   };
 
   function handleLogin(e) {
@@ -122,6 +136,38 @@ export default function AuthenticateUser({ PaperProps, ButtonProps, user, setUse
   toggle();
  };
 
+ const handleError = (errors, e) => {
+  // if (errors.password) {
+  //   alert({ message: 'passwords must match and be at least 6 characters', color: 'red' });
+  // } else if (errors.email) {
+  //   alert({ message: 'please provide a valid email', color: 'red' });
+  // } else if (errors.image) {
+  //   alert({ message: 'image file size must not be any larger than 64 MB'});
+  // };
+ };
+
+ const handleSubmit = async (values, e) => {
+  e.preventDefault();
+  if (type === 'register') {
+    console.log('handling registration');
+    try {
+      const savedImage = await axios.post('http://localhost:3001/posts/cloudinary/upload', {
+        image: avatar,
+      });
+      console.log('saved avatar image: ', savedImage);
+      accountBody.image = savedImage.data.url;
+      // await form.setFieldValue('image', imageUrl.data.url);
+      console.log('handling create account,', accountBody.image);
+      await handleCreateAccount(e);
+    } catch (err) {
+      console.log('error uploading avatar', err);
+    }
+  } else {
+    console.log('handling logining in');
+    handleLogin();
+  };
+ };
+
   return (
     <>
     <Modal
@@ -130,7 +176,9 @@ export default function AuthenticateUser({ PaperProps, ButtonProps, user, setUse
     // make title dynamic using state.type
     title={type === "register" ? "create account" : "login"}
     >
-    <AuthenticationForm user={user} setUser={setUser} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} handleCreateAccount={handleCreateAccount} handleLogin={handleLogin} type={type} toggle={toggle} form={form} onSubmit={() => setOpened(false)}/>
+    <AuthenticationForm user={user} setUser={setUser} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} handleCreateAccount={handleCreateAccount} handleLogin={handleLogin} type={type} toggle={toggle} form={form} avatar={avatar} setAvatar={setAvatar} handleSubmit={handleSubmit} handleError={handleError} values={form.values} errors={form.errors}
+    onSubmit={() => setOpened(false)}
+    />
   </Modal>
     <Paper radius="md" p="xl"
      {...PaperProps}
@@ -163,15 +211,7 @@ export default function AuthenticateUser({ PaperProps, ButtonProps, user, setUse
 
       <Divider label="or continue with email" labelPosition="center" my="lg" />
 
-      <form onSubmit={(e) => {
-        if (type === 'register') {
-          console.log('handling registration');
-          handleCreateAccount(e);
-        } else {
-          console.log('handling logining in');
-          handleLogin(e);
-        }
-      }}>
+      <form onSubmit={(e) => {form.onSubmit(handleSubmit(values, e), handleError(errors, e))}}>
         <Stack>
           <TextInput
             required
@@ -188,8 +228,17 @@ export default function AuthenticateUser({ PaperProps, ButtonProps, user, setUse
             placeholder="your password"
             value={form.values.password}
             onChange={(event) => form.setFieldValue('password', event.currentTarget.value)}
-            error={form.errors.password && 'password should include at least 6 characters'}
+            error={form.errors.password && 'password must include at least 6 characters'}
           />
+
+          {/* <PasswordInput
+            required
+            label="confirm password"
+            placeholder="confirm password"
+            value={form.values.confirmPassword}
+            onChange={(event) => form.setFieldValue('confirmPassword', event.currentTarget.value)}
+            error={form.errors.password && 'password must include at least 6 characters'}
+          /> */}
         </Stack>
 
         <Group position="apart" mt="xl">

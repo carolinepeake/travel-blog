@@ -30,22 +30,20 @@ const initialFormState = {
   title: '',
   newTag: '',
   newTags: [],
-  location: {
-    city: '',
-    state: '',
-    country: '',
-    region: '',
-  },
+  city: '',
+ // state: '',
+  country: '',
+  region: '',
   language: '',
   description: '',
   fileList: [],
-  author: {
-    name: '',
-    city: '',
-    country: '',
-    avatar: '',
-  },
-  created_at: ''
+  // author: {
+  //   name: '',
+  //   city: '',
+  //   country: '',
+  //   avatar: '',
+  // },
+  // created_at: ''
 };
 
 const formReducer = function(state, action) {
@@ -60,11 +58,7 @@ const formReducer = function(state, action) {
         ...state,
         [action.field]: [...state[action.field], action.payload],
       };
-    case 'HANDLE ADD TAGS':
-      return {
-        ...state,
-        [action.field]: [...state[action.field], action.payload],
-      };
+      // don't think i need this?
     case 'HANDLE ADD USER INFO':
       return {
         ...state,
@@ -85,10 +79,28 @@ const formReducer = function(state, action) {
   }
 };
 
-export default function AddPost({ user, setUser }) {
+export default function AddPost({ user, setUser, setPosts, setAddPostOpened }) {
   const [formState, dispatch] = useReducer(formReducer, initialFormState);
-  const [selectedTags, setSelectedTags] = useState(['select tags']);
+  // should prolly move to formState
+  const [selectedTags, setSelectedTags] = useState([]);
   const [previews, setPreviews] = useState([]);
+
+  const locationBody = {
+    region: formState.region,
+    //state: formState.state,
+    city: formState.city,
+    country: formState.country
+  };
+
+  const postBody = {
+    title: formState.title,
+    description: formState.description,
+    location: '',
+    language: 'English',
+    tags: selectedTags.concat(formState.newTags),
+    author: user._id,
+    photos: []
+  };
 
   function handleAddUserInfo(author) {
     const authorInfo = {
@@ -121,7 +133,7 @@ export default function AddPost({ user, setUser }) {
 
    function handleAddTag(e) {
     dispatch({
-      type: "HANDLE ADD TAGS",
+      type: "HANDLE MULTIPLE INPUTS",
       field: 'newTags',
       payload: formState.newTag,
     });
@@ -139,7 +151,7 @@ export default function AddPost({ user, setUser }) {
       field: field,
       payload: i,
     });
-    e.preventDefault();
+   // e.preventDefault();
   }
 
   function handleSelectMultiple(e) {
@@ -157,14 +169,6 @@ export default function AddPost({ user, setUser }) {
   function handleSubmitForm(e) {
     e.preventDefault();
 
-    const postBody = {
-      title: formState.title,
-      description: formState.description,
-      author: user._id,
-      tags: selectedTags.concat(formState.newTags),
-      photos: [],
-    };
-
     const promises = [];
     for (let i = 0; i < previews.length; i += 1) {
       const promise = axios.post('posts/cloudinary/upload', {
@@ -175,28 +179,59 @@ export default function AddPost({ user, setUser }) {
 
     Promise.all(promises)
       .then(async (results) => {
-        await results.forEach((result) => {
-          postBody.photos.push(result.data.url);
-        });
+        // this isn't asynchronous so no point in await?
+          await results.forEach((result) => {
+            postBody.photos.push(result.data.url);
+          });
 
+          // can prolly make the multiple requests to the db part of a transaction rather than multiple axios requests - will be faster and then can rollback transaction if one part does not save, handle each error separately, etc
+          // not a good idea to nest thens/promises?
         axios
-          .post('/posts', postBody)
+          .post('/locations', locationBody)
           .then((response) => {
-            console.log('response from handleSubmitForm: ', response);
+            // maybe make location an object in formState so matches db schema
+            postBody.location = response.data._id;
+            return postBody;
+          })
+          .then((postBody) => {
+            axios
+            .post('/posts', postBody)
+            .then((response) => {
+              console.log('response from handleSubmitPost: ', response.data);
+              dispatch({
+                type: "HANDLE SUBMIT"
+              });
+              setAddPostOpened(false);
+            })
+            .then(() => {
+              // either GET posts or add dependency to useEffects array that would cause it to be executed now but only on form submit, like maybe add isSubmitted hook, or make getPosts function in Feed and pass down as prop
+              // could prolly move this up a block
+              axios.get('/posts')
+                .then((response) => {
+                  setPosts(response.data);
+                })
+                .catch((err) => {
+                  console.log
+                  ('error getting posts', err);
+                })
+            })
+            .catch((err) => {
+              console.log('error posting postBody: ', err);
+            })
           })
           .catch((err) => {
-            console.log('error posting postBody: ', err);
-          });
-      })
-      .catch((err) => {
-        console.log('error uploading images and submitting form: ', err);
-      });
-    };
+            console.log('error uploading images and submitting form: ', err);
+          })
+    })
+    .catch((err) => {
+      console.log('error submitting form: ', err)
+    })
+  };
 
     function handleClickGetPosts(e) {
       axios.get('http://localhost:3001/tests/authors')
-      .then(response => console.log('response from  handleClickGetauthors: ', response.data))
-      .catch(err => console.log('error caught in handleClickGetauthors: ', err))
+      .then(response => console.log('response from  handleClickGetPosts: ', response.data))
+      .catch(err => console.log('error caught in handleClickGetPosts: ', err))
       e.preventDefault();
   };
 
@@ -227,6 +262,56 @@ export default function AddPost({ user, setUser }) {
 
       <br />
 
+      <Group>
+
+     <label>
+        city:
+        <input
+          type="text"
+          name="city"
+          value={formState.city}
+          onChange={(e) => handleTextChange(e)}
+          ></input>
+      </label>
+
+      <label>
+        country:
+        <input
+          type="text"
+          name="country"
+          value={formState.country}
+          onChange={(e) => handleTextChange(e)}
+          ></input>
+      </label>
+
+
+      <label>
+        region:
+        <select
+          type="select"
+          name="region"
+          value={formState.region}
+          onChange={(e) => handleTextChange(e)}
+          >
+
+            <option value="southeast asia">southeast asia</option>
+            <option value="east asia">east asia</option>
+            <option value="central asia">central asia</option>
+            <option value="south america">south america</option>
+            <option value="europe">europe</option>
+            <option value="north america">north america</option>
+            <option value="central america">central america</option>
+            <option value="northern africa">northern africa</option>
+            <option value="africa">sub sahara africa</option>
+            <option value="australia">australia</option>
+            <option value="new zealand">new zealand</option>
+            <option value="middle east">middle east</option>
+          </select>
+      </label>
+
+      </Group>
+
+
       <SelectTags selectedTags={selectedTags} setSelectedTags={setSelectedTags}/>
 
       <br />
@@ -248,7 +333,7 @@ export default function AddPost({ user, setUser }) {
 };
 
 
-// const examplePost = {id: 1, title: 'Shark Diving in Jupiter, FL', tags: ['scuba'], location: ['Florida', 'United States', 'North America'], language: ['English'], city: 'Jupiter, FL', country: 'United States', description: 'A sleepy southern coastal town an hour and a half drive north from Miami, Jupiter, Florida is home to some of the best shark diving in the world. Here, experienced divers have a rare opportunity to go deep and get personal with several species of shark including tiger, bull, nurse, reef, and the ellusive hammerhead. Emerald Charters is the better known of two (number per Google) dive companies providing this boutique dive experience.', photos: [], author: {name: 'carolinep', city: 'san francisco', country: 'usa', image: ''}, created_at: 'Aug 2022'};
+// const examplePost = {_id: 1, title: 'Shark Diving in Jupiter, FL', tags: ['scuba'], location: [state: 'Florida', country: 'United States', 'region: North America', city: 'Jupiter, FL'], language: ['English'], description: 'A sleepy southern coastal town an hour and a half drive north from Miami, Jupiter, Florida is home to some of the best shark diving in the world. Here, experienced divers have a rare opportunity to go deep and get personal with several species of shark including tiger, bull, nurse, reef, and the ellusive hammerhead. Emerald Charters is the better known of two (number per Google) dive companies providing this boutique dive experience.', photos: ['http://cloudinary.com:...'], author: {name: 'carolinep', city: 'san francisco', country: 'usa', image: ''}, createdAt: 'Aug 2022', updatedAt: 'Aug 2022'};
 
 //   switch('HANDLE INPUT TEXT')
 //     case:  {

@@ -62,12 +62,21 @@ const useStyles = createStyles((theme) => ({
     flexDirection: 'row',
     justifyContent: 'center',
     gridColumn: '1 / 3',
+    overflow: 'hidden',
   },
 
+  // make the height/length ratio/measurement change dynamically based on if the photo is landscape or portrait
   imagePreview: {
-    width: '20%',
-    height: '20%',
+    // width: '20%',
+    // height: '20%',
     marginRight: '1%',
+    height: 200,
+    positionSelf: 'center',
+    objectFit: 'cover',
+    aspectRatio: 1,
+    width: 200,
+    overflow: 'hidden',
+
   },
 
 }));
@@ -94,7 +103,7 @@ const useStyles = createStyles((theme) => ({
 //   );
 // }
 
-export default function FileUpload({ formState, dispatch, handleDeleteOne, previews, setPreviews }) {
+export default function FileUpload({ formState, dispatch, handleDeleteOne, previews, setPreviews,   }) {
   const fileInput = React.createRef();
   const { classes, cx } = useStyles();
 
@@ -108,8 +117,8 @@ export default function FileUpload({ formState, dispatch, handleDeleteOne, previ
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onloadend = () => {
-      const base48image = reader.result;
-      setPreviews([...previews, base48image]);
+      const base64image = reader.result;
+      setPreviews([...previews, base64image]);
     };
 	 };
 
@@ -147,12 +156,14 @@ export default function FileUpload({ formState, dispatch, handleDeleteOne, previ
       <br />
       <div className={classes.photoPreviews}>
         {previews.map((photo) => (
-          <img src={photo} alt="" key={photo} className={classes.imagePreview} />
+          <img src={photo} alt="Image preview" key={photo} className={classes.imagePreview} />
         ))}
       </div>
     </>
   );
 };
+
+// may want to save photos obj not just url
 
  // <div key={i}>
 					// <p className={classes.file}>Filename: {photo.name}

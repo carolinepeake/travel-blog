@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,
+  useRef
+} from 'react';
 import axios from 'axios';
 import { useToggle, upperFirst } from '@mantine/hooks';
 import { useForm } from '@mantine/form';
@@ -17,7 +19,9 @@ import {
   Anchor,
   Stack,
   createStyles,
-} from '@mantine/core';
+  FileInput,
+  } from '@mantine/core';
+import { IconUpload } from '@tabler/icons';
 
 const useStyles = createStyles((theme) => ({
   root: {
@@ -26,82 +30,58 @@ const useStyles = createStyles((theme) => ({
     top: 0,
     zIndex: 1,
   },
+
+  avatarPreview: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gridColumn: '1 / 3',
+    overflow: 'hidden',
+  },
+
+  imagePreview: {
+    marginRight: '1%',
+    height: 200,
+    positionSelf: 'center',
+    objectFit: 'cover',
+    aspectRatio: 1,
+    width: 200,
+    overflow: 'hidden',
+  },
 }));
 
-export default function AuthenticationForm({ PaperProps, ButtonProps, user, setUser, isLoggedIn, setIsLoggedIn, handleCreateAccount, handleLogin, type, toggle, form }
-  // React.ComponentPropsWithoutRef<'a'>
+export default function AuthenticationForm({ PaperProps, ButtonProps, user, setUser, isLoggedIn, setIsLoggedIn, handleCreateAccount, handleLogin, type, toggle, form, avatar, setAvatar, handleSubmit, handleError, values, errors }
+ // React.ComponentPropsWithoutRef<'a'>
   ) {
   const { classes, cx } = useStyles();
   const [opened, setOpened] = useState(true);
-  // const form = useForm({
-  //   initialValues: {
-  //     email: '',
-  //     name: '',
-  //     password: '',
-  //     city: '',
-  //     country: '',
-  //     image: '',
-  //     terms: true,
-  //   },
+  const [value, setValue] = useState(null);
+  const fileInput = React.createRef();
 
-  //   validate: {
-  //     email: (val) => (/^\S+@\S+$/.test(val) ? null : 'Invalid email'),
-  //     password: (val) => (val.length <= 6 ? 'Password should include at least 6 characters' : null),
-  //   },
-  // });
-
-  // useEffect(() => {
-  //   const loggedInUser = localStorage.getItem("user");
-  //   if (loggedInUser) {
-  //     const foundUser = JSON.parse(loggedInUser);
-  //     setUser(foundUser);
-  //     setIsLoggedIn(true);
-  //   }
-  // }, []);
-
-  // function handleCreateAccount(e) {
-  //   console.log('form state from handleCreateAccount: ', form.values);
-  //   const accountBody = {
-  //     name: form.values.name,
-  //     email: form.values.email,
-  //     password: form.values.password,
-  //     terms: form.values.terms,
-  //     city: form.values.city,
-  //     country: form.values.country,
-  //     image: form.values.image,
-      // bucketList: ''
-  //   };
-  //   axios.post('http://localhost:3001/users/signup', accountBody)
-  //   .then((res) => {
-  //     console.log('response from handleCreateAccount', res.data);
-  //     // is setting user (tested), even though logging user to console within this function doesn't work
-  //     setUser(res.data);
-  //     localStorage.setItem('user', JSON.stringify(res.data))
-  //     setIsLoggedIn(true);
-  //   })
-  //   .catch(err => console.log('error from handleCreateAccount: ', err))
-  //   e.preventDefault();
-  //   // clear form state
-  //   // close modal
-  // };
-
-  // function handleLogin(e) {
-  //    setUser(res.data);
-  //    localStorage.setItem('user', JSON.stringify(res.data));
-  //    setIsLoggedIn(true);
-  //    e.preventDefault();
-  //  };
+  const handleAddImage = (event) => {
+    setValue(event);
+    const file = event;
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onloadend = () => {
+      const base64image = reader.result;
+      setAvatar(base64image);
+    };
+  };
 
   return (
-      <form onSubmit={(e) => {
-        if (type === 'register') {
-          console.log('handling registration');
-          handleCreateAccount(e);
-        } else {
-          console.log('handling logining in');
-          handleLogin(e);
-        }
-      }}>
+      <form onSubmit={(e) => {form.onSubmit(handleSubmit(values, e), handleError(errors, e))}}
+      //   e) => {
+      //   if (type === 'register') {
+      //     console.log('handling registration');
+      //     handleCreateAccount(e);
+      //   } else {
+      //     console.log('handling logining in');
+      //     handleLogin(e);
+      //   }
+      // })}
+      >
+      {/* <form onSubmit={(e) => {form.onSubmit(handleSubmit(values, e), handleError(errors, e))}}> */}
         <Stack>
           {type === 'register' && (
             <TextInput
@@ -127,7 +107,15 @@ export default function AuthenticationForm({ PaperProps, ButtonProps, user, setU
             placeholder="your password"
             value={form.values.password}
             onChange={(event) => form.setFieldValue('password', event.currentTarget.value)}
-            error={form.errors.password && 'password should include at least 6 characters'}
+            error={form.errors.password && 'password must include at least 6 characters'}
+          />
+           <PasswordInput
+            required
+            label="confirm password"
+            placeholder="confirm password"
+            value={form.values.confirmPassword}
+            onChange={(event) => form.setFieldValue('confirmPassword', event.currentTarget.value)}
+            error={form.errors.password && 'password must include at least 6 characters'}
           />
 
           {type === 'register' && (
@@ -140,13 +128,26 @@ export default function AuthenticationForm({ PaperProps, ButtonProps, user, setU
           )}
 
           {type === 'register' && (
-            <TextInput
+            <FileInput
+              id="avatarInput"
               label="image"
               placeholder="upload your photo"
-              value={form.values.image}
-              onChange={(event) => form.setFieldValue('image', event.currentTarget.value)}
+              type="file"
+              name="avatar"
+              error="file size must be less than 64 MB"
+              accept="image/png, image/jpeg"
+              clearable
+              icon={<IconUpload size={14} />}
+              ref={fileInput}
+              value={value}
+              onChange={handleAddImage}
             />
           )}
+      {(type === 'register' && avatar)
+      && (
+        <div className={classes.avatarPreview}>
+          <img src={avatar} alt="Image preview" key={avatar} className={classes.imagePreview} />
+        </div>)}
 
           {type === 'register' && (
             <TextInput

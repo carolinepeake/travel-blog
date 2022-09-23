@@ -25,6 +25,7 @@ export default function App() {
   const { classes } = useStyles();
   const [user, setUser] = useState({});
   // const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [posts, setPosts] = useState([]);
 
   // prolly don't need to link to a different page with the NavBar, but just change the state
   // and update the posts rendered based on state.tagSelected - doesn't make sense to use pathnames for selections of music or kiteboard, would be better in query part of url maybe or nested pathnames, esp if the tags change, doesn;t make sense to haev them as paths in url
@@ -46,11 +47,11 @@ export default function App() {
       <div style={{ height: 1400 }} className={classes.main}>
       {/* {isLoggedIn */}
       {/* ?  */}
-      <UserSidebar user={user} setUser={setUser}/>
+      <UserSidebar user={user} setUser={setUser} posts={posts} setPosts={setPosts}/>
       {/* : <CreateAccountSidebar />} */}
       <Aside>
         <Banner />
-        <Feed />
+        <Feed posts={posts} setPosts={setPosts}/>
         <LgCalendar />
       </Aside>
 

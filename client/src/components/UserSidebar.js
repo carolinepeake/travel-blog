@@ -13,6 +13,19 @@ const useStyles = createStyles((theme) => ({
     zIndex: 1,
   },
 
+  avatarContainer: {
+    overflow: 'hidden',
+  },
+
+  avatarImage: {
+    borderRadius: '50%',
+    objectFit: 'cover',
+    aspectRatio: '1',
+    position: 'relative',
+   // top: '50%',
+   // transform: 'translateY(-50%)',
+  },
+
   profile: {
     display: 'block',
     lineHeight: 1,
@@ -44,14 +57,13 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
-export default function UserSidebar({user, setUser}) {
+export default function UserSidebar({ user, setUser, setPosts }) {
   const { classes, cx } = useStyles();
-  const [opened, setOpened] = useState(false);
+  const [addPostOpened, setAddPostOpened] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  function handleAddPost(e) {
-
-  };
+  // function handleAddPost(e) {
+  // };
 
   function handleLogout(e) {
     setIsLoggedIn(false);
@@ -62,16 +74,16 @@ export default function UserSidebar({user, setUser}) {
   return (
   <>
     <Modal
-      opened={opened}
-      onClose={() => setOpened(false)}
+      opened={addPostOpened}
+      onClose={() => setAddPostOpened(false)}
       title="Add a post!"
       >
-      <AddPost user={user} setUser={setUser}/>
+      <AddPost user={user} setUser={setUser} setAddPostOpened={setAddPostOpened} setPosts={setPosts}/>
     </Modal>
     <Aside className={classes.root} width={{ base: 300 }} p="xs">
       <Aside.Section style={{ display: isLoggedIn ? 'block' : 'none' }}>
         <Box>
-          <Avatar size="xl * 10"></Avatar>
+          <Avatar src={user.image} size="xl * 5" radius="xl" alt={user.name} classNames={{ root: classes.avatarContainer, image: classes.avatarImage, }} />
         </Box>
         <Group style={{alignItems: 'space between'}}>
           <Text span className={classes.profile}>logged in as {user.name}</Text>
@@ -93,7 +105,7 @@ export default function UserSidebar({user, setUser}) {
           <Button variant="outline" color="cyan" radius="lg" size="md">plan a trip</Button>
           <Button variant="outline" color="cyan" radius="lg" size="md">upcoming trips</Button>
           <Button variant="outline" color="cyan" radius="lg" size="md">past trips</Button>
-          <Button variant="outline" color="cyan" radius="lg" size="md" onClick={() => setOpened(true)}>add a post</Button>
+          <Button variant="outline" color="cyan" radius="lg" size="md" onClick={() => setAddPostOpened(true)}>add a post</Button>
         </Stack>
       </Aside.Section>
     </Aside>

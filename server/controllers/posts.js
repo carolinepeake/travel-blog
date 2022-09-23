@@ -17,6 +17,7 @@ module.exports.controllers= {
   postPost: function(req, res) {
     var entry = req.body;
     console.log('request body from postPost in controllers: ', req.body);
+    // might want to use .create() instead - automatically instantiates new instance (make sure returns saved doc)
     new Post(entry).save()
     .then((savedPost) => {
       console.log('success saving post: ', savedPost);
@@ -30,12 +31,29 @@ module.exports.controllers= {
 
   getPosts: function(req, res) {
     Post.find()
+    .populate('location')
+    .populate('author')
+    .exec()
     .then((result) => {
       res.status(200).send(result);
     })
     .catch((err) => {
       console.log('error in controller getPosts: ', err);
       res.status(400);
+    })
+  },
+
+  deletePost: function(req, res) {
+    console.log('request body from deletePost controller: ', req.body);
+    const postID = req.body._id;
+    console.log('postID from deletePost controller: ', postID);
+    Post.deleteOne({ _id: postID })
+    .then((result) => {
+      res.status(203).send(result);
+    })
+    .catch((err) => {
+      console.log('error deleting post : ', err);
+      res.status(403);
     })
   },
 

@@ -1,7 +1,7 @@
 // posts.js - Posts route module
 const express = require('express');
 const posts = express.Router();
-const { getPosts, postPost, getTags, uploadImage } = require('.././controllers').PostsController;
+const { getPosts, postPost, deletePost, getTags, uploadImage } = require('.././controllers').PostsController;
 
 // const express = require("express");
 // const router = express.Router();
@@ -10,6 +10,8 @@ const { getPosts, postPost, getTags, uploadImage } = require('.././controllers')
 posts.get('/', getPosts);
 
 posts.post('/', postPost);
+
+posts.delete('/', deletePost);
 
 posts.get('/getTags', getTags);
 
