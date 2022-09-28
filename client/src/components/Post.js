@@ -3,11 +3,12 @@ import axios from 'axios';
 import { createStyles, Card, Image, ActionIcon, Group, Text, Avatar, Badge } from '@mantine/core';
 import { IconHeart } from '@tabler/icons';
 
-const useStyles = createStyles((theme) => ({
+const useStyles = createStyles((theme, _params, getRef) => ({
   card: {
     backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.white,
     position: 'relative',
     zIndex: '1',
+    overflow: 'visible',
   },
 
   close: {
@@ -37,7 +38,37 @@ const useStyles = createStyles((theme) => ({
   },
 
   like: {
-    color: theme.colors.red[6],
+    position: 'relative',
+    display: 'inline-block',
+    '&:hover': {
+      cursor: 'pointer',
+    },
+    [`&:hover .${getRef('tooltip')}`]: {
+      visibility: 'visible',
+    },
+  },
+
+  // heart: {
+  //   color: theme.colors.red[6],
+  //   &:hover: {
+  //     fill: 'red'
+  //   }
+  // },
+
+  tooltip: {
+    ref: getRef('tooltip'),
+    visibility: 'hidden',
+    width: '100px',
+    backgroundColor: 'black',
+    color: '#fff',
+    textAlign: 'center',
+    padding: '5px 0',
+    borderRadius: '6px',
+    position: 'absolute',
+    zIndex: '3',
+    top: '-100%',
+    left: '-100%',
+    marginLeft: '-50px', /* Use half of the width (120/2 = 60), to center the tooltip */
   },
 
   label: {
@@ -53,26 +84,76 @@ const useStyles = createStyles((theme) => ({
       theme.colorScheme === 'dark' ? theme.colors.dark[5] : theme.colors.gray[2]
     }`,
   },
+
+  avatarContainer: {
+    overflow: 'hidden',
+  },
+
+  avatarImage: {
+    borderRadius: '50%',
+    objectFit: 'cover',
+    aspectRatio: '1',
+    position: 'relative',
+  },
 }));
 
+// if post is liked by user, should have a red heart upon refresh
 
 
-export default function Post({ post, index, posts, setPosts }) {
-  const { classes, theme } = useStyles();
+export default function Post({ post, index, posts, setPosts, user }) {
+  const { classes, theme, getRef } = useStyles();
+  const [liked, setIsLiked] = useState(false);
+  const [tooltipText, setTooltipText] = useState('add to bucket list');
 
   // might want to move this up a level or two to make axios requests unified
+  // might not need to include post in parameters here
   const handleDeletePost = async (post, e) => {
-    axios.delete('/posts', { data: { _id: post._id } })
-    .then((res) => {
-      console.log(`post ${post._id} deleted successfully`, res.data);
+    // may not be necessary
+    e.preventDefault();
+    try {
+      // could handle authorization w/o even sending request maybe
+      // const authorization =
+      const response = await axios.delete(`http://localhost:3001/posts/${post._id}`
+      // , {
+        // headers: {
+          // need to make sure authorized to delete post - authorized if logged in as user who made post
+      //     authorization:
+      //   }
+      // }
+      );
+      console.log(`post ${post._id} deleted successfully`, response.data);
       setPosts(() => {
         posts.splice(index, 1);
         return posts;
       });
-    })
-    .catch((err) => {
+    } catch (err) {
       console.log(`error deleting post ${post._id}`, err);
-    })
+    }
+  };
+
+  const handleClickHeart = async () => {
+    if (liked) {
+      try {
+        // remove from bucketList in db
+        let response = await axios.put(`http://localhost:3001/users/${user._id}/unlike/${post._id}`);
+        console.log('response from handleClickHear', response);
+        setIsLiked(false);
+        setTooltipText('add to bucketlist');
+        // if view filtered to only bucket list items, remove from view
+      } catch (err) {
+        console.log(`error removing ${post.title} from bucket list`, err);
+      }
+    } else {
+      try {
+        // add to bucket list in db
+      let response = await axios.put(`http://localhost:3001/users/${user._id}/like/${post._id}`);
+      console.log('response from handleClickHear', response);
+       setIsLiked(true);
+       setTooltipText('remove from bucketlist');
+     } catch (err) {
+       console.log(`error adding ${post.title} to bucket list`, err);
+     }
+    }
   };
 
   return (
@@ -90,8 +171,9 @@ export default function Post({ post, index, posts, setPosts }) {
           <Text size="lg" weight={500}>
             {post.title}
           </Text>
-          <ActionIcon>
-            <IconHeart size={18} color={theme.colors.red[6]} stroke={1.5} />
+          <ActionIcon className={classes.like} onClick={e => handleClickHeart(e)}>
+            <IconHeart size={18} color={theme.colors.red[6]} stroke={1.5} style={{ fill: liked ? theme.colors.red[6] : 'none' }} className={classes.heart}/>
+            <span className={classes.tooltip}>{tooltipText}</span>
           </ActionIcon>
         </Group>
         {post.location
@@ -122,7 +204,7 @@ export default function Post({ post, index, posts, setPosts }) {
               <>
               <Avatar
             // can make avatar HOC
-            src={post.author.image} radius="sm" />
+            src={post.author.image} radius="sm" alt={post.author.name} classNames={{ root: classes.avatarContainer, image: classes.avatarImage }}/>
             <Text weight={200}>{post.author.name}</Text>
             </>
             )}

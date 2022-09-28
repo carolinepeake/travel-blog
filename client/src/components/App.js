@@ -51,7 +51,7 @@ export default function App() {
       {/* : <CreateAccountSidebar />} */}
       <Aside>
         <Banner />
-        <Feed posts={posts} setPosts={setPosts}/>
+        <Feed posts={posts} setPosts={setPosts} user={user}/>
         <LgCalendar />
       </Aside>
 

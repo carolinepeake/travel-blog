@@ -1,7 +1,7 @@
 // posts.js - Posts route module
 const express = require('express');
 const users = express.Router();
-const { getUsers, handleUserSignup, handleUserLogin } = require('.././controllers').UsersController;
+const { getUsers, handleUserSignup, handleUserLogin, handleLikePost, handleUnlikePost } = require('.././controllers').UsersController;
 
 
 users.get('/', getUsers);
@@ -9,8 +9,13 @@ users.get('/', getUsers);
 // signup route
 users.post('/signup', handleUserSignup);
 
-//login route
+// login route
+  // should this be get?  no, b/c posting password?
 users.post('/login', handleUserLogin);
+
+users.put('/:userId/like/:postId', handleLikePost);
+
+users.put('/:userId/unlike/:postId', handleUnlikePost);
 
 
 

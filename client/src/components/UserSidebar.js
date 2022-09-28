@@ -83,7 +83,7 @@ export default function UserSidebar({ user, setUser, setPosts }) {
     <Aside className={classes.root} width={{ base: 300 }} p="xs">
       <Aside.Section style={{ display: isLoggedIn ? 'block' : 'none' }}>
         <Box>
-          <Avatar src={user.image} size="xl * 5" radius="xl" alt={user.name} classNames={{ root: classes.avatarContainer, image: classes.avatarImage, }} />
+          <Avatar src={user.image} size="xl * 5" radius="xl" alt={user.name} classNames={{ root: classes.avatarContainer, image: classes.avatarImage }} />
         </Box>
         <Group style={{alignItems: 'space between'}}>
           <Text span className={classes.profile}>logged in as {user.name}</Text>

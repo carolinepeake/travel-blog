@@ -56,6 +56,15 @@ addPost:
 
 deletPost:
   isn't re-rendering posts after delete, maybe add posts to dependency array in useEffects in feed
+  should also delete the image from cloudinary
+  should not delete country, tags (or maybe should?)
+  should not delete the user
+
+  mongodb
+    bind connection to error event and another event
+
+  readme
+    list future steps
 
 
 

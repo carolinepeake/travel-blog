@@ -131,6 +131,8 @@ export default function AddPost({ user, setUser, setPosts, setAddPostOpened }) {
    // name could be addTag, or newTag(s)
    // could then make handle add multiple dynamic and get rid of handleAddTag and corresponding reducer case
 
+  // can also pass down a component or element as props instead of all pf that component's props
+
    function handleAddTag(e) {
     dispatch({
       type: "HANDLE MULTIPLE INPUTS",

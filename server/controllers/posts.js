@@ -49,11 +49,12 @@ module.exports.controllers= {
     console.log('postID from deletePost controller: ', postID);
     Post.deleteOne({ _id: postID })
     .then((result) => {
-      res.status(203).send(result);
+      // status code 204 if send no result data back
+      res.status(200).send(result);
     })
     .catch((err) => {
       console.log('error deleting post : ', err);
-      res.status(403);
+      res.status(404);
     })
   },
 

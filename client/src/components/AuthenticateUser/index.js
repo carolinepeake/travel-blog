@@ -90,7 +90,7 @@ export default function AuthenticateUser({ PaperProps, ButtonProps, user, setUse
     city: form.values.city,
     country: form.values.country,
     image: form.values.image,
-    // bucketList: ''
+   // bucketList: ''
   };
 
   // refactor to use async/await

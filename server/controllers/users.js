@@ -47,6 +47,43 @@ module.exports.controllers = {
     }
   },
 
+  handleLikePost: async (req, res) => {
+    console.log('handling like post');
+    try {
+      const userId = req.params.userId;
+      const postId = req.params.postId;
+      console.log('request user parameter from handleLikePost controller: ', userId);
+      console.log('request post parameter from handleLikePost controller: ', postId);
+      // const updatedUser = await User.findByIdAndUpdate(user, { $push: { bucketList: post }}, { returnDocument='after', timestamps=false, });
+      // const updatedUser = await User.updateOne({ _id: user, { $push: {bucketList: post} }, { returnDocument: 'after', timestamps: false, new: true });
+      const updatedUser = await User.findByIdAndUpdate(userId, { $push: { bucketList: postId }});
+      console.log('updatedUser', updatedUser);
+      res.status(200).send(updatedUser);
+    } catch (err) {
+      console.log('error updating user: ', err);
+      res.status(404).json({ error: "unable to update user" });
+    }
+  },
+
+  handleUnlikePost: async (req, res) => {
+    console.log('handling unlike post');
+    try {
+      const userId = req.params.userId;
+      const postId = req.params.postId;
+      console.log('request user parameter from handleLikePost controller: ', userId);
+      console.log('request post parameter from handleLikePost controller: ', postId);
+      // might be $pullAll
+      // const updatedUser = await User.findByIdAndUpdate(user, { $pull: { bucketList: post } }, { returnDocument='after', timestamps=false, new=true });
+      const updatedUser = await User.findByIdAndUpdate(userId, { $pull: { bucketList: postId }});
+      console.log('updatedUser', updatedUser);
+      // status code 204 if send no result data back
+      res.status(200).send(updatedUser);
+    } catch (err) {
+      console.log('error updating user: ', err);
+      res.status(404).json({ error: "unable to update user" });
+    }
+  },
+
 
 
 
@@ -99,7 +136,7 @@ module.exports.controllers = {
       console.log('error in controller getPosts: ', err);
       res.status(400);
     })
-  }
+  },
 
 // const getUser = function(req, res) {
 //   console.log('request from getPosts controller: ', req);
