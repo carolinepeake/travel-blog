@@ -48,12 +48,8 @@ const useStyles = createStyles((theme, _params, getRef) => ({
     },
   },
 
-  // heart: {
-  //   color: theme.colors.red[6],
-  //   &:hover: {
-  //     fill: 'red'
-  //   }
-  // },
+  heart: {
+  },
 
   tooltip: {
     ref: getRef('tooltip'),
@@ -68,7 +64,7 @@ const useStyles = createStyles((theme, _params, getRef) => ({
     zIndex: '3',
     top: '-100%',
     left: '-100%',
-    marginLeft: '-50px', /* Use half of the width (120/2 = 60), to center the tooltip */
+    marginLeft: '-50px', /* Use half of the width to center the tooltip */
   },
 
   label: {
@@ -99,11 +95,11 @@ const useStyles = createStyles((theme, _params, getRef) => ({
 
 // if post is liked by user, should have a red heart upon refresh
 
-
 export default function Post({ post, index, posts, setPosts, user }) {
   const { classes, theme, getRef } = useStyles();
   const [liked, setIsLiked] = useState(false);
   const [tooltipText, setTooltipText] = useState('add to bucket list');
+  const date =  new Date(post.createdAt);
 
   // might want to move this up a level or two to make axios requests unified
   // might not need to include post in parameters here
@@ -134,7 +130,6 @@ export default function Post({ post, index, posts, setPosts, user }) {
   const handleClickHeart = async () => {
     if (liked) {
       try {
-        // remove from bucketList in db
         let response = await axios.put(`http://localhost:3001/users/${user._id}/unlike/${post._id}`);
         console.log('response from handleClickHear', response);
         setIsLiked(false);
@@ -145,7 +140,6 @@ export default function Post({ post, index, posts, setPosts, user }) {
       }
     } else {
       try {
-        // add to bucket list in db
       let response = await axios.put(`http://localhost:3001/users/${user._id}/like/${post._id}`);
       console.log('response from handleClickHear', response);
        setIsLiked(true);
@@ -172,7 +166,7 @@ export default function Post({ post, index, posts, setPosts, user }) {
             {post.title}
           </Text>
           <ActionIcon className={classes.like} onClick={e => handleClickHeart(e)}>
-            <IconHeart size={18} color={theme.colors.red[6]} stroke={1.5} style={{ fill: liked ? theme.colors.red[6] : 'none' }} className={classes.heart}/>
+            <IconHeart className={classes.heart} size={18} color={theme.colors.red[6]} stroke={1.5} style={{ fill: liked ? theme.colors.red[6] : 'none' }}/>
             <span className={classes.tooltip}>{tooltipText}</span>
           </ActionIcon>
         </Group>
@@ -210,7 +204,7 @@ export default function Post({ post, index, posts, setPosts, user }) {
             )}
 
           </div>
-          {/* <Text size="xs" color="dimmed">{post.createdAt.toLocaleDateString()}</Text> */}
+          <Text size="xs" color="dimmed">{date.toLocaleDateString()}</Text>
       </Group>
       </Card.Section>
     </Card>
