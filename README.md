@@ -90,8 +90,8 @@ To support the upload of user avatar pictures and post images, you will need to 
   <img width="450" alt="Homepage Wireframe" src="https://user-images.githubusercontent.com/100883305/183727815-803e7ef6-c19e-48f8-897a-373f0b5dc77c.png">
    <img width="450" alt="Bucketlist Wireframe" src="https://user-images.githubusercontent.com/100883305/183727739-921cbdf8-2347-41f8-a419-0d892d46fdd7.png">
 </details>
-    
-</br>
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Developer
   * ### Caroline Peake
