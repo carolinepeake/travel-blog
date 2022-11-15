@@ -7,14 +7,17 @@ const Schema = mongoose.Schema;
 const Posts = new Schema(
   {
     title: String,
-    description: { type: String, maxLength: [500, 'description too long'] },
+    description: { type: String, maxLength: [1500, 'description too long'] },
     location: { type: Schema.Types.ObjectId, ref: 'Location' },
+    city: { type: String, lowercase: true },
+    state: { type: String, lowercase: true },
+    country: { type: String, lowercase: true },
+    region: String,
     photos: [String],
     // can be mongoose.Schema or Schema b/c Schema is defined above as mongoose.Schema
     tags: [{ type: String, lowercase: true, trim: true }],
     //tags: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Tag', lowercase: true }],
     author: { type: Schema.Types.ObjectId, ref: 'User', required: [true, 'missing author'] }
-    // created_at: { type: Date, default: Date.now() }
   },
    // will automatically create and set createdAt and updatedAt timestamps
   { timestamps: true }

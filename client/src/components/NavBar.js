@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { createStyles, Header, Container, Group, Paper, Transition, Burger, Autocomplete } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { IconSearch } from '@tabler/icons';
+import axios from 'axios';
+import styled from 'styled-components';
+import SearchIcon from './SearchIcon.js';
 
 const HEADER_HEIGHT = 60;
 
@@ -32,6 +34,7 @@ const useStyles = createStyles((theme) => ({
     justifyContent: 'space-between',
     alignItems: 'center',
     height: '100%',
+    position: 'relative',
   },
 
   links: {
@@ -61,6 +64,7 @@ const useStyles = createStyles((theme) => ({
     color: theme.colorScheme === 'dark' ? theme.colors.dark[0] : theme.colors.gray[7],
     fontSize: theme.fontSizes.sm,
     fontWeight: 500,
+    position: 'relative',
 
     '&:hover': {
       backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[0],
@@ -78,44 +82,161 @@ const useStyles = createStyles((theme) => ({
       color: theme.fn.variant({ variant: 'light', color: theme.primaryColor }).color,
     },
   },
+
+  //add animation to make fade in and fade out
+  // make disappear if focus/click/tab away
+  popup: {
+    width: '220px',
+    backgroundColor: '#555',
+    color: '#fff',
+    textAlign: 'center',
+    borderRadius: '6px',
+    padding: '8px 0',
+    position: 'absolute',
+    zIndex: '2',
+    top: '110%',
+    left: '50%',
+    marginLeft: '-80px',
+
+    '&:after': {
+      content: '""',
+      position: 'absolute',
+      bottom: '100%',
+      left: '50%',
+      marginLeft: '-5px',
+      borderWidth: '5px',
+      borderStyle: 'solid',
+      borderColor: '#555 transparent transparent transparent',
+    },
+  },
+
 }));
 
-export default function NavBar({ links }) {
+export default function NavBar({ links, home, bucketList, setPosts, regions, user, isLoggedIn, handleFilterPosts }) {
   const [opened, { toggle, close }] = useDisclosure(false);
-  const [active, setActive] = useState(links[0].link);
+  const [active, setActive] = useState(home.link);
   const { classes, cx } = useStyles();
+  const [search, setSearch] = useState('');
+  const [hidePopUp, setHidePopUp] = useState(true);
+  const [view, setView] = useState('home');
 
    // prolly don't need to link to a different page with the NavBar, but just change the state
   // and update the posts rendered based on state.tagSelected
+
+  const handleFilterPostsByLink = async (route, link, e) => {
+    e.preventDefault();
+    try {
+      await handleFilterPosts(route, link.label, e);
+      setActive(link.link);
+      close();
+    } catch (err) {
+      console.log('error filtering posts', err);
+    }
+  };
+
+  const handleFilterPostsByRegion = async (route, filteredTerm, e) => {
+    e.preventDefault();
+    try {
+      await handleFilterPosts(route, filteredTerm, e);
+      setSearch('');
+    } catch (err) {
+      console.log('error filtering posts', err);
+    }
+  };
+
+  // This works also if favouriteFoods is: favouriteFoods:[{type:Schema.Types.ObjectId, ref:'Food'}] – https://stackoverflow.com/questions/18148166/find-document-with-array-that-contains-a-specific-value
+
+  const handleFilterPostsByBucketList = async (e) => {
+    e.preventDefault();
+    if (user.email !== undefined) {
+      try {
+        console.log('user: ', user);
+        const userId = user._id;
+        const response = await axios.get(`http://localhost:3001/users/${userId}`);
+        const filteredPosts = response.data.bucketList;
+        console.log('response from handleFilterPosts', response.data);
+        setPosts(filteredPosts);
+        setActive(bucketList.link);
+        setView("bucketlist")
+        close();
+      } catch (err) {
+        console.log('error filtering posts by bucketlist', err);
+      }
+    } else {
+     // alert("Must be logged in to filter by posts saved to your bucket list.")
+       // return error need to be logged in, or disable bucketList link and make tooltip over it urging user to sign in to see
+       console.log('getting to else in handleClick');
+      setHidePopUp(false);
+      setTimeout(setHidePopUp, 5000, true);
+    }
+  };
+
+  const handleClickHome = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.get('http://localhost:3001/posts/');
+      const filteredPosts = response.data;
+      console.log('response from handleFilterPosts', response.data);
+      setPosts(filteredPosts);
+      setActive(home.link);
+      close();
+    } catch (err) {
+      console.log('error returning home', err);
+    }
+  };
 
   const items = links.map((link) => (
       <a
         key={link.label}
         href={link.link}
         className={cx(classes.link, { [classes.linkActive]: active === link.link })}
-        onClick={(event) => {
-          event.preventDefault();
-          setActive(link.link);
-          close();
-        }}
+        onClick={(e) => handleFilterPostsByLink('tags', link, e)}
       >
         {link.label}
       </a>
   ));
 
+  const data = regions.map((item) => ({ ...item, value: item.label }));
 
+  // could use switch/case for clicking on diff links
 
   return (
     <Header height={HEADER_HEIGHT} mb={40} className={classes.root}>
       <Container className={classes.header}>
           <Group spacing={10} className={classes.links}>
+            <a
+              href={home.link}
+              className={cx(classes.link, { [classes.linkActive]: active === home.link })}
+              onClick={(e) => handleClickHome(e)}
+            >
+            {home.label}
+            </a>
+            <a
+              href={bucketList.link}
+              className={cx(classes.link, { [classes.linkActive]: active === bucketList.link })}
+              onClick={(e) => handleFilterPostsByBucketList(e)} disabled={!isLoggedIn}
+            >
+            {bucketList.label}
+            <span className={classes.popup} id="myPopup"
+            style={{ visibility: hidePopUp ? 'hidden' : 'visible', transition: 'visibility 5s' }}
+            >Must be logged in to filter by posts saved to your bucket list.</span>
+            </a>
+
             {items}
           </Group>
           <Autocomplete
               className={classes.search}
               placeholder="search by region"
-              icon={<IconSearch size={16} stroke={1.5} />}
-              data={['snowboarding', 'europe', 'brazil', 'march']} // can make these dynamic to last searched for user
+              icon={<SearchIcon
+              // handleFilterPostsByRegion={handleFilterPostsByRegion} search={search}
+              onClick={(e) => handleFilterPostsByRegion('region', search, e)}
+              // size={16} stroke={1.5}
+              // className={classes.searchIcon}
+              />}
+              data={data} // can make these dynamic to last searched for user
+              value={search}
+              onChange={setSearch}
+              onKeyPress={(e) => {if (e.key === 'Enter') {handleFilterPostsByRegion('region', search, e)}}}
             />
 
           <Burger opened={opened} onClick={toggle} title="Open navigation" aria-label="Open navigation" className={classes.burger} size="sm" />
@@ -123,6 +244,20 @@ export default function NavBar({ links }) {
           <Transition transition="pop-top-right" duration={200} mounted={opened}>
             {(styles) => (
               <Paper className={classes.dropdown} withBorder style={styles}>
+                <a
+                  href={home.link}
+                  className={cx(classes.link, { [classes.linkActive]: active === home.link })}
+                  onClick={(e) => handleClickHome(home, e)}
+                >
+                  {home.label}
+                </a>
+                <a
+                  href={bucketList.link}
+                  className={cx(classes.link, { [classes.linkActive]: active === bucketList.link })}
+                  onClick={(e) => handleFilterPostsByBucketList(bucketList, e)}
+                >
+                {bucketList.label}
+                </a>
                 {items}
               </Paper>
             )}
@@ -130,4 +265,6 @@ export default function NavBar({ links }) {
       </Container>
     </Header>
   );
-}
+};
+
+

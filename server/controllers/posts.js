@@ -1,10 +1,8 @@
 const mongoose = require('mongoose');
-const db = require('../../db/connection'); // this might be unnecessary
-// const models = require('../models/models');
-// const Test = require('../db/schemas/test');
 const cloudinary = require('cloudinary').v2;
 require('dotenv').config();
 const Post = require('../../db/schemas').Post;
+const User = require('../../db/schemas').User;
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_NAME,
@@ -30,7 +28,8 @@ module.exports.controllers= {
   },
 
   getPosts: function(req, res) {
-    Post.find()
+    console.log('request params from getPosts', req.params);
+    Post.find(req.params)
     .populate('location')
     .populate('author')
     .exec()
@@ -43,9 +42,41 @@ module.exports.controllers= {
     })
   },
 
+  getFilteredPosts: function(req, res) {
+    console.log('request params from getFilteredPosts', req.params);
+    let filterKey = req.params.route;
+    let filterValue = req.params.filterTerm;
+    Post.find({ [filterKey] : filterValue })
+    .populate('location')
+    .populate('author')
+    .exec()
+    .then((result) => {
+      console.log('query response from getFilteredPosts: ', result);
+      res.status(200).send(result);
+    })
+    .catch((err) => {
+      console.log('error in controller getPosts: ', err);
+      res.status(400);
+    })
+  },
+
+  getPostsFilteredByAuthor: function(req, res) {
+    Post.find({author: req.params.userID})
+      .populate('location')
+      .populate('author')
+      .exec()
+      .then((posts) => {
+        res.status(200).send(posts);
+      })
+      .catch((err) => {
+        console.log('error in controller getPostsFilteredByAuthor: ', err);
+        res.status(400);
+      })
+  },
+
   deletePost: function(req, res) {
-    console.log('request body from deletePost controller: ', req.body);
-    const postID = req.body._id;
+    console.log('request params from deletePost controller: ', req.params);
+    const postID = req.params.postId;
     console.log('postID from deletePost controller: ', postID);
     Post.deleteOne({ _id: postID })
     .then((result) => {
@@ -55,17 +86,6 @@ module.exports.controllers= {
     .catch((err) => {
       console.log('error deleting post : ', err);
       res.status(404);
-    })
-  },
-
-  getTags: function(req, res) {
-    Post.distinct( "tags" )
-    .then((result) => {
-      res.status(200).send(result);
-    })
-    .catch((err) => {
-      console.log('error in controller getPosts: ', err);
-      res.status(400);
     })
   },
 
@@ -86,12 +106,6 @@ module.exports.controllers= {
   postTest: function(req, res) {
     var entry = req.body;
     console.log('request body from postPost in controllers: ', req.body);
-  //   if (err) {
-  //     res.status(401).send('error');
-  //   } else {
-  //     res.status(201).send('success');
-  //   }
-  // }
 
     new Test(entry).save()
     .then((result) => {
@@ -132,6 +146,10 @@ module.exports.controllers= {
     // })
   }
 };
+
+
+
+
 
 
 

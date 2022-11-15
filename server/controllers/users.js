@@ -1,5 +1,4 @@
 const mongoose = require('mongoose'); // do I need this?
-const db = require('../../db/connection'); // this might be unnecessary
 const bcrypt = require("bcrypt");
 const User = require('../../db/schemas').User;
 
@@ -47,6 +46,21 @@ module.exports.controllers = {
     }
   },
 
+  handleGetBucketList: (req, res) => {
+    console.log('request params from handleGetBucketLis', req.params);
+    User.findById(req.params.userId)
+    .populate('bucketList')
+    .exec()
+    .then((result) => {
+      console.log('query response from handleGetBucketList: ', result);
+      res.status(200).send(result);
+    })
+    .catch((err) => {
+      console.log('error in controller handleGetBucketList: ', err);
+      res.status(400);
+    })
+  },
+
   handleLikePost: async (req, res) => {
     console.log('handling like post');
     try {
@@ -84,37 +98,24 @@ module.exports.controllers = {
     }
   },
 
-
-
-
-  // const newAttendee = new Attendee({
-  //   firstName: req.body.firstname,
-  //   lastName: req.body.lastName,
-  //   email: req.body.email,
-  //   shirt: req.body.shirt,
-  //   skillLevel: req.body.skillLevel
-  // })
-  // newAttendee.save()
-  // .then((addedAttendee) => {
-  //   console.log('success saving newAttendee', addedAttendee);
-  //   res.status(201)
-  // })
-  // .catch((err) => {
-  //   console.log('error adding newAttendee', err);
-  //   res.status(401)
-  // })
-
-    // return models.saveTest(entry)
-    // // return Promise.all([savePost(entry), saveRegion(entry.region), saveTag(entry.tag)])
-    // .then((result) => {
-    //   console.log('success saving test');
-    //   res.status(201).send(result);
-    // })
-    // .catch((err) => {
-    //   console.log('error saving test', err);
-    //   res.status(401).send('error');
-    // })
-
+  handleEditAvatar: async (req, res) => {
+    console.log('handling edit avatar');
+    try {
+      const userId = req.params.userId;
+      const imageUrl = req.body.image;
+      console.log('request user parameter from handleEditAvatar controller: ', userId);
+      console.log('request imageUrl parameter from handleEditAvatar controller: ', imageUrl);
+      // there's a way you can get the updated user
+      const beforeUpdateUser = await User.findByIdAndUpdate(userId, { image: imageUrl });
+      const updatedUser = await User.findById(userId);
+      console.log('updatedUser', updatedUser);
+      // status code 204 if send no result data back
+      res.status(200).send(updatedUser);
+    } catch (err) {
+      console.log('error updating user: ', err);
+      res.status(404).json({ error: "unable to update user" });
+    }
+  },
 
   getUsers: function(req, res) {
     User.find()
@@ -123,17 +124,6 @@ module.exports.controllers = {
     })
     .catch((err) => {
       console.log('error in controller getUsers: ', err);
-      res.status(400);
-    })
-  },
-
-  getTests: function(req, res) {
-    Test.find()
-    .then((result) => {
-      res.status(200).send(result);
-    })
-    .catch((err) => {
-      console.log('error in controller getPosts: ', err);
       res.status(400);
     })
   },

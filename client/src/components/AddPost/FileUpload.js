@@ -1,8 +1,8 @@
-import React, { useReducer, useState, useEffect } from "react";
+import React, { useReducer, useState, useEffect, useRef } from "react";
 import axios from 'axios';
-import { createStyles, Select, TextInput, TextArea, Button, onSubmit, Group, Box, Center } from '@mantine/core';
+import { createStyles, Select, TextInput, TextArea, Button, onSubmit, Group, Box, Center, FileInput } from '@mantine/core';
 // import { FileInput, FileInputProps, Group, Center } from '@mantine/core';
-import { IconPhoto } from '@tabler/icons';
+import { IconPhoto, IconUpload } from '@tabler/icons';
 
 const useStyles = createStyles((theme) => ({
   root: {
@@ -25,6 +25,9 @@ const useStyles = createStyles((theme) => ({
     fontSize: theme.fontSizes.xs,
     padding: '3px 7px',
     borderRadius: theme.radius.sm,
+    marginRight: '1%',
+    marginBottom: '1%',
+    justifyContent: 'center',
   },
 
   file: {
@@ -58,61 +61,48 @@ const useStyles = createStyles((theme) => ({
   },
 
   photoPreviews: {
+   // display: 'grid',
+    //gridTemplateColumns: 'repeat(4, 1fr)',
+   // gridGap: '1%',
+   //grid-gap: 1em;
+    //position: relative;
+   // z-index: 1;
     display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gridColumn: '1 / 3',
+   flexDirection: 'row',
+    //justifyContent: 'center',
+    flexWrap: 'wrap',
+   // gridColumn: '1 / 3',
     overflow: 'hidden',
   },
 
-  // make the height/length ratio/measurement change dynamically based on if the photo is landscape or portrait
+  //to-do: make the height/length ratio/measurement change dynamically based on if the photo is landscape or portrait
   imagePreview: {
     // width: '20%',
     // height: '20%',
     marginRight: '1%',
-    height: 200,
+    flexBasis: 125,
     positionSelf: 'center',
     objectFit: 'cover',
-    aspectRatio: 1,
-    width: 200,
+    aspectRatio: '1',
     overflow: 'hidden',
-
+    marginBottom: '1%',
   },
 
 }));
-// const ValueComponent: FileInputProps['valueComponent'] = ({ value }) => {
-//   if (Array.isArray(value)) {
-//     return (
-//       <Group spacing="sm" py="xs">
-//         {value.map((file, index) => (
-//           <Value file={file} key={index} />
-//         ))}
-//       </Group>
-//     );
-//   }
 
-//   return <Value file={value} />;
-// };
-
-// function Demo() {
-//   return (
-//     <>
-//       <FileInput label="Multiple" placeholder="Multiple" multiple valueComponent={ValueComponent} />
-//       <FileInput mt="md" label="Single" placeholder="Single" valueComponent={ValueComponent} />
-//     </>
-//   );
-// }
-
-export default function FileUpload({ formState, dispatch, handleDeleteOne, previews, setPreviews,   }) {
-  const fileInput = React.createRef();
+export default function FileUpload({ formState, dispatch, handleDeleteOne, previews, setPreviews, imageValue, setImageValue }) {
+  const fileInput = useRef();
   const { classes, cx } = useStyles();
 
-  const handleUploadFile = (event) => {
+  const handleUploadFile = () => {
+    console.log('event.target: ', event.target);
     dispatch({
       type: "HANDLE MULTIPLE INPUTS",
       field: 'fileList',
       payload: event.target.files[0],
     });
+   //setImageValue(event);
+   //value={formState.fileList[formState.fileList.length - 1]}/>
     const file = event.target.files[0];
     const reader = new FileReader();
     reader.readAsDataURL(file);
@@ -122,22 +112,37 @@ export default function FileUpload({ formState, dispatch, handleDeleteOne, previ
     };
 	 };
 
+   const handleDeleteFile = (i, field, e) => {
+    handleDeleteOne(i, field, e);
+    fileInput.current?.();
+    setImageValue(null);
+   };
+
+   // handle deleteOne if type=image or file upload, splice previews and delete preview at index and then setpreviews
+
   return (
     <>
-      <label>
-        add photos:
-        <input
+        <FileInput
           id="fileInput"
+          label="Add Photos"
+          placeholder="Add your photos"
+          error="file size must be less than 64 MB"
+          clearable
           type="file"
           name="photos"
           accept="image/png, image/jpeg"
+          icon={<IconUpload size={14} />}
           multiple
           ref={fileInput}
-          onChange={handleUploadFile} />
-      </label>
+          onChange={handleUploadFile}
+          value={null}
+         // value={formState.fileList}
+         // onClear=
+        />
+        <br />
       {formState.fileList
       && (
-        formState.fileList.map((file, i) => {
+       formState.fileList.map((file, i) => {
           return (
             <Center
               key={i}
@@ -147,18 +152,26 @@ export default function FileUpload({ formState, dispatch, handleDeleteOne, previ
               <IconPhoto size={14} style={{ marginRight: 5 }} />
               <span className={classes.file}>
                 {file.name}
-                <span className={classes.close} onClick={(e) => handleDeleteOne(i, 'fileList', e)}>x</span>
+                <span className={classes.close} onClick={(e) => handleDeleteFile(i, 'fileList', e)}>x</span>
               </span>
             </Center>
           );
         })
 			)}
-      <br />
-      <div className={classes.photoPreviews}>
-        {previews.map((photo) => (
-          <img src={photo} alt="Image preview" key={photo} className={classes.imagePreview} />
+      {previews.length > 0
+      && (
+        <>
+        <div className={classes.photoPreviews}>
+        {previews.map((photo, i) => (
+          // <div>
+          //   <span className={classes.close} onClick={(e) => handleDeleteOne(i, 'fileList', e)}>x</span>
+            <img src={photo} alt="Image preview" key={photo} className={classes.imagePreview} />
+          // </div>
         ))}
       </div>
+        <br />
+        </>
+      )}
     </>
   );
 };

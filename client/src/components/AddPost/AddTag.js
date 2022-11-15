@@ -45,8 +45,6 @@ const useStyles = createStyles((theme) => ({
 export default function AddTag({ formState, dispatch, handleTextChange, handleAddTag, handleDeleteOne }) {
   const { classes, cx } = useStyles();
 
-
-
   return(
     <>
       <label>

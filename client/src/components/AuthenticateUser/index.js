@@ -19,10 +19,9 @@ import {
   createStyles,
 } from '@mantine/core';
 //import { showNotification } from '@mantine/notifications';
-import { FcGoogle } from 'react-icons/Fc';
-import facebookLogo from '../../assets/f_logo_RGB-Blue_58.png';
+
 import AuthenticationForm from './AuthenticationForm.js';
-import LoginSidebar from './LoginSidebar.js';
+// import LoginSidebar from './LoginSidebar.js';
 
 const useStyles = createStyles((theme) => ({
   root: {
@@ -35,13 +34,12 @@ const useStyles = createStyles((theme) => ({
 
 // can make a separate component for AuthenticationForm and render it as a child of the modal and as an alternative to the modal (user sidebar) and pass down props to it to make it dynamic
 
-export default function AuthenticateUser({ PaperProps, ButtonProps, user, setUser, isLoggedIn, setIsLoggedIn }
+export default function AuthenticateUser({ PaperProps, ButtonProps, user, setUser, isLoggedIn, setIsLoggedIn, avatar, setAvatar }
   // React.ComponentPropsWithoutRef<'a'>
   ) {
-  const [avatar, setAvatar] = useState('');
   const { classes, cx } = useStyles();
   const [type, toggle] = useToggle(['log in', 'register']);
-  const [opened, setOpened] = useState(false);
+  const [isOpened, setIsOpened] = useState(false);
   const form = useForm({
     initialValues: {
       email: '',
@@ -54,21 +52,51 @@ export default function AuthenticateUser({ PaperProps, ButtonProps, user, setUse
       terms: true,
     },
 
-    validate: (values) => ({
-      email: (val) => (/^\S+@\S+$/.test(val) ? null : 'Invalid email'),
-      password: (val) => (val.length <= 6 ? 'Password should include at least 6 characters' : null),
-      confirmPassword: (value, values) =>
-      value !== values.password ? 'Passwords do not match' : null,
-    }),
+    validate: (values) => {
+      // can prolly refactor this to be DRY
+      if (type === 'login') {
+        return {
+          email:
+            /^\S+@\S+$/.test(values.email)
+              ? null
+              : 'Invalid email',
+          password:
+            values.password.length < 6
+              ? 'Password should include at least 6 characters'
+              : null,
+        };
+      }
+      if (type === 'register') {
+        return {
+          email:
+            /^\S+@\S+$/.test(values.email)
+              ? null
+              : 'Invalid email',
+          password:
+            values.password.length < 6
+              ? 'Password should include at least 6 characters'
+              : null,
+          confirmPassword:
+            values.confirmPassword !== values.password
+              ? 'Passwords do not match'
+              : null,
+        };
+      }
+      return {};
+      // email: (value) => (/^\S+@\S+$/.test(value) ? null : 'Invalid email'),
+      // password: (value) => (value.length < 6 ? 'Password should include at least 6 characters' : null),
+      // confirmPassword: (value, values) =>
+      // value !== values.password ? 'Passwords do not match' : null,
+    },
 
     validateInputOnChange: [
-      'password',
-      'confirmPassword',
-      'image',
     ],
 
     validateInputOnBlur: [
       'email',
+      'password',
+      'confirmPassword',
+      'image',
     ],
   });
 
@@ -77,109 +105,112 @@ export default function AuthenticateUser({ PaperProps, ButtonProps, user, setUse
     if (loggedInUser) {
       const foundUser = JSON.parse(loggedInUser);
       setUser(foundUser);
-      console.log('foundUser: ', foundUser);
       setIsLoggedIn(true);
     }
   }, []);
 
-  const accountBody = {
-    name: form.values.name,
-    email: form.values.email,
-    password: form.values.password,
-    terms: form.values.terms,
-    city: form.values.city,
-    country: form.values.country,
-    image: form.values.image,
-   // bucketList: ''
-  };
-
-  // refactor to use async/await
-  const handleCreateAccount = async (e) => {
-    // e.preventDefault();
+  const handleCreateAccount = async (values) => {
+    let accountBody = {
+      name: values.name,
+      email: values.email,
+      password: values.password,
+      terms: values.terms,
+      city: values.city,
+      country: values.country,
+      image: '',
+    };
     try {
+      if (avatar) {
+        const savedImage = await axios.post('http://localhost:3001/posts/cloudinary/upload', {
+          image: avatar,
+        });
+        console.log('saved avatar image: ', savedImage);
+        accountBody.image = savedImage.data.url;
+        // await form.setFieldValue('image', imageUrl.data.url);
+      }
       console.log('accountBody from handleCreateAccount: ', accountBody);
       let response = await axios.post('http://localhost:3001/users/signup', accountBody);
       console.log('response from handleCreateAccount', response.data);
       setUser(response.data);
       localStorage.setItem('user', JSON.stringify(response.data))
       setIsLoggedIn(true);
-      setOpened(false);
+      setIsOpened(false);
+      form.reset()
     } catch(err) {
-      console.log('error from handleCreateAccount in Authentication component: ', err)
+      console.log('error from handleCreateAccount in Authentication component: ', err);
+      form.reset()
     };
-    e.preventDefault();
     return;
   };
 
-  function handleLogin(e) {
-    console.log('form state from handleLogin: ', form.values);
-    const accountBody = {
-      email: form.values.email,
-      password: form.values.password,
+  const handleLogin = async (values) => {
+    let accountBody = {
+      email: values.email,
+      password: values.password,
     };
-    axios.post('http://localhost:3001/users/login', accountBody)
-    .then((res) => {
-      console.log('response from handleLogin', res.data);
-      setUser(res.data);
-      localStorage.setItem('user', JSON.stringify(res.data))
+    try {
+      console.log('form state from handleLogin: ', form.values);
+      let response = await axios.post('http://localhost:3001/users/login', accountBody);
+      console.log('response from handleLogin', response.data);
+      setUser(response.data);
+      localStorage.setItem('user', JSON.stringify(response.data));
       setIsLoggedIn(true);
-      setOpened(false);
-    })
-    .catch((err) => {
+      setIsOpened(false);
+      form.reset()
+    } catch (err) {
       console.log('error from handleLogin in Authentication component: ', err);
-    })
-    e.preventDefault();
+      form.reset()
+    }
+    return;
   };
 
  const handleClickRegister = () => {
-  setOpened(true);
+  setIsOpened(() => !isOpened);
   toggle();
  };
 
- const handleError = (errors, e) => {
-  // if (errors.password) {
-  //   alert({ message: 'passwords must match and be at least 6 characters', color: 'red' });
-  // } else if (errors.email) {
-  //   alert({ message: 'please provide a valid email', color: 'red' });
-  // } else if (errors.image) {
-  //   alert({ message: 'image file size must not be any larger than 64 MB'});
-  // };
+ const handleError = (errors) => {
+  if (errors.password) {
+    alert({ message: 'passwords must match and be at least 6 characters', color: 'red' });
+  }
+  if (errors.email) {
+    alert({ message: 'please provide a valid email', color: 'red' });
+  }
+  if (errors.image) {
+    alert({ message: 'image file size must not be any larger than 64 MB'});
+  };
  };
 
- const handleSubmit = async (values, e) => {
-  e.preventDefault();
+ const handleSubmit = async (values) => {
   if (type === 'register') {
     console.log('handling registration');
     try {
-      const savedImage = await axios.post('http://localhost:3001/posts/cloudinary/upload', {
-        image: avatar,
-      });
-      console.log('saved avatar image: ', savedImage);
-      accountBody.image = savedImage.data.url;
-      // await form.setFieldValue('image', imageUrl.data.url);
-      console.log('handling create account,', accountBody.image);
-      await handleCreateAccount(e);
+
+      await handleCreateAccount(values);
     } catch (err) {
-      console.log('error uploading avatar', err);
+      console.log('error creating account', err);
     }
   } else {
-    console.log('handling logining in');
-    handleLogin();
+    try {
+      console.log('handling logging in');
+      await handleLogin(values);
+    } catch (err) {
+      console.log('error logging in', err);
+    }
   };
  };
 
   return (
-    <>
+  <>
     <Modal
-    opened={opened}
-    onClose={() => setOpened(false)}
-    // make title dynamic using state.type
-    title={type === "register" ? "create account" : "login"}
+      opened={isOpened}
+      onClose={() => handleClickRegister()}
+      title={upperFirst(type)}
     >
-    <AuthenticationForm user={user} setUser={setUser} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} handleCreateAccount={handleCreateAccount} handleLogin={handleLogin} type={type} toggle={toggle} form={form} avatar={avatar} setAvatar={setAvatar} handleSubmit={handleSubmit} handleError={handleError} values={form.values} errors={form.errors}
-    onSubmit={() => setOpened(false)}
-    />
-  </Modal>
+      <AuthenticationForm form={form} avatar={avatar} setAvatar={setAvatar} handleSubmit={handleSubmit} handleError={handleError} values={form.values} errors={form.errors} handleClickRegister={handleClickRegister}
+      onSubmit={() => setIsOpened(false)}
+      />
+    </Modal>
     <Paper radius="md" p="xl"
      {...PaperProps}
      >
@@ -189,29 +220,11 @@ export default function AuthenticateUser({ PaperProps, ButtonProps, user, setUse
 
       <br />
 
-      <Text size="lg" weight={500}>
-        login with
-      </Text>
+      {/* <ThirdPartyLogins /> */}
 
-      <Stack grow mb="md" mt="md">
-        <Button radius="xl"
-        leftIcon={<FcGoogle />}
-        variant="default" color="gray"
-        // {...props}
-        >Google</Button>
-        <Button
-          radius="xl"
-          component="a"
-          leftIcon={<img src={facebookLogo} alt="Facebook Logo" style={{width: "16px" }}/>}
-          variant="default"
-        >
-        Facebook
-        </Button>
-      </Stack>
-
-      <Divider label="or continue with email" labelPosition="center" my="lg" />
-
-      <form onSubmit={(e) => {form.onSubmit(handleSubmit(values, e), handleError(errors, e))}}>
+      <form onSubmit={form.onSubmit(
+        (values, _event) => {handleSubmit(values)},
+        (validationErrors, _values, _event) => {console.log(validationErrors); handleError(validationErrors)})}>
         <Stack>
           <TextInput
             required
@@ -220,6 +233,7 @@ export default function AuthenticateUser({ PaperProps, ButtonProps, user, setUse
             value={form.values.email}
             onChange={(event) => form.setFieldValue('email', event.currentTarget.value)}
             error={form.errors.email && 'invalid email'}
+            {...form.getInputProps('email')}
           />
 
           <PasswordInput
@@ -230,15 +244,6 @@ export default function AuthenticateUser({ PaperProps, ButtonProps, user, setUse
             onChange={(event) => form.setFieldValue('password', event.currentTarget.value)}
             error={form.errors.password && 'password must include at least 6 characters'}
           />
-
-          {/* <PasswordInput
-            required
-            label="confirm password"
-            placeholder="confirm password"
-            value={form.values.confirmPassword}
-            onChange={(event) => form.setFieldValue('confirmPassword', event.currentTarget.value)}
-            error={form.errors.password && 'password must include at least 6 characters'}
-          /> */}
         </Stack>
 
         <Group position="apart" mt="xl">
@@ -246,18 +251,10 @@ export default function AuthenticateUser({ PaperProps, ButtonProps, user, setUse
             component="button"
             type="button"
             color="dimmed"
-            // onClick={() => toggle()}
             onClick={() => handleClickRegister()}
             size="xs"
-          >
-            {type === 'register'
-              ? 'Already have an account? Login'
-              : "Don't have an account? Register"}
-          </Anchor>
-          <Button
-          type="submit"
-           // make button dynamic using state.type
-          >{upperFirst(type)}</Button>
+          >Don't have an account? Register</Anchor>
+          <Button type="submit">Login</Button>
         </Group>
       </form>
     </Paper>

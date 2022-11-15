@@ -12,6 +12,7 @@ login:
   image error is on when the create account modal is first opened
   user sidebar login button changes to register when modal is opened
   passwords are not showing error if confirmed pw and pw are not the same on create account modal
+  must be logged in to create a post
 
 regions:
 

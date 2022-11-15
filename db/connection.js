@@ -36,22 +36,5 @@ module.exports = db;
     // .catch(error => console.log('error connecting database', error));
 
 
-// define schemas and create models
-
-// test
-//   var testPost = new Test({testTitle: 'test title value', testDescription: 'to be alone test description'});
-
-//   testPost.save();
-
-//   console.log('title of test post: ', testPost.testTitle);
-
-//    // Test model
-//    const tests = Test.find();
-//    console.log('tests:', tests);
-
-//  modelTest = Test.inspect();
-//  console.log('modelTest: ', modelTest);
-// };
-
 
 

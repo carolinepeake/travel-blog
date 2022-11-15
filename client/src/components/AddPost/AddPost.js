@@ -1,6 +1,6 @@
 import React, { useReducer, useState, useEffect } from "react";
 import axios from 'axios';
-import { createStyles, Select, TextInput, TextArea, Button, onSubmit, Group, Box } from '@mantine/core';
+import { createStyles, Select, TextInput, Textarea, Button, onSubmit, Group, Box } from '@mantine/core';
 // import { useForm } from '@mantine/form';
 import FileUpload from './FileUpload.js';
 import AddTag from './AddTag.js';
@@ -30,25 +30,19 @@ const initialFormState = {
   title: '',
   newTag: '',
   newTags: [],
+  selectedTags: [],
   city: '',
- // state: '',
+  state: '',
   country: '',
   region: '',
   language: '',
   description: '',
   fileList: [],
-  // author: {
-  //   name: '',
-  //   city: '',
-  //   country: '',
-  //   avatar: '',
-  // },
-  // created_at: ''
 };
 
 const formReducer = function(state, action) {
   switch(action.type) {
-    case 'HANDLE INPUT TEXT':
+    case 'HANDLE SINGLE INPUT':
       return {
         ...state,
         [action.field]: action.payload,
@@ -58,17 +52,12 @@ const formReducer = function(state, action) {
         ...state,
         [action.field]: [...state[action.field], action.payload],
       };
-      // don't think i need this?
-    case 'HANDLE ADD USER INFO':
-      return {
-        ...state,
-        [action.field]: action.payload,
-      };
     case 'HANDLE DELETE INPUT':
-      state[action.field].splice(action.payload, 1);
+      let old = [...state[action.field]];
+      old.splice(action.payload, 1);
       return {
         ...state,
-        [action.field]: state[action.field],
+        [action.field]: old,
       }
     case 'HANDLE SUBMIT':
       return {
@@ -79,15 +68,14 @@ const formReducer = function(state, action) {
   }
 };
 
-export default function AddPost({ user, setUser, setPosts, setAddPostOpened }) {
+export default function AddPost({ user, setUser, setPosts, setAddPostOpened, regions }) {
   const [formState, dispatch] = useReducer(formReducer, initialFormState);
-  // should prolly move to formState
-  const [selectedTags, setSelectedTags] = useState([]);
   const [previews, setPreviews] = useState([]);
+  const [imageValue, setImageValue] = useState(null);
 
   const locationBody = {
     region: formState.region,
-    //state: formState.state,
+    state: formState.state,
     city: formState.city,
     country: formState.country
   };
@@ -96,34 +84,23 @@ export default function AddPost({ user, setUser, setPosts, setAddPostOpened }) {
     title: formState.title,
     description: formState.description,
     location: '',
+    city: formState.city,
+    state: formState.state,
+    country: formState.country,
+    region: formState.region,
     language: 'English',
-    tags: selectedTags.concat(formState.newTags),
+    tags: formState.selectedTags.concat(formState.newTags),
     author: user._id,
     photos: []
   };
 
-  function handleAddUserInfo(author) {
-    const authorInfo = {
-      name: author.name,
-      city: author.city,
-      country: author.country,
-      avatar: author.image
-    };
-    dispatch({
-      type: "HANDLE ADD USER INFO",
-      field: 'author',
-      payload: authorInfo,
-    });
-    console.log(formState);
-  };
-
   function handleTextChange(e) {
+    console.log('event from handle text change: ', e);
     dispatch({
-      type: "HANDLE INPUT TEXT",
+      type: "HANDLE SINGLE INPUT",
       field: e.target.name,
       payload: e.target.value,
     });
-    console.log(formState);
   };
 
  // could make add tag feature a form element nested inside the module form
@@ -133,101 +110,87 @@ export default function AddPost({ user, setUser, setPosts, setAddPostOpened }) {
 
   // can also pass down a component or element as props instead of all pf that component's props
 
-   function handleAddTag(e) {
+   function handleAddTag(item) {
     dispatch({
       type: "HANDLE MULTIPLE INPUTS",
-      field: 'newTags',
-      payload: formState.newTag,
+      field: 'selectedTags',
+      payload: item.value,
     });
-    dispatch({
-      type: "HANDLE INPUT TEXT",
-      field: 'newTag',
-      payload: initialFormState.newTag,
-    });
+    // dispatch({
+    //   type: "HANDLE SINGLE INPUT",
+    //   field: 'newTag',
+    //   payload: initialFormState.newTag,
+    // });
+    console.log(formState.selectedTags);
   };
 
   const handleDeleteOne = (i, field, e) => {
     console.log('name: ', e.target);
+    console.log('event: ', e);
     dispatch({
       type: "HANDLE DELETE INPUT",
       field: field,
       payload: i,
     });
-   // e.preventDefault();
-  }
-
-  function handleSelectMultiple(e) {
-    let value = Array.from(
-      event.target.selectedOptions,
-      (option) => option.value
-    );
-    dispatch({
-      type: "HANDLE MULTIPLE INPUTS",
-      field: e.target.name,
-      payload: value,
-    });
+    setImageValue(null);
+    if (field === 'fileList') {
+      let old = [...previews];
+      setPreviews(() => {
+        old.splice(i, 1);
+        return old;
+      });
+      if (formState.fileList.length === 0) {
+        dispatch({
+          type: "HANDLE SINGLE INPUT",
+          field: field,
+          payload: '',
+        });
+      }
+    }
   };
 
-  function handleSubmitForm(e) {
+  function handleSelectMultiple(item) {
+    // let value = Array.from(
+    //   event.target.selectedOptions,
+    //   (option) => option.value
+    // );
+    dispatch({
+      type: "HANDLE SINGLE INPUT",
+      field: 'selectedTags',
+      payload: query,
+    });
+    console.log(formState.selectedTags);
+  };
+
+  const handleSubmitForm = async (e) => {
     e.preventDefault();
-
-    const promises = [];
-    for (let i = 0; i < previews.length; i += 1) {
-      const promise = axios.post('posts/cloudinary/upload', {
-        image: previews[i],
-      });
-      promises.push(promise);
-    }
-
-    Promise.all(promises)
-      .then(async (results) => {
-        // this isn't asynchronous so no point in await?
-          await results.forEach((result) => {
-            postBody.photos.push(result.data.url);
+    try {
+      if (previews) {
+        const promises = [];
+        for (let i = 0; i < previews.length; i += 1) {
+          const promise = axios.post('posts/cloudinary/upload', {
+            image: previews[i],
           });
-
-          // can prolly make the multiple requests to the db part of a transaction rather than multiple axios requests - will be faster and then can rollback transaction if one part does not save, handle each error separately, etc
-          // not a good idea to nest thens/promises?
-        axios
-          .post('/locations', locationBody)
-          .then((response) => {
-            // maybe make location an object in formState so matches db schema
-            postBody.location = response.data._id;
-            return postBody;
-          })
-          .then((postBody) => {
-            axios
-            .post('/posts', postBody)
-            .then((response) => {
-              console.log('response from handleSubmitPost: ', response.data);
-              dispatch({
-                type: "HANDLE SUBMIT"
-              });
-              setAddPostOpened(false);
-            })
-            .then(() => {
-              // either GET posts or add dependency to useEffects array that would cause it to be executed now but only on form submit, like maybe add isSubmitted hook, or make getPosts function in Feed and pass down as prop
-              // could prolly move this up a block
-              axios.get('/posts')
-                .then((response) => {
-                  setPosts(response.data);
-                })
-                .catch((err) => {
-                  console.log
-                  ('error getting posts', err);
-                })
-            })
-            .catch((err) => {
-              console.log('error posting postBody: ', err);
-            })
-          })
-          .catch((err) => {
-            console.log('error uploading images and submitting form: ', err);
-          })
-    })
-    .catch((err) => {
-      console.log('error submitting form: ', err)
-    })
+          promises.push(promise);
+        }
+        const uploadedPhotos = await Promise.all(promises);
+        uploadedPhotos.forEach((photo) => {
+          postBody.photos.push(photo.data.url);
+        });
+      }
+      const savedLocation = await axios.post('/locations', locationBody);
+      postBody.location = savedLocation.data._id;
+      const savedPost = await axios.post('/posts', postBody);
+      console.log('response from handleSubmitPost: ', savedPost.data);
+      const posts = await axios.get('/posts');
+      setPosts(posts.data);
+      dispatch({
+        type: "HANDLE SUBMIT"
+      });
+      setAddPostOpened(false);
+    } catch (err) {
+      console.log('error submitting form: ', err);
+    }
   };
 
     function handleClickGetPosts(e) {
@@ -237,171 +200,97 @@ export default function AddPost({ user, setUser, setPosts, setAddPostOpened }) {
       e.preventDefault();
   };
 
-  return(
-    <form onSubmit={(e) => console.log(e.target)}>
+  const regionsData = regions.map((item) => ({ ...item, value: item.label }));
 
-      <label>
-        title:
-        <input
+  return(
+    <form value={formState} onSubmit={(e) => handleSubmitForm(e)}>
+
+        <TextInput
+          label="Title"
+          required
+          placeholder="Post title"
           type="text"
           name="title"
+          id="title"
           value={formState.title}
           onChange={(e) => handleTextChange(e)}
-          ></input>
-      </label>
+          ></TextInput>
 
-      <br />
+     <br />
 
-      <label>
-        description:
-        <textarea
-          type="text"
-          name="description"
-          value={formState.description}
-          onChange={(e) => handleTextChange(e)}
-        ></textarea>
-      </label>
+      <Textarea
+        label="Description"
+        required
+        placeholder="Post description"
+        value={formState.description}
+        name="description"
+        type="text"
+        id="description"
+        autosize
+        onChange={(e) => handleTextChange(e)}
+        // error="character limit is"
+        // errorProps={errorProps}
+      ></Textarea>
 
       <br />
 
       <Group>
 
-     <label>
-        city:
-        <input
+        <TextInput
+          label="City"
+          placeholder="Activity city"
+          id="city"
           type="text"
           name="city"
           value={formState.city}
           onChange={(e) => handleTextChange(e)}
-          ></input>
-      </label>
+          ></TextInput>
 
-      <label>
-        country:
-        <input
+        <TextInput
+          label="State"
+          placeholder="Activity state, if applicable"
+          id="state"
+          type="text"
+          name="state"
+          value={formState.state}
+          onChange={(e) => handleTextChange(e)}
+          ></TextInput>
+
+        <TextInput
+          label="Country"
+          placeholder="Activity country"
+          id="country"
           type="text"
           name="country"
           value={formState.country}
           onChange={(e) => handleTextChange(e)}
-          ></input>
-      </label>
+          ></TextInput>
 
-
-      <label>
-        region:
-        <select
-          type="select"
+        <Select
+          label="Region"
           name="region"
+          placeholder="Activity region"
           value={formState.region}
-          onChange={(e) => handleTextChange(e)}
-          >
-
-            <option value="southeast asia">southeast asia</option>
-            <option value="east asia">east asia</option>
-            <option value="central asia">central asia</option>
-            <option value="south america">south america</option>
-            <option value="europe">europe</option>
-            <option value="north america">north america</option>
-            <option value="central america">central america</option>
-            <option value="northern africa">northern africa</option>
-            <option value="africa">sub sahara africa</option>
-            <option value="australia">australia</option>
-            <option value="new zealand">new zealand</option>
-            <option value="middle east">middle east</option>
-          </select>
-      </label>
+          required
+          data={regionsData}
+          onChange={(query) => handleTextChange({target: {value: query, name: 'region'}})}
+        ></Select>
 
       </Group>
 
+        <br/>
 
-      <SelectTags selectedTags={selectedTags} setSelectedTags={setSelectedTags}/>
-
-      <br />
-
-      <AddTag formState={formState} dispatch={dispatch} handleTextChange={handleTextChange} handleAddTag={handleAddTag} handleDeleteOne={handleDeleteOne}/>
-
-      <br />
-
-      <button type="button" onClick={(e) => handleClickGetPosts(e)}>get posts</button>
+      <SelectTags
+      selectedTags={formState.selectedTags}
+      handleTextChange={handleTextChange}
+      />
 
       <br />
 
-      <FileUpload formState={formState} dispatch={dispatch} handleDeleteOne={handleDeleteOne} previews={previews} setPreviews={setPreviews} />
+      <FileUpload formState={formState} dispatch={dispatch} handleDeleteOne={handleDeleteOne} previews={previews} setPreviews={setPreviews} imageValue={imageValue} setImageValue={setImageValue}/>
 
-      <button type="submit" value={formState} onClick={(e) => handleSubmitForm(e)}>add post</button>
-
+      <Button type="submit">Add Post!</Button>
     </form>
   );
 };
 
-
-// const examplePost = {_id: 1, title: 'Shark Diving in Jupiter, FL', tags: ['scuba'], location: [state: 'Florida', country: 'United States', 'region: North America', city: 'Jupiter, FL'], language: ['English'], description: 'A sleepy southern coastal town an hour and a half drive north from Miami, Jupiter, Florida is home to some of the best shark diving in the world. Here, experienced divers have a rare opportunity to go deep and get personal with several species of shark including tiger, bull, nurse, reef, and the ellusive hammerhead. Emerald Charters is the better known of two (number per Google) dive companies providing this boutique dive experience.', photos: ['http://cloudinary.com:...'], author: {name: 'carolinep', city: 'san francisco', country: 'usa', image: ''}, createdAt: 'Aug 2022', updatedAt: 'Aug 2022'};
-
-//   switch('HANDLE INPUT TEXT')
-//     case:  {
-//     }
-//   switch('HANDLE SUBMIT')
-//   switch('HANDLE SELECT')
-// }
-
-// export const AddPost = function({user}) {
-//   // You can add these classes as classNames to any Mantine input, it will work the same
-//   const { classes } = useStyles();
-//   const [formState, dispatch] = useReducer(formReducer, initialFormState)
-
-
-//   // reducer might be unnecessary ->
-
-
-//   const fields = form.tags.map((item, index) => (
-//     <Group key={index} mt="xs">
-//       <TextInput
-//         placeholder="e.g., surfing"
-//         sx={{ flex: 1 }}
-//         {...form.getInputProps(`tags.${index}.tag`)}
-//       />
-//     </Group>
-//   ));
-
-//   return (
-//     <form onSubmit={(e) => handleSubmit(e)}>
-//       <input type="text" label="title" placeholder="e.g., bungee jumping in South Africa" required classNames={classes} />
-
-//       <textarea label="description" placeholder="..." className={classes} />
-
-//       <select multiple
-//         style={{ marginTop: 20, zIndex: 2 }}
-//         data={['scuba', 'kiteboarding', 'music', 'gastronomy']}
-//         placeholder="add tags"
-//         label="what can you do here"
-//         classNames={classes}
-//       />
-//       {/* // can map options */}
-
-//          {/* <Group>
-//           <TextInput label="add a new tag" placeholder="e.g., surfing" classNames={classes} {...form.getInputProps('tags.tag')}/>
-//             {fields}
-//           <Button
-//             onClick={() => form.insertListItem('tags', { tag: ''})}
-//           >
-//             add a new tag
-//         </Button>
-
-//       </Group>
-
-//       <Group>
-//         location:
-//         <TextInput label="city" placeholder="city" classNames={classes} {...form.getInputProps('location.city')}/>
-//         <TextInput label="state" placeholder="option" classNames={classes} {...form.getInputProps('location.state')}/>
-//         <TextInput label="country" placeholder="country" classNames={classes} {...form.getInputProps('location.country')}/>
-//         <TextInput label="region" placeholder="region" classNames={classes} {...form.getInputProps('location.region')}/>
-//       </Group>
-
-
-//       <Group position="right" mt="md">
-//           <Button type="submit">Add Post</Button>
-//       </Group> */}
-//      </form>
-
-//   );
-// }
