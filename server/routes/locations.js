@@ -1,7 +1,7 @@
 // posts.js - Posts route module
 const express = require('express');
 const locations = express.Router();
-const { getLocations, postLocation } = require('.././controllers').LocationsController;
+const { getLocations, postLocation, getPlaces } = require('.././controllers').LocationsController;
 //const LocationsController = require('.././controllers').LocationsController;
 
 // const express = require("express");
@@ -11,6 +11,8 @@ const { getLocations, postLocation } = require('.././controllers').LocationsCont
 locations.get('/', getLocations);
 
 locations.post('/', postLocation);
+
+locations.get('/places/:text', getPlaces);
 
 // About page route
 // PostsRouter.get("/about", function (req, res) {

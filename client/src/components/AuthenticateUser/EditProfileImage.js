@@ -52,7 +52,7 @@ export default function EditProfileImage({ avatar, setAvatar }) {
         placeholder="upload your photo"
         type="file"
         name="avatar"
-      // error="file size must be less than 64 MB"
+        error="file size must be less than 64 MB"
         accept="image/png, image/jpeg"
         clearable
         icon={<IconUpload size={14} />}

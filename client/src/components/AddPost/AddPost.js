@@ -5,6 +5,7 @@ import { createStyles, Select, TextInput, Textarea, Button, onSubmit, Group, Box
 import FileUpload from './FileUpload.js';
 import AddTag from './AddTag.js';
 import SelectTags from './SelectTags.js';
+import AutocompleteCity from './PlacesAutocomplete.js';
 
 const useStyles = createStyles((theme) => ({
   root: {
@@ -124,7 +125,7 @@ export default function AddPost({ user, setUser, setPosts, setAddPostOpened, reg
     console.log(formState.selectedTags);
   };
 
-  const handleDeleteOne = (i, field, e) => {
+  const handleDeleteFile = (i, field, e) => {
     console.log('name: ', e.target);
     console.log('event: ', e);
     dispatch({
@@ -236,7 +237,7 @@ export default function AddPost({ user, setUser, setPosts, setAddPostOpened, reg
 
       <Group>
 
-        <TextInput
+        {/* <TextInput
           label="City"
           placeholder="Activity city"
           id="city"
@@ -244,7 +245,9 @@ export default function AddPost({ user, setUser, setPosts, setAddPostOpened, reg
           name="city"
           value={formState.city}
           onChange={(e) => handleTextChange(e)}
-          ></TextInput>
+          ></TextInput> */}
+
+        <AutocompleteCity />
 
         <TextInput
           label="State"
@@ -287,7 +290,7 @@ export default function AddPost({ user, setUser, setPosts, setAddPostOpened, reg
 
       <br />
 
-      <FileUpload formState={formState} dispatch={dispatch} handleDeleteOne={handleDeleteOne} previews={previews} setPreviews={setPreviews} imageValue={imageValue} setImageValue={setImageValue}/>
+      <FileUpload formState={formState} dispatch={dispatch} handleDeleteFile={handleDeleteFile} previews={previews} setPreviews={setPreviews} imageValue={imageValue} setImageValue={setImageValue}/>
 
       <Button type="submit">Add Post!</Button>
     </form>

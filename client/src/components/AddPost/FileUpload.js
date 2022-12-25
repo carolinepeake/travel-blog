@@ -90,7 +90,7 @@ const useStyles = createStyles((theme) => ({
 
 }));
 
-export default function FileUpload({ formState, dispatch, handleDeleteOne, previews, setPreviews, imageValue, setImageValue }) {
+export default function FileUpload({ formState, dispatch, handleDeleteFile, previews, setPreviews, imageValue, setImageValue }) {
   const fileInput = useRef();
   const { classes, cx } = useStyles();
 
@@ -112,8 +112,8 @@ export default function FileUpload({ formState, dispatch, handleDeleteOne, previ
     };
 	 };
 
-   const handleDeleteFile = (i, field, e) => {
-    handleDeleteOne(i, field, e);
+   const handleDeleteImage = (i, field, e) => {
+    handleDeleteFile(i, field, e);
     fileInput.current?.();
     setImageValue(null);
    };
@@ -152,7 +152,7 @@ export default function FileUpload({ formState, dispatch, handleDeleteOne, previ
               <IconPhoto size={14} style={{ marginRight: 5 }} />
               <span className={classes.file}>
                 {file.name}
-                <span className={classes.close} onClick={(e) => handleDeleteFile(i, 'fileList', e)}>x</span>
+                <span className={classes.close} onClick={(e) => handleDeleteImage(i, 'fileList', e)}>x</span>
               </span>
             </Center>
           );
