@@ -6,7 +6,9 @@ export const useMapboxApi = () => {
   const [autocompleteErr, setAutocompleteErr] = useState("");
 
   // custom fetch function consumes location
-  const locationFetch = async (searchTerm = "", locality = 'all') => {
+  const locationFetch = async (searchTerm, locality = 'all') => {
+
+    if (!searchTerm) return;
 
     const res = await axios.get(`/locations/places/${searchTerm}/${locality}`);
     console.log('response from handleLocationChange api call:', res);
