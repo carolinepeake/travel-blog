@@ -36,6 +36,13 @@ export default function AuthenticationForm({ PaperProps, ButtonProps, form, avat
   ) {
   const { classes, cx } = useStyles();
   const [autocompleteLocations, autocompleteErr, locationFetch] = useMapboxApi();
+  const [finalUrl, setFinalUrl] = useState('')
+
+  useEffect(() => {
+    if (finalUrl) {
+      form.setFieldValue('image', finalUrl);
+    }
+  }, [finalUrl])
 
   const handleLocationChange = async (query, locality) => {
     console.log('query from handleLocationChang in Authentication Form component: ', query);
@@ -108,7 +115,7 @@ export default function AuthenticationForm({ PaperProps, ButtonProps, form, avat
             filter={(value, item) => item}
           />
 
-          <EditProfileImage avatar={avatar} setAvatar={setAvatar} form={form}/>
+          <EditProfileImage avatar={avatar} setAvatar={setAvatar} setFinalUrl={setFinalUrl}/>
 
         <Autocomplete
           label="Country"

@@ -25,39 +25,52 @@ const useStyles = createStyles((theme) => ({
 
 }));
 
-export default function EditProfileImage({ avatar, setAvatar, form }) {
+export default function EditProfileImage({ avatar, setAvatar, setFinalUrl }) {
   const { classes } = useStyles();
   const fileInput = React.createRef();
   const [fileUploadValue, setFileUploadValue] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
+  const [base64image, setbase64image] = useState('');
 
   const [cloudinaryImage, cloudinaryErr, uploadImage] = useCloudinary();
 
-  const handleAddImage = async (event) => {
+  const handleAddImage = (event) => {
     setFileUploadValue(event);
     if (event !== null) {
       const file = event;
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onloadend = () => {
-        const base64image = reader.result;
+        let base64image = reader.result;
+        setbase64image(base64image);
         setAvatar(base64image);
         uploadImage(base64image);
       };
     } else {
+      setbase64image('');
       setAvatar('');
       uploadImage();
     }
   };
 
-  // useEffect(() => {
-  //   avatar && uploadImage(avatar);
-  // }, [avatar]);
+  useEffect(() => {
+    if (base64image) {
+      uploadImage(base64image)
+      .then(() => setAvatar(base64image))
+      .catch((err) => {
+        console.log('error uploading or setting avatar to base64image: ', err);
+        setAvatar('');
+        uploadImage();
+      });
+    } else {
+      uploadImage();
+      setAvatar('');
+    }
+  }, [base64image]);
 
   useEffect(() => {
-    cloudinaryImage && form.setFieldValue('image', cloudinaryImage.url);
+    cloudinaryImage && setFinalUrl(cloudinaryImage.url);
     console.log('cloudinaryImage: ', cloudinaryImage);
-    // setAvatar()
   }, [cloudinaryImage]);
 
   useEffect(() => {
@@ -68,7 +81,6 @@ export default function EditProfileImage({ avatar, setAvatar, form }) {
       setErrorMessage('');
     }
   }, [cloudinaryErr]);
-
 
 
   return(

@@ -119,14 +119,6 @@ export default function AuthenticateUser({ PaperProps, ButtonProps, user, setUse
       image: values.image,
     };
     try {
-      // if (avatar) {
-      //   const savedImage = await axios.post('http://localhost:3001/posts/cloudinary/upload', {
-      //     image: avatar,
-      //   });
-      //   console.log('saved avatar image: ', savedImage);
-      //   accountBody.image = savedImage.data.url;
-      //   // await form.setFieldValue('image', imageUrl.data.url);
-      // }
       console.log('accountBody from handleCreateAccount: ', accountBody);
       let response = await axios.post('http://localhost:3001/users/signup', accountBody);
       console.log('response from handleCreateAccount', response.data);
@@ -184,7 +176,6 @@ export default function AuthenticateUser({ PaperProps, ButtonProps, user, setUse
   if (type === 'register') {
     console.log('handling registration');
     try {
-
       await handleCreateAccount(values);
     } catch (err) {
       console.log('error creating account', err);
