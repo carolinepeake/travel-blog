@@ -44,8 +44,8 @@ module.exports.controllers= {
 
   getFilteredPosts: function(req, res) {
     console.log('request params from getFilteredPosts', req.params);
-    let filterKey = req.params.route;
-    let filterValue = req.params.filterTerm;
+    let filterKey = req.params.route.toLowerCase();
+    let filterValue = req.params.filterTerm.toLowerCase();
     Post.find({ [filterKey] : filterValue })
     .populate('location')
     .populate('author')

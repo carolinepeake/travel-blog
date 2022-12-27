@@ -99,7 +99,7 @@ const useStyles = createStyles((theme, _params, getRef) => ({
 
 // need to make it so shows tooltip when hovering over avatar
 
-export default function UserSidebar({ user, setUser, setPosts, regions, isLoggedIn, setIsLoggedIn }) {
+export default function UserSidebar({ user, setUser, setPosts, isLoggedIn, setIsLoggedIn }) {
   const { classes, cx, getRef } = useStyles();
   const [addPostOpened, setAddPostOpened] = useState(false);
   const [editProfileImageOpened, setEditProfileImageOpened] = useState(false);
@@ -150,6 +150,8 @@ export default function UserSidebar({ user, setUser, setPosts, regions, isLogged
     localStorage.clear();
   };
 
+  // add use-focus-trap matine hook to add focus for each input element
+
   return (
   <>
     <Modal
@@ -157,7 +159,7 @@ export default function UserSidebar({ user, setUser, setPosts, regions, isLogged
       onClose={() => setAddPostOpened(false)}
       title="New Post:"
       >
-      <AddPost user={user} setUser={setUser} setAddPostOpened={setAddPostOpened} setPosts={setPosts} regions={regions}/>
+      <AddPost user={user} setUser={setUser} setAddPostOpened={setAddPostOpened} setPosts={setPosts} />
     </Modal>
 
     <Modal

@@ -12,7 +12,7 @@ locations.get('/', getLocations);
 
 locations.post('/', postLocation);
 
-locations.get('/places/:text', getPlaces);
+locations.get('/places/:text/:locality', getPlaces);
 
 // About page route
 // PostsRouter.get("/about", function (req, res) {

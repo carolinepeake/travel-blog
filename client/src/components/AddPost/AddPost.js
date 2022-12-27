@@ -2,10 +2,12 @@ import React, { useReducer, useState, useEffect } from "react";
 import axios from 'axios';
 import { createStyles, Select, TextInput, Textarea, Button, onSubmit, Group, Box } from '@mantine/core';
 // import { useForm } from '@mantine/form';
+import { toUpperFirst } from '../../utils/utils.js';
 import FileUpload from './FileUpload.js';
 import AddTag from './AddTag.js';
 import SelectTags from './SelectTags.js';
-import AutocompleteCity from './PlacesAutocomplete.js';
+import PlacesAutocomplete from './PlacesAutocomplete.js';
+
 
 const useStyles = createStyles((theme) => ({
   root: {
@@ -41,6 +43,7 @@ const initialFormState = {
   fileList: [],
 };
 
+// could make a useFormReducer custom hook
 const formReducer = function(state, action) {
   switch(action.type) {
     case 'HANDLE SINGLE INPUT':
@@ -69,7 +72,7 @@ const formReducer = function(state, action) {
   }
 };
 
-export default function AddPost({ user, setUser, setPosts, setAddPostOpened, regions }) {
+export default function AddPost({ user, setUser, setPosts, setAddPostOpened }) {
   const [formState, dispatch] = useReducer(formReducer, initialFormState);
   const [previews, setPreviews] = useState([]);
   const [imageValue, setImageValue] = useState(null);
@@ -194,14 +197,7 @@ export default function AddPost({ user, setUser, setPosts, setAddPostOpened, reg
     }
   };
 
-    function handleClickGetPosts(e) {
-      axios.get('http://localhost:3001/tests/authors')
-      .then(response => console.log('response from  handleClickGetPosts: ', response.data))
-      .catch(err => console.log('error caught in handleClickGetPosts: ', err))
-      e.preventDefault();
-  };
-
-  const regionsData = regions.map((item) => ({ ...item, value: item.label }));
+  const regions = ['Africa','Australia','Central America', 'Central Asia', 'East Asia', 'Europe', 'North Africa', 'North America', 'South America', 'Southeast Asia', 'New Zealand', 'Middle East'];
 
   return(
     <form value={formState} onSubmit={(e) => handleSubmitForm(e)}>
@@ -237,37 +233,18 @@ export default function AddPost({ user, setUser, setPosts, setAddPostOpened, reg
 
       <Group>
 
-        {/* <TextInput
-          label="City"
-          placeholder="Activity city"
-          id="city"
-          type="text"
-          name="city"
-          value={formState.city}
-          onChange={(e) => handleTextChange(e)}
-          ></TextInput> */}
-
-        <AutocompleteCity />
-
-        <TextInput
-          label="State"
-          placeholder="Activity state, if applicable"
-          id="state"
-          type="text"
-          name="state"
-          value={formState.state}
-          onChange={(e) => handleTextChange(e)}
-          ></TextInput>
-
-        <TextInput
-          label="Country"
-          placeholder="Activity country"
-          id="country"
-          type="text"
-          name="country"
-          value={formState.country}
-          onChange={(e) => handleTextChange(e)}
-          ></TextInput>
+        {['city', 'state', 'country'].map((locality) => {
+          return (
+            <PlacesAutocomplete
+              locality={locality}
+              key={locality}
+              formState={formState}
+              handleTextChange={handleTextChange}
+              label={`Activity ${toUpperFirst(locality)}`}
+              placeholder={`Activity ${locality}, if applicable`}
+            />
+          )
+        })}
 
         <Select
           label="Region"
@@ -275,7 +252,8 @@ export default function AddPost({ user, setUser, setPosts, setAddPostOpened, reg
           placeholder="Activity region"
           value={formState.region}
           required
-          data={regionsData}
+          searchable
+          data={regions}
           onChange={(query) => handleTextChange({target: {value: query, name: 'region'}})}
         ></Select>
 

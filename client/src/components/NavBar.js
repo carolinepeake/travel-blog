@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { createStyles, Header, Container, Group, Paper, Transition, Burger, Autocomplete } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import axios from 'axios';
@@ -112,13 +112,24 @@ const useStyles = createStyles((theme) => ({
 
 }));
 
-export default function NavBar({ links, home, bucketList, setPosts, regions, user, isLoggedIn, handleFilterPosts }) {
+export default function NavBar({ links, home, bucketList, setPosts, user, isLoggedIn, handleFilterPosts }) {
   const [opened, { toggle, close }] = useDisclosure(false);
   const [active, setActive] = useState(home.link);
   const { classes, cx } = useStyles();
   const [search, setSearch] = useState('');
   const [hidePopUp, setHidePopUp] = useState(true);
   const [view, setView] = useState('home');
+  const [tags, setTags] = useState([]);
+
+    useEffect(() => {
+      axios.get('http://localhost:3001/tags')
+      .then((res) => {
+        setTags(res.data)
+      })
+      .catch((err) => {
+        console.log('error getting tags in select tags component', err);
+      })
+    }, []);
 
    // prolly don't need to link to a different page with the NavBar, but just change the state
   // and update the posts rendered based on state.tagSelected
@@ -134,8 +145,8 @@ export default function NavBar({ links, home, bucketList, setPosts, regions, use
     }
   };
 
-  const handleFilterPostsByRegion = async (route, filteredTerm, e) => {
-    e.preventDefault();
+  const handleFilterPostsByActivity = async (route, filteredTerm, e) => {
+    e && e.preventDefault();
     try {
       await handleFilterPosts(route, filteredTerm, e);
       setSearch('');
@@ -196,7 +207,11 @@ export default function NavBar({ links, home, bucketList, setPosts, regions, use
       </a>
   ));
 
-  const data = regions.map((item) => ({ ...item, value: item.label }));
+  // const data = regions.map((item) => ({ ...item, value: item.label }));
+  let data = [];
+  if (tags.length > 0) {
+    data = tags;
+  }
 
   // could use switch/case for clicking on diff links
 
@@ -226,17 +241,20 @@ export default function NavBar({ links, home, bucketList, setPosts, regions, use
           </Group>
           <Autocomplete
               className={classes.search}
-              placeholder="search by region"
+              placeholder="search by activity"
               icon={<SearchIcon
-              // handleFilterPostsByRegion={handleFilterPostsByRegion} search={search}
-              onClick={(e) => handleFilterPostsByRegion('region', search, e)}
+              // handleFilterPostsByActivity={handleFilterPostsByActivity}
+              search={search}
+              onClick={(e) => handleFilterPostsByActivity('tags', search, e)}
               // size={16} stroke={1.5}
               // className={classes.searchIcon}
               />}
+              // zIndex={101}
+              onItemSubmit={(item) => handleFilterPostsByActivity('tags', item)}
               data={data} // can make these dynamic to last searched for user
               value={search}
               onChange={setSearch}
-              onKeyPress={(e) => {if (e.key === 'Enter') {handleFilterPostsByRegion('region', search, e)}}}
+              onKeyPress={(e) => {if (e.key === 'Enter') {handleFilterPostsByActivity('tags', search, e)}}}
             />
 
           <Burger opened={opened} onClick={toggle} title="Open navigation" aria-label="Open navigation" className={classes.burger} size="sm" />

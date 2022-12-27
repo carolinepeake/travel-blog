@@ -2,7 +2,7 @@ import {
   useState,
   useEffect
 } from "react";
-import { ScrollArea, Aside, createStyles } from '@mantine/core';
+import { ScrollArea, Aside, createStyles, Text } from '@mantine/core';
 import NavBar from './NavBar.js';
 import Banner from './Banner.js';
 import UserSidebar from './UserSidebar.js';
@@ -25,6 +25,7 @@ export default function App() {
   const [user, setUser] = useState({});
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [posts, setPosts] = useState([]);
+  const [nothingFound, setNothingFound] = useState(false);
 
   // prolly don't need to link to a different page with the NavBar, but just change the state
   // and update the posts rendered based on state.tagSelected - doesn't make sense to use pathnames for selections of music or kiteboard, would be better in query part of url maybe or nested pathnames, esp if the tags change, doesn;t make sense to haev them as paths in url
@@ -38,6 +39,14 @@ export default function App() {
       .catch((err) => console.log('error getting posts', err))
     }, []);
 
+    useEffect(() => {
+      if (!(posts.length >= 1)) {
+        setNothingFound(true);
+        return;
+      }
+      setNothingFound(false);
+    }, [posts]);
+
 
   //const viewport = useRef<HTMLDivElement/>(null));
 
@@ -45,7 +54,7 @@ export default function App() {
   //   viewport.current.scrollTo({ top: viewport.current.scrollHeight, behavior: 'smooth' });
 
   const handleFilterPosts = async (route, filterTerm, e) => {
-    e.preventDefault();
+    e && e.preventDefault();
     try {
       const response = await axios.get(`http://localhost:3001/posts/filter/${route}/${filterTerm}`);
       let filteredPosts = response.data;
@@ -62,18 +71,17 @@ export default function App() {
 
   const home = {link: '/home', label: 'home'};
 
-  const regions = [{link: '/africa', label: 'Africa'}, {link: '/australia', label: 'Australia'}, {link: '/centralamerica', label: 'Central America'}, {link: '/centralasia', label: 'Central Asia'}, {link: '/eastasia', label: 'East Asia'}, {link: '/europe', label: 'Europe'}, {link: '/northafrica', label: 'North Africa'}, {link: '/northamerica', label: 'North America'}, {link: '/southamerica', label: 'South America'}, {link: '/southeastasia', label: 'Southeast Asia'}, {link: '/newzealand', label: 'New Zealand'}, {link: '/middleeast', label: 'Middle East'}];
-
 
   // //viewportRef={viewport} in returned DOm element (LG calendar) or maybe scrollArea?
 
   return (
     <div>
-      <NavBar handleFilterPosts={handleFilterPosts} links={links} user={user} setPosts={setPosts} regions={regions} isLoggedIn={isLoggedIn} home={home} bucketList={bucketList}/>
+      <NavBar handleFilterPosts={handleFilterPosts} links={links} user={user} setPosts={setPosts} isLoggedIn={isLoggedIn} home={home} bucketList={bucketList} />
       <div style={{ height: 1400 }} className={classes.main}>
-        <UserSidebar user={user} setUser={setUser} posts={posts} setPosts={setPosts} regions={regions} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn}/>
+        <UserSidebar user={user} setUser={setUser} posts={posts} setPosts={setPosts} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
         <Aside>
-          <Banner />
+          <Banner setPosts={setPosts} posts={posts} handleFilterPosts={handleFilterPosts} />
+          {nothingFound && <Text>Sorry, no posts match your search</Text>}
           <Feed posts={posts} setPosts={setPosts} user={user} isLoggedIn={isLoggedIn}  handleFilterPosts={handleFilterPosts}/>
           {/* <LgCalendar /> */}
         </Aside>

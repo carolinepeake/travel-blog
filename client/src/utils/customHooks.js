@@ -45,6 +45,7 @@ export const useCloudinary = () => {
   const uploadImage = async (fileUrl) => {
     if (!fileUrl) {
       setCloudinaryImage('');
+      setCloudinaryErr('');
       return;
     }
 
@@ -56,8 +57,12 @@ export const useCloudinary = () => {
       setCloudinaryImage(savedImage.data)
     } catch (err) {
       console.log('error uploading cloudinary image: ', err);
-      // set to err.message or whatever it is
-      setCloudinaryErr('error uploading image, file must be less than 64 mb');
+      // if (err.response.status === 413) {
+        // set to err.message or whatever it is
+        // useEffect if cloudinaryErr changes and change local error message state depending on err obj
+        //setCloudinaryErr('error uploading image, file must be less than 64 mb');
+      // }
+      setCloudinaryErr(err);
     }
   }
 

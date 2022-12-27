@@ -54,6 +54,8 @@ const Container = styled.div`
   padding-right: 16px;
   width: 100%;
   height: 100%;
+  position: relative;
+  z-Index: -1;
 `;
 
 

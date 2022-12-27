@@ -19,32 +19,32 @@ const useStyles = createStyles((theme) => ({
   }
 }));
 
-export default function SearchIcon({ search }
+export default function SearchIcon({ search, handleFilterPostsByActivity }
   ) {
 
     const { classes, cx } = useStyles();
 
-    const handleFilterPostsByRegion = async (e) => {
-      e.preventDefault();
-      try {
-        console.log('region: ', region);
-        const response = await axios.get(`http://localhost:3001/posts/region/${region}`);
-        const filteredPosts = response.data;
-        console.log('response from handleFilterPosts', response.data);
-        setPosts(filteredPosts);
-        // setActive(link.link);
-        setSearch('');
-        // close();
-      } catch (err) {
-        console.log('error filtering posts', err);
-      }
-    };
+    // const handleFilterPostsByRegion = async (e) => {
+    //   e.preventDefault();
+    //   try {
+    //     console.log('region: ', region);
+    //     const response = await axios.get(`http://localhost:3001/posts/region/${region}`);
+    //     const filteredPosts = response.data;
+    //     console.log('response from handleFilterPosts', response.data);
+    //     setPosts(filteredPosts);
+    //     // setActive(link.link);
+    //     setSearch('');
+    //     // close();
+    //   } catch (err) {
+    //     console.log('error filtering posts', err);
+    //   }
+    // };
 
     return(
-      <ActionIcon aria-label="Search" onClick={(e) => handleFilterPostsByRegion(e)}
+      <ActionIcon aria-label="Search" onClick={(e) => handleFilterPostsByActivity('tags', search, e)}
       className={classes.root}
       id="iconDiv">
-        <IconSearch size={20} stroke={1.5} onClick={(e) => handleFilterPostsByRegion(search, e)} className={classes.icon}/>
+        <IconSearch size={20} stroke={1.5} onClick={(e) => handleFilterPostsByActivity('tags', search)} className={classes.icon}/>
       </ActionIcon>
     );
   };

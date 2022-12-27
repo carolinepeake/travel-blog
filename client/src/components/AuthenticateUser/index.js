@@ -38,7 +38,7 @@ export default function AuthenticateUser({ PaperProps, ButtonProps, user, setUse
   // React.ComponentPropsWithoutRef<'a'>
   ) {
   const { classes, cx } = useStyles();
-  const [type, toggle] = useToggle(['log in', 'register']);
+  const [type, toggle] = useToggle(['login', 'register']);
   const [isOpened, setIsOpened] = useState(false);
   const form = useForm({
     initialValues: {
@@ -49,9 +49,9 @@ export default function AuthenticateUser({ PaperProps, ButtonProps, user, setUse
       city: '',
       country: '',
       image: '',
-      terms: true,
     },
 
+  // need to add image to validation
     validate: (values) => {
       // can prolly refactor this to be DRY
       if (type === 'login') {
@@ -90,13 +90,13 @@ export default function AuthenticateUser({ PaperProps, ButtonProps, user, setUse
     },
 
     validateInputOnChange: [
+      'image',
     ],
 
     validateInputOnBlur: [
       'email',
       'password',
       'confirmPassword',
-      'image',
     ],
   });
 
@@ -114,20 +114,19 @@ export default function AuthenticateUser({ PaperProps, ButtonProps, user, setUse
       name: values.name,
       email: values.email,
       password: values.password,
-      terms: values.terms,
       city: values.city,
       country: values.country,
-      image: '',
+      image: values.image,
     };
     try {
-      if (avatar) {
-        const savedImage = await axios.post('http://localhost:3001/posts/cloudinary/upload', {
-          image: avatar,
-        });
-        console.log('saved avatar image: ', savedImage);
-        accountBody.image = savedImage.data.url;
-        // await form.setFieldValue('image', imageUrl.data.url);
-      }
+      // if (avatar) {
+      //   const savedImage = await axios.post('http://localhost:3001/posts/cloudinary/upload', {
+      //     image: avatar,
+      //   });
+      //   console.log('saved avatar image: ', savedImage);
+      //   accountBody.image = savedImage.data.url;
+      //   // await form.setFieldValue('image', imageUrl.data.url);
+      // }
       console.log('accountBody from handleCreateAccount: ', accountBody);
       let response = await axios.post('http://localhost:3001/users/signup', accountBody);
       console.log('response from handleCreateAccount', response.data);
