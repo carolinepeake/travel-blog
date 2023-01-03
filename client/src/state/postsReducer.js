@@ -10,8 +10,8 @@ import axios from 'axios';
 
 // ASYNC FUNCTIONS
 
-export const fetchPosts = createAsyncThunk('posts/fetchPosts', async () => {
-  const response = await axios.get('/posts');
+export const fetchPosts = createAsyncThunk('posts/fetchPosts', async (filter = {}) => {
+  const response = await axios.get('/posts', { params: filter});
   return response.data
 });
 
@@ -65,5 +65,5 @@ export default postsSlice.reducer
 
 export const selectAllPosts = state => state.posts.posts;
 
-// export const selectPostById = (state, postId) =>
-//   state.posts.posts.find(post => post._id === postId);
+export const selectPostsByAuthor = (state, authorId) =>
+  state.posts.posts.find(post => post.author === authorId);

@@ -1,7 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useDispatch } from 'react-redux';
 import axios from 'axios';
 import { createStyles, Card, Image, ActionIcon, Group, Text, Avatar, Badge } from '@mantine/core';
 import { IconHeart, IconChevronRight, IconChevronLeft} from '@tabler/icons';
+import {
+  fetchPosts
+} from '../state/postsReducer.js';
 
 const useStyles = createStyles((theme, _params, getRef) => ({
 
@@ -152,7 +156,7 @@ const useStyles = createStyles((theme, _params, getRef) => ({
 
 }));
 
-export const Post = ({ post, index, posts, setPosts, user, grid, rowGap, rowHeight, isLoggedIn, handleFilterPosts }) => {
+export const Post = ({ post, index, posts, setPosts, user, grid, rowGap, rowHeight, isLoggedIn, handleFilterPosts, feed, setFeed }) => {
   const { classes, theme, getRef } = useStyles();
   const [liked, setIsLiked] = useState(false);
   const [tooltipText, setTooltipText] = useState('add to bucket list');
@@ -160,6 +164,7 @@ export const Post = ({ post, index, posts, setPosts, user, grid, rowGap, rowHeig
   const content = useRef();
   const [gridRowSpan, setGridRowSpan] = useState(0);
   const [photoIndex, setPhotoIndex] = useState(0);
+  const dispatch = useDispatch()
 
 
   console.log('post: ', post, 'user', user);
@@ -252,16 +257,10 @@ export const Post = ({ post, index, posts, setPosts, user, grid, rowGap, rowHeig
 //   console.log('content current style: ',  content.current.style, 'content: ', content, 'type of content: ', typeof content);
 // }
 
-const handleFilterByAuthor = async (e) => {
+
+const handleFilterByAuthor = (e) => {
   e.preventDefault();
-  try {
-    console.log('author id: ', post.author._id);
-    let response = await axios.get(`http://localhost:3001/posts/user/${post.author._id}`);
-    console.log('response from filter posts by author: ', response);
-    setPosts(response.data);
-  } catch (err) {
-    console.log('error filtering posts by author', err);
-  }
+  dispatch(fetchPosts({author: post.author._id}));
 };
 
   function resizePost() {

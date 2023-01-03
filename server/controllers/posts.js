@@ -29,8 +29,8 @@ module.exports.controllers= {
   },
 
   getPosts: function(req, res) {
-    console.log('request params from getPosts', req.params);
-    Post.find(req.params)
+    console.log('get posts request query: ', req.query);
+    Post.find(req.query)
     .populate('location')
     .populate('author')
     .exec()
@@ -43,37 +43,37 @@ module.exports.controllers= {
     })
   },
 
-  getFilteredPosts: function(req, res) {
-    console.log('request params from getFilteredPosts', req.params);
-    let filterKey = req.params.route.toLowerCase();
-    let filterValue = req.params.filterTerm.toLowerCase();
-    Post.find({ [filterKey] : filterValue })
-    .populate('location')
-    .populate('author')
-    .exec()
-    .then((result) => {
-      console.log('query response from getFilteredPosts: ', result);
-      res.status(200).send(result);
-    })
-    .catch((err) => {
-      console.log('error in controller getPosts: ', err);
-      res.status(400).json({ error: "error retrieving posts" });
-    })
-  },
+  // getFilteredPosts: function(req, res) {
+  //   console.log('request params from getFilteredPosts', req.params);
+  //   let filterKey = req.params.route.toLowerCase();
+  //   let filterValue = req.params.filterTerm.toLowerCase();
+  //   Post.find({ [filterKey] : filterValue })
+  //   .populate('location')
+  //   .populate('author')
+  //   .exec()
+  //   .then((result) => {
+  //     console.log('query response from getFilteredPosts: ', result);
+  //     res.status(200).send(result);
+  //   })
+  //   .catch((err) => {
+  //     console.log('error in controller getPosts: ', err);
+  //     res.status(400).json({ error: "error retrieving posts" });
+  //   })
+  // },
 
-  getPostsFilteredByAuthor: function(req, res) {
-    Post.find({author: req.params.userID})
-      .populate('location')
-      .populate('author')
-      .exec()
-      .then((posts) => {
-        res.status(200).send(posts);
-      })
-      .catch((err) => {
-        console.log('error in controller getPostsFilteredByAuthor: ', err);
-        res.status(400).json({ error: "error retrieving user" });
-      })
-  },
+  // getPostsFilteredByAuthor: function(req, res) {
+  //   Post.find({author: req.params.userID})
+  //     .populate('location')
+  //     .populate('author')
+  //     .exec()
+  //     .then((posts) => {
+  //       res.status(200).send(posts);
+  //     })
+  //     .catch((err) => {
+  //       console.log('error in controller getPostsFilteredByAuthor: ', err);
+  //       res.status(400).json({ error: "error retrieving user" });
+  //     })
+  // },
 
   deletePost: function(req, res) {
     console.log('request params from deletePost controller: ', req.params);

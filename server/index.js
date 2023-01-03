@@ -5,11 +5,13 @@ require('dotenv').config();
 const router = require('./routes');
 const bodyParser = require('body-parser');
 
+// var router = express.Router({mergeParams: true});
+
 const app = express();
 
 app.use(express.json());
-app.use(morgan('tiny'));
-// app.use(morgan('dev')); ?
+// app.use(morgan('tiny'));
+app.use(morgan('dev'));
 app.use(bodyParser.json());
 
 app.use(express.static(path.join(__dirname, '../client/dist')));

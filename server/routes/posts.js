@@ -10,9 +10,9 @@ getPostsFilteredByAuthor } = require('.././controllers').PostsController;
 // Home page route
 posts.get('/', getPosts);
 
-posts.get('/filter/:route/:filterTerm', getFilteredPosts);
+// posts.get('/filter/:route/:filterTerm', getFilteredPosts);
 
-posts.get('/user/:userID', getPostsFilteredByAuthor);
+// posts.get('/user/:userID', getPostsFilteredByAuthor);
 
 posts.post('/', postPost);
 

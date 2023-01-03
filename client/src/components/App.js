@@ -26,6 +26,7 @@ export default function App() {
   const [user, setUser] = useState({});
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [posts, setPosts] = useState([]);
+  const [feed, setFeed] = useState([]);
 
 
   // prolly don't need to link to a different page with the NavBar, but just change the state
@@ -64,16 +65,24 @@ export default function App() {
 
   return (
     <div>
-      <NavBar handleFilterPosts={handleFilterPosts} links={links} user={user} setPosts={setPosts} isLoggedIn={isLoggedIn} home={home} bucketList={bucketList} />
+      <NavBar handleFilterPosts={handleFilterPosts} links={links} user={user} setPosts={setPosts} isLoggedIn={isLoggedIn} home={home} bucketList={bucketList}  setFeed={setFeed}/>
       <div style={{ height: 1400 }} className={classes.main}>
-        <UserSidebar user={user} setUser={setUser} posts={posts} setPosts={setPosts} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
+        <UserSidebar user={user} setUser={setUser} posts={posts} setPosts={setPosts} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn}
+         feed={feed}
+         setFeed={setFeed}
+        />
         <Aside>
-          <Banner setPosts={setPosts} posts={posts} handleFilterPosts={handleFilterPosts} />
+          <Banner setPosts={setPosts} posts={posts}
+           feed={feed}
+           setFeed={setFeed}
+          handleFilterPosts={handleFilterPosts} />
 
           {/* <MasonaryLayout posts={posts} setPosts={setPosts} user={user} isLoggedIn={isLoggedIn}/> */}
           <Feed
           // posts={posts}
-           setPosts={setPosts}
+          setPosts={setPosts}
+          feed={feed}
+          setFeed={setFeed}
           user={user} isLoggedIn={isLoggedIn}
           handleFilterPosts={handleFilterPosts}
           />

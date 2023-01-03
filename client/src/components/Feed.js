@@ -10,7 +10,7 @@ import { Text } from '@mantine/core';
 import { StyledSpinner } from './Spinner.js';
 
 
-export default function Feed({ user, isLoggedIn, setPosts, handleFilterPosts }) {
+export default function Feed({ user, isLoggedIn, setPosts, handleFilterPosts, feed, setFeed }) {
   const grid = useRef();
   const [rowGap, setRowGap] = useState(0);
   const [rowHeight, setRowHeight] = useState(0);
@@ -30,7 +30,22 @@ export default function Feed({ user, isLoggedIn, setPosts, handleFilterPosts }) 
 
   // const [nothingFound, setNothingFound] = useState(false);
 
-  const posts = useSelector(selectAllPosts)
+  // should be caching all posts and using database to filter!!!!
+
+  let posts = useSelector(selectAllPosts);
+
+  // let feed;
+
+  // if (filtered.type === 'none' || filtered.type === undefined) {
+  //   feed = useSelector(selectAllPosts);
+  // } else if (filtered.type === 'author') {
+  //   feed = useSelector(selectPostsByAuthor(filtered.term));
+  // // } else if (filtered.type === 'tag') {
+  // //   feed = useSelector(selectPostsByTag(filtered.term));
+  // // } else if (filtered.type === '')
+  // } else {
+  //   feed = useSelector(selectAllPosts);
+  // }
 
   // const renderedPosts = posts.map(post => (
   //   <div className={classes.grid-item} key={post._id}>
@@ -48,11 +63,18 @@ export default function Feed({ user, isLoggedIn, setPosts, handleFilterPosts }) 
   const postStatus = useSelector(state => state.posts.status);
   const error = useSelector(state => state.posts.error);
 
+  // useEffect(() => {
+  //   if (postStatus === 'idle') {
+  //     dispatch(fetchPosts())
+  //   }
+  // }, [postStatus, dispatch]);
+
+
   useEffect(() => {
     if (postStatus === 'idle') {
       dispatch(fetchPosts())
     }
-  }, [postStatus, dispatch]);
+  }, []);
 
   let content;
 
@@ -66,7 +88,7 @@ export default function Feed({ user, isLoggedIn, setPosts, handleFilterPosts }) 
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 
     content = orderedPosts.map(post => (
-      <Post key={post._id} post={post} posts={posts} setPosts={setPosts} user={user} grid={grid} rowGap={rowGap} rowHeight={rowHeight} isLoggedIn={isLoggedIn}  handleFilterPosts={handleFilterPosts}/>
+      <Post key={post._id} post={post} posts={posts} setPosts={setPosts} user={user} grid={grid} rowGap={rowGap} rowHeight={rowHeight} isLoggedIn={isLoggedIn}  handleFilterPosts={handleFilterPosts} feed={feed} setFeed={setFeed}/>
     ))
   } else if (postStatus === 'failed') {
     content = <Text>Sorry, no posts match your search</Text>
