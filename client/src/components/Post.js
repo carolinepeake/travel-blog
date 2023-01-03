@@ -323,13 +323,13 @@ const handleFilterByAuthor = (e) => {
         </Group>
         <Group>
           {post.location.city
-          && <Badge className={classes.tag} size="sm" onClick={(e) => handleFilterPosts('city', post.location.city, e)}>{post.location.city}</Badge>}
+          && <Badge className={classes.tag} size="sm" onClick={() => dispatch(fetchPosts({city: post.location.city}))}>{post.location.city}</Badge>}
           {post.location.state
-          && <Badge className={classes.tag} size="sm" onClick={(e) => handleFilterPosts('state', post.location.state, e)}>{post.location.state}</Badge>}
+          && <Badge className={classes.tag} size="sm" onClick={() => dispatch(fetchPosts({state: post.location.state}))}>{post.location.state}</Badge>}
           {post.location.country
-          && <Badge className={classes.tag} size="sm" onClick={(e) => handleFilterPosts('country', post.location.country, e)}>{post.location.country}</Badge>}
+          && <Badge className={classes.tag} size="sm" onClick={() => dispatch(fetchPosts({country: post.location.country}))}>{post.location.country}</Badge>}
           {post.region
-          && <Badge className={classes.tag} size="sm" onClick={(e) => handleFilterPosts('region', post.location.region, e)}>{post.region}</Badge>}
+          && <Badge className={classes.tag} size="sm" onClick={() => dispatch(fetchPosts({region: post.region}))}>{post.region}</Badge>}
         </Group>
         <Text size="sm" mt="xs">
           {post.description}

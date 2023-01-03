@@ -15,7 +15,7 @@ export default function Feed({ user, isLoggedIn, setPosts, handleFilterPosts, fe
   const [rowGap, setRowGap] = useState(0);
   const [rowHeight, setRowHeight] = useState(0);
   // const [styles, setStyles] = UseState({});
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const computedRowGap = parseInt(window

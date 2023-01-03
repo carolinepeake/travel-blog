@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useDispatch } from 'react-redux';
 import { createStyles, Overlay, Container, Title, Button, Text, Autocomplete } from '@mantine/core';
 import { useMapboxApi } from '../utils/customHooks.js';
+import {
+  fetchPosts
+} from '../state/postsReducer.js';
 
 const useStyles = createStyles((theme) => ({
   hero: {
@@ -112,6 +116,7 @@ export default function Banner({ setPosts, handleFilterPosts, posts }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [autocompleteLocations, autocompleteErr, locationFetch] = useMapboxApi();
   const [isFocused, setIsFocused] = useState(false);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     setSearchTerm('');
@@ -126,6 +131,7 @@ export default function Banner({ setPosts, handleFilterPosts, posts }) {
     locationFetch(query, 'all');
   }
 
+  // text place_type logic with mexico / mexico city
   const handleFilterPostsByPlaceSearch = (item) => {
     console.log('item from handleFilterPostsByPlaceSearch: ', item);
     const smallestPlaceName = item.place_name.split(',').shift();
@@ -140,7 +146,10 @@ export default function Banner({ setPosts, handleFilterPosts, posts }) {
     console.log('placeType from handleFilterPostsByPlaceSearch in Banner: ', placeType, 'smallestPlaceName from handleFilterPostsByPlaceSearch in Banner: ', smallestPlaceName);
     // should maybe make async and return api response and set state here so can know if successful
     handleFilterPosts(placeType, smallestPlaceName);
+    dispatch(fetchPosts({[placeType]: smallestPlaceName}));
   };
+
+  // autocomplete input doesn't clear
 
   return (
     <div className={classes.hero}>

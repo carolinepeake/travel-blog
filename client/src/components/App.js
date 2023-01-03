@@ -2,6 +2,7 @@ import React, {
   useState,
   useEffect
 } from "react";
+import { useDispatch } from 'react-redux';
 import { ScrollArea, Aside, createStyles, Text } from '@mantine/core';
 import NavBar from './NavBar.js';
 import Banner from './Banner.js';
@@ -10,6 +11,9 @@ import Feed from './Feed.js';
 // import MasonaryLayout from './MasonaryLayout.js';
 // import LgCalendar from './LgCalendar.js';
 import axios from 'axios';
+import {
+  fetchPosts
+} from '../state/postsReducer.js';
 
 const useStyles = createStyles((theme) => ({
   main: {
@@ -27,6 +31,7 @@ export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [posts, setPosts] = useState([]);
   const [feed, setFeed] = useState([]);
+  const dispatch = useDispatch();
 
 
   // prolly don't need to link to a different page with the NavBar, but just change the state
@@ -44,14 +49,15 @@ export default function App() {
 
   const handleFilterPosts = async (route, filterTerm, e) => {
     e && e.preventDefault();
-    try {
-      const response = await axios.get(`http://localhost:3001/posts/filter/${route}/${filterTerm}`);
-      let filteredPosts = response.data;
-      console.log('response from handleFilterPosts in App component', response.data);
-      setPosts(filteredPosts);
-    } catch (err) {
-      console.log('error filtering posts', err);
-    }
+    dispatch(fetchPosts({[route]: filterTerm}));
+    // try {
+    //   const response = await axios.get(`http://localhost:3001/posts/filter/${route}/${filterTerm}`);
+    //   let filteredPosts = response.data;
+    //   console.log('response from handleFilterPosts in App component', response.data);
+    //   setPosts(filteredPosts);
+    // } catch (err) {
+    //   console.log('error filtering posts', err);
+    // }
   };
 
   const links = [{link: '/kiteboarding', label: 'kiteboarding'}, {link: '/scuba', label: 'scuba'}, {link: '/music', label: 'music'}, {link: '/gastronomy', label: 'gastronomy'}];

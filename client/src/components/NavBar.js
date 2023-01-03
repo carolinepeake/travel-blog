@@ -1,9 +1,13 @@
 import { useState, useEffect } from 'react';
-import { createStyles, Header, Container, Group, Paper, Transition, Burger, Autocomplete } from '@mantine/core';
+import { useDispatch } from 'react-redux';
+import { createStyles, Header, Container, Group, Paper, Transition, Burger, Autocomplete, Button } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import axios from 'axios';
 import styled from 'styled-components';
 import SearchIcon from './SearchIcon.js';
+import {
+  fetchPosts
+} from '../state/postsReducer.js';
 
 const HEADER_HEIGHT = 60;
 
@@ -47,6 +51,12 @@ const useStyles = createStyles((theme) => ({
     [theme.fn.smallerThan('xs')]: {
       display: 'none',
     },
+  },
+
+  searchIcon: {
+    // '&:hover': {
+      cursor: 'pointer',
+    // },
   },
 
   burger: {
@@ -120,6 +130,7 @@ export default function NavBar({ links, home, bucketList, setPosts, user, isLogg
   const [hidePopUp, setHidePopUp] = useState(true);
   const [view, setView] = useState('home');
   const [tags, setTags] = useState([]);
+  const dispatch = useDispatch();
 
     useEffect(() => {
       axios.get('http://localhost:3001/tags')
@@ -135,9 +146,9 @@ export default function NavBar({ links, home, bucketList, setPosts, user, isLogg
   // and update the posts rendered based on state.tagSelected
 
   const handleFilterPostsByLink = async (route, link, e) => {
-    e.preventDefault();
+    e && e.preventDefault();
     try {
-      await handleFilterPosts(route, link.label, e);
+      await dispatch(fetchPosts({tags: link.label}));
       setActive(link.link);
       close();
     } catch (err) {
@@ -147,8 +158,9 @@ export default function NavBar({ links, home, bucketList, setPosts, user, isLogg
 
   const handleFilterPostsByActivity = async (route, filteredTerm, e) => {
     e && e.preventDefault();
+    console.log('filtered term: ', filteredTerm);
     try {
-      await handleFilterPosts(route, filteredTerm, e);
+      await dispatch(fetchPosts({tags: filteredTerm}));
       setSearch('');
     } catch (err) {
       console.log('error filtering posts', err);
@@ -176,24 +188,27 @@ export default function NavBar({ links, home, bucketList, setPosts, user, isLogg
     } else {
      // alert("Must be logged in to filter by posts saved to your bucket list.")
        // return error need to be logged in, or disable bucketList link and make tooltip over it urging user to sign in to see
-       console.log('getting to else in handleClick');
+      console.log('getting to else in handleClick');
       setHidePopUp(false);
       setTimeout(setHidePopUp, 5000, true);
     }
   };
 
-  const handleClickHome = async (e) => {
+  const handleClickHome =
+  // async
+  (e) => {
     e.preventDefault();
-    try {
-      const response = await axios.get('http://localhost:3001/posts/');
-      const filteredPosts = response.data;
-      console.log('response from handleFilterPosts', response.data);
-      setPosts(filteredPosts);
+    dispatch(fetchPosts());
+    // try {
+    //   const response = await axios.get('http://localhost:3001/posts/');
+    //   const filteredPosts = response.data;
+    //   console.log('response from handleFilterPosts', response.data);
+    //   setPosts(filteredPosts);
       setActive(home.link);
       close();
-    } catch (err) {
-      console.log('error returning home', err);
-    }
+    // } catch (err) {
+    //   console.log('error returning home', err);
+    // }
   };
 
   const items = links.map((link) => (
@@ -239,22 +254,42 @@ export default function NavBar({ links, home, bucketList, setPosts, user, isLogg
 
             {items}
           </Group>
+          {/* <Button>
+            component={Autocomplete}
+            classNames={{root: classes.search, icon: classes.searchIcon}}
+            placeholder="search by activity"
+            icon={<SearchIcon
+            search={search}
+            handleFilterPostsByActivity={handleFilterPostsByActivity}
+            //onClick={(e) => handleFilterPostsByActivity('tags', search, e)}
+            // size={16} stroke={1.5}
+            // className={classes.searchIcon}
+            />}
+            // zIndex={101}
+            onItemSubmit={(item) => handleFilterPostsByActivity('tags', item)}
+            data={data} // can make these dynamic to last searched for user
+            value={search}
+            onChange={setSearch}
+            onKeyPress={(e) => {if (e.key === 'Enter') {handleFilterPostsByActivity('tags', search, e)}}}
+            onItemSubmit={(search) => {handleFilterPostsByActivity('tags', search)}}
+          </Button> */}
           <Autocomplete
-              className={classes.search}
+              classNames={{root: classes.search, icon: classes.searchIcon}}
               placeholder="search by activity"
               icon={<SearchIcon
-              // handleFilterPostsByActivity={handleFilterPostsByActivity}
               search={search}
-              onClick={(e) => handleFilterPostsByActivity('tags', search, e)}
+              handleFilterPostsByActivity={handleFilterPostsByActivity}
+              //onClick={(e) => handleFilterPostsByActivity('tags', search, e)}
               // size={16} stroke={1.5}
-              // className={classes.searchIcon}
+              className={classes.searchIcon}
               />}
               // zIndex={101}
-              onItemSubmit={(item) => handleFilterPostsByActivity('tags', item)}
-              data={data} // can make these dynamic to last searched for user
+              data={data} // can make these dynamic to last searched for user -- think may automatically be
               value={search}
               onChange={setSearch}
               onKeyPress={(e) => {if (e.key === 'Enter') {handleFilterPostsByActivity('tags', search, e)}}}
+              //onItemSubmit={(searchTerm) => {handleFilterPostsByActivity('tags', searchTerm)}}
+              onItemSubmit={(item) => {let searchTerm = item.value; handleFilterPostsByActivity('tags', searchTerm)}}
             />
 
           <Burger opened={opened} onClick={toggle} title="Open navigation" aria-label="Open navigation" className={classes.burger} size="sm" />
