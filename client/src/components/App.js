@@ -1,4 +1,4 @@
-import {
+import React, {
   useState,
   useEffect
 } from "react";
@@ -7,6 +7,7 @@ import NavBar from './NavBar.js';
 import Banner from './Banner.js';
 import UserSidebar from './UserSidebar.js';
 import Feed from './Feed.js';
+// import MasonaryLayout from './MasonaryLayout.js';
 // import LgCalendar from './LgCalendar.js';
 import axios from 'axios';
 
@@ -25,27 +26,14 @@ export default function App() {
   const [user, setUser] = useState({});
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [posts, setPosts] = useState([]);
-  const [nothingFound, setNothingFound] = useState(false);
+
 
   // prolly don't need to link to a different page with the NavBar, but just change the state
   // and update the posts rendered based on state.tagSelected - doesn't make sense to use pathnames for selections of music or kiteboard, would be better in query part of url maybe or nested pathnames, esp if the tags change, doesn;t make sense to haev them as paths in url
 
     // could lazy init the photos
 
-  useEffect(() => {
-    // dynamically enable filtering
-      axios.get('/posts')
-      .then((response) => setPosts(response.data))
-      .catch((err) => console.log('error getting posts', err))
-    }, []);
 
-    useEffect(() => {
-      if (!(posts.length >= 1)) {
-        setNothingFound(true);
-        return;
-      }
-      setNothingFound(false);
-    }, [posts]);
 
 
   //const viewport = useRef<HTMLDivElement/>(null));
@@ -81,8 +69,14 @@ export default function App() {
         <UserSidebar user={user} setUser={setUser} posts={posts} setPosts={setPosts} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
         <Aside>
           <Banner setPosts={setPosts} posts={posts} handleFilterPosts={handleFilterPosts} />
-          {nothingFound && <Text>Sorry, no posts match your search</Text>}
-          <Feed posts={posts} setPosts={setPosts} user={user} isLoggedIn={isLoggedIn}  handleFilterPosts={handleFilterPosts}/>
+
+          {/* <MasonaryLayout posts={posts} setPosts={setPosts} user={user} isLoggedIn={isLoggedIn}/> */}
+          <Feed
+          // posts={posts}
+           setPosts={setPosts}
+          user={user} isLoggedIn={isLoggedIn}
+          handleFilterPosts={handleFilterPosts}
+          />
           {/* <LgCalendar /> */}
         </Aside>
       </div>

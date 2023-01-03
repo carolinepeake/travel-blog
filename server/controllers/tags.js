@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const db = require('../../db/connection.js');
 const Tag = require('../../db/schemas').Tag;
 const Post = require('../../db/schemas').Post;
 
@@ -46,18 +47,18 @@ module.exports.controllers = {
     })
   },
 
-  postTest: function(req, res) {
-    var entry = req.body;
-    new Test(entry).save()
-    .then((result) => {
-      console.log('success saving test');
-      res.status(201).send(result.data);
-    })
-    .catch((err) => {
-      console.log('error saving test', err);
-      res.status(401).send('error');
-    })
-  },
+  // postTest: function(req, res) {
+  //   var entry = req.body;
+  //   new Test(entry).save()
+  //   .then((result) => {
+  //     console.log('success saving test');
+  //     res.status(201).send(result.data);
+  //   })
+  //   .catch((err) => {
+  //     console.log('error saving test', err);
+  //     res.status(401).send('error');
+  //   })
+  // },
 
   postTag: function(req, res) {
     var entry = req.body;

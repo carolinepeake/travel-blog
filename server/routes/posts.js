@@ -1,8 +1,7 @@
 // posts.js - Posts route module
 const express = require('express');
 const posts = express.Router();
-const { getPosts, postPost, deletePost, getTags, uploadImage, getFilteredPosts,
-//  getPostsFilteredByRegion, getPostsFilteredByCity,
+const { getPosts, postPost, deletePost, uploadImage, getFilteredPosts,
 getPostsFilteredByAuthor } = require('.././controllers').PostsController;
 
 // const express = require("express");

@@ -32,7 +32,6 @@ const useStyles = createStyles((theme) => ({
 }));
 
 export default function AuthenticationForm({ PaperProps, ButtonProps, form, avatar, setAvatar, handleSubmit, handleError, handleClickRegister }
- // React.ComponentPropsWithoutRef<'a'>
   ) {
   const { classes, cx } = useStyles();
   const [autocompleteLocations, autocompleteErr, locationFetch] = useMapboxApi();
@@ -102,7 +101,7 @@ export default function AuthenticationForm({ PaperProps, ButtonProps, form, avat
             placeholder="Confirm password"
             value={form.values.confirmPassword}
             onChange={(event) => form.setFieldValue('confirmPassword', event.currentTarget.value)}
-            error={form.errors.password && 'password must include at least 6 characters'}
+            error={form.errors.confirmPassword && 'passwords must match'}
           />
 
           <Autocomplete

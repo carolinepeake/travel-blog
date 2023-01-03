@@ -2,7 +2,6 @@
 const express = require('express');
 const locations = express.Router();
 const { getLocations, postLocation, getPlaces } = require('.././controllers').LocationsController;
-//const LocationsController = require('.././controllers').LocationsController;
 
 // const express = require("express");
 // const router = express.Router();

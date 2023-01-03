@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const db = require('../../db/connection.js');
 const cloudinary = require('cloudinary').v2;
 require('dotenv').config();
 const Post = require('../../db/schemas').Post;
@@ -23,7 +24,7 @@ module.exports.controllers= {
     })
     .catch((err) => {
       console.log('error saving post: ', err);
-      res.status(401).send('error');
+      res.status(401).json({ error: 'error saving post' });
     })
   },
 
@@ -38,7 +39,7 @@ module.exports.controllers= {
     })
     .catch((err) => {
       console.log('error in controller getPosts: ', err);
-      res.status(400);
+      res.status(400).json({ error: "error retrieving posts" });
     })
   },
 
@@ -56,7 +57,7 @@ module.exports.controllers= {
     })
     .catch((err) => {
       console.log('error in controller getPosts: ', err);
-      res.status(400);
+      res.status(400).json({ error: "error retrieving posts" });
     })
   },
 
@@ -70,7 +71,7 @@ module.exports.controllers= {
       })
       .catch((err) => {
         console.log('error in controller getPostsFilteredByAuthor: ', err);
-        res.status(400);
+        res.status(400).json({ error: "error retrieving user" });
       })
   },
 
@@ -85,7 +86,7 @@ module.exports.controllers= {
     })
     .catch((err) => {
       console.log('error deleting post : ', err);
-      res.status(404);
+      res.status(404).json({ error: "error deleting post" });
     })
   },
 
@@ -99,40 +100,9 @@ module.exports.controllers= {
       res.status(201).send(uploadedResponse);
     } catch (err) {
       console.log('error uplodaing image to cloudinary: ', err);
+      res.status(401).json({error : "error uplodaing image to cloudinary "});
     }
-  },
-
-
-  postTest: function(req, res) {
-    var entry = req.body;
-    console.log('request body from postPost in controllers: ', req.body);
-
-    new Test(entry).save()
-    .then((result) => {
-      console.log('success saving test');
-      res.status(201).send(result.data);
-    })
-    .catch((err) => {
-      console.log('error saving test', err);
-      res.status(401).send('error');
-    })
-
-  // const newAttendee = new Attendee({
-  //   firstName: req.body.firstname,
-  //   lastName: req.body.lastName,
-  //   email: req.body.email,
-  //   shirt: req.body.shirt,
-  //   skillLevel: req.body.skillLevel
-  // })
-  // newAttendee.save()
-  // .then((addedAttendee) => {
-  //   console.log('success saving newAttendee', addedAttendee);
-  //   res.status(201)
-  // })
-  // .catch((err) => {
-  //   console.log('error adding newAttendee', err);
-  //   res.status(401)
-  // })
+  }
 
     // return models.saveTest(entry)
     // // return Promise.all([savePost(entry), saveRegion(entry.region), saveTag(entry.tag)])
@@ -144,7 +114,6 @@ module.exports.controllers= {
     //   console.log('error saving test', err);
     //   res.status(401).send('error');
     // })
-  }
 };
 
 

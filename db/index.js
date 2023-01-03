@@ -1,8 +1,10 @@
 // require db connection and all models and export an instance of each model class (shouldn't need to require db connection anywhere else then)
 
-const models = require(./models);
 
-const Test = models.Test;
+const models = require('./models');
+
+
+const User = models.User;
 const Post = models.Post;
 const Location = models.Location;
 const Tag = require('./tag');

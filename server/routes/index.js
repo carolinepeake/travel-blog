@@ -4,7 +4,6 @@
 
 exports.posts = require('./posts');
 exports.locations = require('./locations');
-exports.tests = require('./tests');
 exports.users = require('./users');
 exports.tags = require('./tags');
 // …

@@ -1,4 +1,4 @@
-import { React, useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { createStyles, Card, Image, ActionIcon, Group, Text, Avatar, Badge } from '@mantine/core';
 import { IconHeart, IconChevronRight, IconChevronLeft} from '@tabler/icons';
@@ -152,14 +152,7 @@ const useStyles = createStyles((theme, _params, getRef) => ({
 
 }));
 
-
-// upper first example
-  // <Button
-  // type="submit"
-  // // make button dynamic using state.type
-  // >{upperFirst(type)}</Button>
-
-export default function Post({ post, index, posts, setPosts, user, grid, rowGap, rowHeight, isLoggedIn, handleFilterPosts }) {
+export const Post = ({ post, index, posts, setPosts, user, grid, rowGap, rowHeight, isLoggedIn, handleFilterPosts }) => {
   const { classes, theme, getRef } = useStyles();
   const [liked, setIsLiked] = useState(false);
   const [tooltipText, setTooltipText] = useState('add to bucket list');
@@ -167,6 +160,7 @@ export default function Post({ post, index, posts, setPosts, user, grid, rowGap,
   const content = useRef();
   const [gridRowSpan, setGridRowSpan] = useState(0);
   const [photoIndex, setPhotoIndex] = useState(0);
+
 
   console.log('post: ', post, 'user', user);
 
@@ -216,18 +210,6 @@ export default function Post({ post, index, posts, setPosts, user, grid, rowGap,
      }
     }
   };
-
-  function resizePost() {
-    const contentHeight = parseInt(window
-      .getComputedStyle(content.current)
-      .getPropertyValue("height"));
-    let rowSpan = Math.ceil((contentHeight + rowGap) /(rowHeight + rowGap));
-    setGridRowSpan(rowSpan);
-  };
-
-  useEffect(() => {
-    resizePost()
-  }, []);
 
   useEffect(() => {
     console.log('isLoggedIn: ', isLoggedIn);
@@ -282,10 +264,24 @@ const handleFilterByAuthor = async (e) => {
   }
 };
 
+  function resizePost() {
+    const contentHeight = parseInt(window
+      .getComputedStyle(content.current)
+      .getPropertyValue("height"));
+    let rowSpan = Math.ceil((contentHeight + rowGap) / (rowHeight + rowGap));
+    setGridRowSpan(rowSpan);
+  };
+
+  useEffect(() => {
+    resizePost()
+  }, []);
+
+  // maybe make div an article element
   return (
   <div
     // className={classes.item}
-     onResize={() => resizeAllGridItems()}
+     onResize={() => resizePost()}
+    //  onResize={() => resizeAllGridItems()}
     //  id={post._id}
      style={{ gridRowEnd: `span ${gridRowSpan}` }}>
 
@@ -294,7 +290,8 @@ const handleFilterByAuthor = async (e) => {
       radius="md"
       className={classes.card}
       // id="card"
-      ref={content}>
+      ref={content}
+      >
 
       <Card.Section mb="sm" className={classes.section} style={{padding: 0}}>
         <div height={180}/>
@@ -376,8 +373,7 @@ const handleFilterByAuthor = async (e) => {
   );
 };
 
-
-  // would need to move this function to Feed component (parent) and either use forwardRef() or make Post a class component to make a DOM ref to it that is usable in Feed (parent) component.  Or possibly could use getElementsByClassName but not sure
+// would need to move this function to Feed component (parent) and either use forwardRef() or make Post a class component to make a DOM ref to it that is usable in Feed (parent) component.  Or possibly could use getElementsByClassName but not sure
   // function resizeAllGridItems(){
   //   const allItems = document.getElementsByClassName("item");
   //   for (let x=0; x < allItems.length; x++){

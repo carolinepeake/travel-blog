@@ -1,54 +1,69 @@
-const initialFormState = {
-  title: '',
-  selectedTags: [],
-  newTag: '',
-  newTags: [],
-  location: {
-    city: '',
-    state: '',
-    country: '',
-    region: '',
-  },
-  language: '',
-  description: '',
-  photos: '',
-  author: {
-    name: '',
-    city: '',
-    country: '',
-    avatar: '',
-  },
-  created_at: ''
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import axios from 'axios';
+
+// HELPER FUNCTIONS
+
+// const initialState = postsAdapter.getInitialState({
+//   status: 'idle',
+//   error: null,
+// });
+
+// ASYNC FUNCTIONS
+
+export const fetchPosts = createAsyncThunk('posts/fetchPosts', async () => {
+  const response = await axios.get('/posts');
+  return response.data
+});
+
+//handle filter posts
+
+// export const deletePost = createAsyncThunk('posts/getPosts', async(postId) => {
+//    const response = await axios.delete('/posts/:postId');
+//     console.log(`post ${post._id} deleted successfully`, response.data);
+//     let old = [...posts];
+//     await setPosts(() => {
+//       old.splice(index, 1);
+//       return old;
+//     });
+//   } catch (err) {
+//     console.log(`error deleting post ${post._id}`, err);
+//   }
+// });
+
+const initialState = {
+  posts: [],
+  status: 'idle',
+  error: null
 };
 
-const formReducer = function(state = {}, action) {
-  switch(action.type) {
-    case 'HANDLE INPUT TEXT':
-      return {
-        ...state,
-        [action.field]: action.payload,
-      };
-    case 'HANDLE SELECT MULTIPLE':
-      return {
-        ...state,
-        // could also use concat
-        [action.field]: [...state[action.field], action.payload],
-      };
-    // case 'HANDLE ADD MULTIPLE':
-    //   return {
-    //     ...state,
-    //     [action.field]: [...state[action.field], action.payload],
-    //   };
-    case 'HANDLE ADD TAG':
-      return {
-        ...state,
-        [action.field]: [...state[action.field], action.payload],
-      };
-    case 'HANDLE SUBMIT':
-      return {
-        ...initialFormState
-      };
-    default:
-      throw new Error(`Unknown action type: ${action.type}`);
+const postsSlice = createSlice({
+  name: 'posts',
+  initialState,
+  reducers: {},
+  extraReducers(builder) {
+    builder
+      .addCase(fetchPosts.pending, (state, action) => {
+        state.status = 'loading';
+      })
+      .addCase(fetchPosts.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        // Add any fetched posts to the array
+        // state.posts = state.posts.concat(action.payload)
+        state.posts = action.payload;
+      })
+      .addCase(fetchPosts.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message;
+        console.log('error fetchingPosts: ', action.error.message);
+      })
   }
-};
+});
+
+export default postsSlice.reducer
+
+// SELECTOR FUNCTIONS
+
+export const selectAllPosts = state => state.posts.posts;
+
+// export const selectPostById = (state, postId) =>
+//   state.posts.posts.find(post => post._id === postId);

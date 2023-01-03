@@ -3,7 +3,7 @@ require('dotenv').config();
 
 const mongoURI = `mongodb://localhost:27017/${process.env.DBNAME}`;
 
-const db = mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true });
+const db = mongoose.connect(mongoURI);
 
 db
   .then(db => console.log(`Connected to: ${mongoURI}`))
@@ -28,12 +28,13 @@ module.exports = db;
 
 // taken from mongoose quick start:
 
-// main().catch(err => console.log(err));
+main().catch(err => console.log(err));
 
-// async function main() {
-//   await mongoose.connect(`mongodb://localhost:27017/${process.env.DBNAME}`);
-    // .then(() => console.log('database connected'))
-    // .catch(error => console.log('error connecting database', error));
+async function main() {
+  await mongoose.connect(`mongodb://localhost:27017/${process.env.DBNAME}`)
+    .then(() => console.log('database connected'))
+    .catch(error => console.log('error connecting database', error));
+};
 
 
 

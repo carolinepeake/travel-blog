@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
+const db = require('../connection');
 
-module.exports.Test = require('./test');
 module.exports.Post = require('./post');
 module.exports.Location = require('./location');
 module.exports.Tag = require('./tag');

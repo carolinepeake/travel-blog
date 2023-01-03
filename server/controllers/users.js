@@ -1,4 +1,5 @@
 const mongoose = require('mongoose'); // do I need this?
+const db = require('../../db/connection.js');
 const bcrypt = require("bcrypt");
 const User = require('../../db/schemas').User;
 
@@ -7,9 +8,9 @@ module.exports.controllers = {
   handleUserSignup: async (req, res) => {
     const body = req.body;
     console.log('request body from handleUserSignup in controllers: ', req.body);
-
     // if (!(body.email && body.password)) {
-    //   return res.status(400).send({ error: "Data not formatted properly" });
+    //   res.status(400).json({ error: "Data not formatted properly, email and password required" });
+    //   return;
     // };
     // can add try/catch blocks
     const user = new User(body);
@@ -23,7 +24,7 @@ module.exports.controllers = {
     })
     .catch((err) => {
       console.log('error saving user: ', err);
-      res.status(401).send('error creating user');
+      res.status(401).json({ error: "error creating user" });
     })
   },
 
@@ -36,10 +37,9 @@ module.exports.controllers = {
       // check user password with hashed password stored in the database
       const validPassword = await bcrypt.compare(body.password, user.password);
       if (validPassword) {
-        // res.status(200).json({ message: "Valid password" }).send(user);
         res.status(200).send(user);
       } else {
-        res.status(400).json({ error: "Invalid Password" });
+        res.status(400).json({ error: "Incorrect Password" });
       }
     } else {
       res.status(401).json({ error: "User does not exist" });
@@ -57,7 +57,7 @@ module.exports.controllers = {
     })
     .catch((err) => {
       console.log('error in controller handleGetBucketList: ', err);
-      res.status(400);
+      res.status(400).json({ error: 'unable to retrieve bucket list' });
     })
   },
 
@@ -124,7 +124,7 @@ module.exports.controllers = {
     })
     .catch((err) => {
       console.log('error in controller getUsers: ', err);
-      res.status(400);
+      res.status(400).json({ error: "unable to get all users" });
     })
   },
 

@@ -21,7 +21,6 @@ import {
 //import { showNotification } from '@mantine/notifications';
 
 import AuthenticationForm from './AuthenticationForm.js';
-// import LoginSidebar from './LoginSidebar.js';
 
 const useStyles = createStyles((theme) => ({
   root: {
@@ -34,12 +33,11 @@ const useStyles = createStyles((theme) => ({
 
 // can make a separate component for AuthenticationForm and render it as a child of the modal and as an alternative to the modal (user sidebar) and pass down props to it to make it dynamic
 
-export default function AuthenticateUser({ PaperProps, ButtonProps, user, setUser, isLoggedIn, setIsLoggedIn, avatar, setAvatar }
-  // React.ComponentPropsWithoutRef<'a'>
-  ) {
+export default function AuthenticateUser({ PaperProps, ButtonProps, user, setUser, isLoggedIn, setIsLoggedIn, avatar, setAvatar }) {
   const { classes, cx } = useStyles();
   const [type, toggle] = useToggle(['login', 'register']);
   const [isOpened, setIsOpened] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const form = useForm({
     initialValues: {
       email: '',
@@ -51,7 +49,7 @@ export default function AuthenticateUser({ PaperProps, ButtonProps, user, setUse
       image: '',
     },
 
-  // need to add image to validation
+  // need to add image to validation => if wrong file type
     validate: (values) => {
       // can prolly refactor this to be DRY
       if (type === 'login') {
@@ -150,45 +148,40 @@ export default function AuthenticateUser({ PaperProps, ButtonProps, user, setUse
       form.reset()
     } catch (err) {
       console.log('error from handleLogin in Authentication component: ', err);
+      // setErrorMessage(err.response.data.error);
       form.reset()
     }
     return;
   };
 
- const handleClickRegister = () => {
-  setIsOpened(() => !isOpened);
-  toggle();
- };
-
- const handleError = (errors) => {
-  if (errors.password) {
-    alert({ message: 'passwords must match and be at least 6 characters', color: 'red' });
-  }
-  if (errors.email) {
-    alert({ message: 'please provide a valid email', color: 'red' });
-  }
-  if (errors.image) {
-    alert({ message: 'image file size must not be any larger than 64 MB'});
+  const handleClickRegister = () => {
+    setIsOpened(() => !isOpened);
+    toggle();
   };
- };
 
- const handleSubmit = async (values) => {
-  if (type === 'register') {
-    console.log('handling registration');
-    try {
-      await handleCreateAccount(values);
-    } catch (err) {
-      console.log('error creating account', err);
+  let errorMessages = {};
+
+  const handleError = (errors) => {
+    if (errors.password) {
+      errorMessages.passwordErrorMessage = 'passwords must match and be at least 6 characters';
     }
-  } else {
-    try {
+    if (errors.email) {
+      errorMessages.emailErrorMessage = 'please provide a valid email';
+    }
+    if (errors.image) {
+      errorMessages.imageErrorMessage = 'image file size must not be any larger than 64 MB';
+    };
+  };
+
+  const handleSubmit = (values) => {
+    if (type === 'register') {
+      console.log('handling registration');
+      handleCreateAccount(values);
+    } else {
       console.log('handling logging in');
-      await handleLogin(values);
-    } catch (err) {
-      console.log('error logging in', err);
+      handleLogin(values);
     }
   };
- };
 
   return (
   <>
@@ -201,6 +194,7 @@ export default function AuthenticateUser({ PaperProps, ButtonProps, user, setUse
       onSubmit={() => setIsOpened(false)}
       />
     </Modal>
+
     <Paper radius="md" p="xl"
      {...PaperProps}
      >
@@ -232,7 +226,7 @@ export default function AuthenticateUser({ PaperProps, ButtonProps, user, setUse
             placeholder="your password"
             value={form.values.password}
             onChange={(event) => form.setFieldValue('password', event.currentTarget.value)}
-            error={form.errors.password && 'password must include at least 6 characters'}
+            error={form.errors.password ? 'password must include at least 6 characters' : `${errorMessage}`}
           />
         </Stack>
 

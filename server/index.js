@@ -18,7 +18,6 @@ app.use('/posts', router.posts);
 app.use('/users', router.users);
 app.use('/locations', router.locations);
 app.use('/tags', router.tags);
-app.use('/tests', router.tests);
 
 const port = process.env.PORT || 3001;
 

@@ -1,18 +1,16 @@
-user settings:
-  add profile picture
-    also when hover over placeholder avatar
+
 
 login:
   remember me checkbox
   loginSidebar
   refactor authenticateUser and rename files
-  email validation isn't working (should be on leave focus)
+
   user sidebar login email input changes when end-user types in create account modal email input (same with password)
-  confirm password validation isn't working
-  image error is on when the create account modal is first opened
+
+
   user sidebar login button changes to register when modal is opened
-  passwords are not showing error if confirmed pw and pw are not the same on create account modal
-  must be logged in to create a post
+
+
 
 regions:
 
@@ -27,8 +25,12 @@ database:
     users,
     posts
     tags,
-  delete:
-    tests,
+  subscribe:
+    subscribe to all fetching posts to update posts periodically as other users may post them
+
+  custom hooks:
+    useComputedStyles or useMasonaryLayout
+
 
 tags:
   on select input make unique
@@ -56,16 +58,27 @@ addPost:
   show message to end user relaying whether post was added/created successfully
 
 deletPost:
-  isn't re-rendering posts after delete, maybe add posts to dependency array in useEffects in feed
   should also delete the image from cloudinary
-  should not delete country, tags (or maybe should?)
-  should not delete the user
+  should ask user if sure
 
-  mongodb
-    bind connection to error event and another event
+mongodb:
+  bind connection to error event and another event
 
-  readme
-    list future steps
+readme:
+  list future steps
+
+postsReducer:
+  asyncThunks:
+    deletePost,
+    addPost
+  selector helpers:
+    filterPosts
+
+spinner:
+  css
+
+
+
 
 
 

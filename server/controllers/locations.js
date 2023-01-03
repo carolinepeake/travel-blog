@@ -1,3 +1,4 @@
+const db = require('../../db/connection.js');
 const mongoose = require('mongoose');
 const axios = require('axios');
 require('dotenv').config();
@@ -64,8 +65,8 @@ module.exports.controllers = {
       res.status(200).send(result.data);
     } catch (err) {
       console.log("Unable to retrieve places", err);
-      res.status(400);
+      res.status(400).json({ error: "unable to retrieve places" });
     }
-  },
+  }
 
 };
