@@ -1,4 +1,4 @@
-import React, { useReducer, useState, useEffect } from "react";
+import React from "react";
 import { createStyles, Text } from '@mantine/core';
 
 const useStyles = createStyles((theme) => ({
@@ -42,7 +42,7 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
-export default function AddTag({ formState, dispatch, handleTextChange, handleAddTag, handleDeleteOne }) {
+export default function AddTag({ formState, handleTextChange, handleAddTag, handleDeleteOne }) {
   const { classes, cx } = useStyles();
 
   return(

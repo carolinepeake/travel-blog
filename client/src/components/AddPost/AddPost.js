@@ -1,13 +1,14 @@
 import React, { useReducer, useState, useEffect } from "react";
+import { useDispatch } from 'react-redux';
 import axios from 'axios';
 import { createStyles, Select, TextInput, Textarea, Button, onSubmit, Group, Box } from '@mantine/core';
 // import { useForm } from '@mantine/form';
 import { toUpperFirst } from '../../utils/utils.js';
+import { fetchPosts, addNewPost } from '../../state/postsReducer.js';
 import FileUpload from './FileUpload.js';
 import AddTag from './AddTag.js';
 import SelectTags from './SelectTags.js';
 import PlacesAutocomplete from './PlacesAutocomplete.js';
-
 
 const useStyles = createStyles((theme) => ({
   root: {
@@ -76,6 +77,8 @@ export default function AddPost({ user, setUser, setPosts, setAddPostOpened }) {
   const [formState, dispatch] = useReducer(formReducer, initialFormState);
   const [previews, setPreviews] = useState([]);
   const [imageValue, setImageValue] = useState(null);
+  const [addPostRequestStatus, setAddPostRequestStatus] = useState('idle');
+  const dispatchReduxAction = useDispatch();
 
   const locationBody = {
     region: formState.region,
@@ -112,7 +115,7 @@ export default function AddPost({ user, setUser, setPosts, setAddPostOpened }) {
    // name could be addTag, or newTag(s)
    // could then make handle add multiple dynamic and get rid of handleAddTag and corresponding reducer case
 
-  // can also pass down a component or element as props instead of all pf that component's props
+  // can also pass down a component or element as props instead of all of that component's props
 
    function handleAddTag(item) {
     dispatch({
@@ -123,7 +126,7 @@ export default function AddPost({ user, setUser, setPosts, setAddPostOpened }) {
     // dispatch({
     //   type: "HANDLE SINGLE INPUT",
     //   field: 'newTag',
-    //   payload: initialFormState.newTag,
+    //   payload: item.value,
     // });
     console.log(formState.selectedTags);
   };
@@ -166,6 +169,8 @@ export default function AddPost({ user, setUser, setPosts, setAddPostOpened }) {
     console.log(formState.selectedTags);
   };
 
+  const canSave = postBody.author && addPostRequestStatus === 'idle';
+
   const handleSubmitForm = async (e) => {
     e.preventDefault();
     try {
@@ -184,18 +189,25 @@ export default function AddPost({ user, setUser, setPosts, setAddPostOpened }) {
       }
       const savedLocation = await axios.post('/locations', locationBody);
       postBody.location = savedLocation.data._id;
-      const savedPost = await axios.post('/posts', postBody);
-      console.log('response from handleSubmitPost: ', savedPost.data);
-      const posts = await axios.get('/posts');
-      setPosts(posts.data);
-      dispatch({
-        type: "HANDLE SUBMIT"
-      });
-      setAddPostOpened(false);
+      if (canSave) {
+        setAddPostRequestStatus('pending');
+        const savedPost = await dispatchReduxAction(addNewPost(postBody)).unwrap();
+        console.log('response from handleSubmitPost: ', savedPost);
+        // would really want to reset any filters to none (maybe unless filter is author === self)
+        dispatchReduxAction(fetchPosts());
+        dispatch({
+          type: "HANDLE SUBMIT"
+        });
+        setAddPostOpened(false);
+      }
     } catch (err) {
-      console.log('error submitting form: ', err);
+      console.error('error submitting add post form: ', err);
+    } finally {
+      setAddPostRequestStatus('idle');
     }
   };
+
+
 
   const regions = ['Africa','Australia','Central America', 'Central Asia', 'East Asia', 'Europe', 'North Africa', 'North America', 'South America', 'Southeast Asia', 'New Zealand', 'Middle East'];
 

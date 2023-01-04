@@ -93,7 +93,7 @@ export default function Feed({ user, isLoggedIn, setPosts, handleFilterPosts, fe
   } else if (postStatus === 'failed') {
     content = <Text>Sorry, no posts match your search</Text>
     // content = <div>{error}</div>
-  }
+  };
 
 
   // useEffect(() => {
@@ -103,6 +103,11 @@ export default function Feed({ user, isLoggedIn, setPosts, handleFilterPosts, fe
   //   }
   //   setNothingFound(false);
   // }, [posts]);
+
+  // !!may want to do this way instead to avoid entire feed re-rendering every time a post changes (https://redux.js.org/tutorials/fundamentals/part-7-standard-patterns)
+  // import { selectPostIds } from './postsReducer';
+  // const postIds = useSelector(selectPostIds);
+  // const renderedPosts = postIds.map(postId => <Post key={postId} id={postId}/>);
 
 
   return (

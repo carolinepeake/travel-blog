@@ -75,6 +75,11 @@ postsReducer:
     addPost
   selector helpers:
     filterPosts
+  refactor
+    memoize selectfilteredpostsids using memoized selectpostids and selectpostbyid in selector
+    use selectfilteredpostsids in feed instead of using a posts array in feed
+    normalize state - low priority
+
 
 spinner:
   css

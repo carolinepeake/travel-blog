@@ -1,4 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+
+import { createSelector } from 'reselect';
 import axios from 'axios';
 
 // HELPER FUNCTIONS
@@ -12,7 +14,12 @@ import axios from 'axios';
 
 export const fetchPosts = createAsyncThunk('posts/fetchPosts', async (filter = {}) => {
   const response = await axios.get('/posts', { params: filter});
-  return response.data
+  return response.data;
+});
+
+export const addNewPost = createAsyncThunk('posts/addNewPost', async (initialPost = {}) => {
+  const response = await axios.post('/posts', initialPost);
+  return response.data;
 });
 
 //handle filter posts
@@ -56,6 +63,10 @@ const postsSlice = createSlice({
         state.error = action.error.message;
         console.log('error fetchingPosts: ', action.error.message);
       })
+      .addCase(addNewPost.fulfilled, (state, action) => {
+        // this should all to all posts array, not filtered
+        state.posts.unshift(action.payload);
+      });
   }
 });
 
@@ -63,7 +74,45 @@ export default postsSlice.reducer
 
 // SELECTOR FUNCTIONS
 
+// can we selectOrderedPosts? const orderedPosts = posts
+      // .slice()
+      // .sort((a, b) => b.date.localeCompare(a.date))
+
 export const selectAllPosts = state => state.posts.posts;
 
-export const selectPostsByAuthor = (state, authorId) =>
-  state.posts.posts.find(post => post.author === authorId);
+export const selectPostIds = createSelector(
+  selectAllPosts,
+  posts => posts.map(post => post._id)
+);
+
+// can use the memoized selectPostIds as input selector in selectPostById selector
+export const selectPostById = (state, postId) => {
+  return selectAllPosts(state).find(post => post._id === postId)
+};
+
+export const selectFilteredPosts = createSelector(
+  selectAllPosts,
+  state => state.filter, // need to add
+
+  (posts, filter) => {
+    if (filter === {}) {
+      return posts;
+    }
+
+    const { [type]: value } = filter; // correct destructing syntax // could have multiple (e.g., scuba or hiking, or hiking and mexico) filters in the future
+
+    if (type === 'tags') {
+      return posts.filter(post => post.tags.includes(value))
+    }
+
+    return posts.filter(post => post[type] === value);
+  }
+);
+
+export const selectFilteredPostIds = createSelector(
+  selectFilteredPosts,
+  filteredPosts => filteredPosts.map(post => post._id)
+);
+
+// export const selectPostsByAuthor = (state, authorId) =>
+//   state.posts.posts.find(post => post.author === authorId);
