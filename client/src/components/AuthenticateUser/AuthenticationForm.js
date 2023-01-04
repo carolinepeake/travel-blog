@@ -1,25 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { useToggle, upperFirst } from '@mantine/hooks';
-import { useForm } from '@mantine/form';
 import {
-  Aside,
-  Autocomplete,
   TextInput,
   PasswordInput,
-  Text,
-  Paper,
   Group,
-  PaperProps,
   Button,
-  ButtonProps,
-  Divider,
-  Checkbox,
   Anchor,
   Stack,
   createStyles,
   } from '@mantine/core';
-import { useMapboxApi } from '../../utils/customHooks.js';
+  import { UseFormReturnType  } from '@mantine/form';
 import EditProfileImage from './EditProfileImage.js';
 import PlacesAutocomplete from '../AddPost/PlacesAutocomplete.js';
 
@@ -32,10 +21,9 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
-export default function AuthenticationForm({ PaperProps, ButtonProps, form, avatar, setAvatar, handleSubmit, handleError, handleClickRegister }
+export default function AuthenticationForm({ form, avatar, setAvatar, handleSubmit, handleError, handleClickRegister }
   ) {
   const { classes, cx } = useStyles();
-  const [autocompleteLocations, autocompleteErr, locationFetch] = useMapboxApi();
   const [imageUrlToSave, setImageUrlToSave] = useState('')
 
   useEffect(() => {
@@ -44,37 +32,28 @@ export default function AuthenticationForm({ PaperProps, ButtonProps, form, avat
     }
   }, [imageUrlToSave])
 
-  // const handleLocationChange = async (query, locality) => {
-  //   console.log('query from handleLocationChang in Authentication Form component: ', query);
-  //   form.setFieldValue(locality, query);
-  //   if (!form.values[locality]) return;
+  // will want to make it so handleParseLocation in places autocomplete doesn't override country field if user puts that input in first (and it's a country)
 
-  //   locationFetch(query, locality);
-  // };
-
-  // will want to make it so doesn't override country field if user puts that input in first (and it's a country)
-  // const handleParseLocation = async (item) => {
-  //   if (item.context && item.context.length > 0) {
-  //     let index = item.context.length - 1;
-  //     let placeType = item.context[index].id.split('.')[0];
-  //     if (placeType === 'country') {
-  //       form.setFieldValue('country', item.context[index].text);
-  //     }
-  //   }
-  //   form.setFieldValue('city', item.place_name.split(',').shift());
-  // };
-
-  const handleTextInput = (event) => {
+  const handleTextInput = async (event, form) => {
+    console.log('event currrent target :', event.currentTarget);
+    console.log('form from handleTextInput: ', form);
     let formField;
     let fieldValue;
     if (event.currentTarget !== undefined) {
+      console.log('not undefined');
       formField = event.currentTarget.name;
       fieldValue = event.currentTarget.value;
     } else {
       formField = event.target.name;
       fieldValue = event.target.value;
     }
-    form.values[formField] && form.setFieldValue(formField, fieldValue);
+    console.log('formField: ', formField, 'formValue :', fieldValue);
+    // formState[formField] && form.setFieldValue(formField, fieldValue);
+    if (form) {
+      await form.values[formField] && form.setFieldValue(formField, fieldValue);
+      console.log('form from handleTextInput', form);
+      return form;
+    }
   };
 
   return (
@@ -88,18 +67,22 @@ export default function AuthenticationForm({ PaperProps, ButtonProps, form, avat
             label="Name"
             placeholder="Your name"
             value={form.values.name}
-            name="name"
-            onChange={handleTextInput}
+            {...form.getInputProps('name')}
+            // name="name"
+            // onChange={(e) => handleTextInput(e)}
+            onChange={(e) => form.setFieldValue('name', event.currentTarget.value)}
           />
 
           <TextInput
             required
             label="Email"
             placeholder="example@gmail.com"
-            value={form.values.email}
-            name="email"
-            onChange={handleTextInput}
+           value={form.values.email}
+           // name="email"
+            {...form.getInputProps('email')}
+            // onChange={handleTextInput}
             error={form.errors.email && 'invalid email'}
+            onChange={(e) => form.setFieldValue('email', event.currentTarget.value)}
           />
 
           <PasswordInput
@@ -107,8 +90,10 @@ export default function AuthenticationForm({ PaperProps, ButtonProps, form, avat
             label="Password"
             placeholder="Your password"
             value={form.values.password}
-            name="password"
-            onChange={handleTextInput}
+            // name="password"
+            {...form.getInputProps('password')}
+            // onChange={handleTextInput}
+            onChange={(e) => form.setFieldValue('password', event.currentTarget.value)}
             error={form.errors.password && 'password must include at least 6 characters'}
           />
 
@@ -117,8 +102,10 @@ export default function AuthenticationForm({ PaperProps, ButtonProps, form, avat
             label="Confirm password"
             placeholder="Confirm password"
             value={form.values.confirmPassword}
-            name="confirmPassword"
-            onChange={handleTextInput}
+            // name="confirmPassword"
+            {...form.getInputProps('confirmPassword')}
+            // onChange={handleTextInput}
+            onChange={(e) => form.setFieldValue('confirmPassword', event.currentTarget.value)}
             error={form.errors.confirmPassword && 'passwords must match'}
           />
 
@@ -126,29 +113,24 @@ export default function AuthenticationForm({ PaperProps, ButtonProps, form, avat
             label="City"
             placeholder="Your city"
             formState={form.values}
-           // value={form.values.city}
             locality="city"
-            //name="city"
-            // onChange={(query) => {handleLocationChange(query, 'city')}}
-            // onItemSubmit={(item) => {handleParseLocation(item)}}
-            // data={autocompleteLocations.map((item) => ({ ...item, value: item.place_name }))}
-            // filter={(value, item) => item}
             handleTextChange={handleTextInput}
+            // value={form.values.city}
+            form={form}
+            key="cityAF"
           />
 
           <EditProfileImage avatar={avatar} setAvatar={setAvatar} setImageUrlToSave={setImageUrlToSave}/>
 
-        <Autocomplete
+        <PlacesAutocomplete
           label="Country"
           placeholder="Your country"
-          // value={form.values.country}
-          // name="country"
           locality="country"
           formState={form.values}
-          // onChange={(query) => {handleLocationChange(query, 'country')}}
-          // data={autocompleteLocations.map((item) => ({ ...item, value: item.place_name }))}
-          // filter={(value, item) => item}
+          // {...form.getInputProps('name')}
           handleTextChange={handleTextInput}
+          form={form}
+          key="countryAF"
         />
 
         </Stack>

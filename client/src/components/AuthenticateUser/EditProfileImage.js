@@ -25,7 +25,7 @@ const useStyles = createStyles((theme) => ({
 
 }));
 
-export default function EditProfileImage({ avatar, setAvatar, setFinalUrl }) {
+export default function EditProfileImage({ avatar, setAvatar, setImageUrlToSave }) {
   const { classes } = useStyles();
   const fileInput = React.createRef();
   const [fileUploadValue, setFileUploadValue] = useState(null);
@@ -69,7 +69,7 @@ export default function EditProfileImage({ avatar, setAvatar, setFinalUrl }) {
   }, [base64image]);
 
   useEffect(() => {
-    cloudinaryImage && setFinalUrl(cloudinaryImage.url);
+    cloudinaryImage && setImageUrlToSave(cloudinaryImage.url);
     console.log('cloudinaryImage: ', cloudinaryImage);
   }, [cloudinaryImage]);
 
@@ -77,9 +77,9 @@ export default function EditProfileImage({ avatar, setAvatar, setFinalUrl }) {
     if (cloudinaryErr) {
       cloudinaryErr.response.status === 413 ? setErrorMessage('file size must be less than 64 MB') :  setErrorMessage('image upload failed');
       setAvatar('');
-    } else {
-      setErrorMessage('');
+      return;
     }
+    setErrorMessage('');
   }, [cloudinaryErr]);
 
 

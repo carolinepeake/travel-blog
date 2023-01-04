@@ -4,7 +4,7 @@ import axios from 'axios';
 import { createStyles, Card, Image, ActionIcon, Group, Text, Avatar, Badge } from '@mantine/core';
 import { IconHeart, IconChevronRight, IconChevronLeft} from '@tabler/icons';
 import {
-  fetchPosts
+  fetchPosts, deletePost
 } from '../state/postsReducer.js';
 
 const useStyles = createStyles((theme, _params, getRef) => ({
@@ -164,26 +164,31 @@ export const Post = ({ post, index, posts, setPosts, user, grid, rowGap, rowHeig
   const content = useRef();
   const [gridRowSpan, setGridRowSpan] = useState(0);
   const [photoIndex, setPhotoIndex] = useState(0);
-  const dispatch = useDispatch()
+  const [deletePostRequestStatus, setDeletePostRequestStatus] = useState('idle')
+  const dispatch = useDispatch();
 
 
   console.log('post: ', post, 'user', user);
 
   // might want to move this up a level or two to make axios requests unified
   // might not need to include post in parameters here
+
+  const canDelete = user.email === post.author.email;
+
   const handleDeletePost = async (post, e) => {
     // may not be necessary
     e.preventDefault();
-    try {
-      const response = await axios.delete(`http://localhost:3001/posts/${post._id}`);
-      console.log(`post ${post._id} deleted successfully`, response.data);
-      let old = [...posts];
-      await setPosts(() => {
-        old.splice(index, 1);
-        return old;
-      });
-    } catch (err) {
-      console.log(`error deleting post ${post._id}`, err);
+    console.log(post);
+    if (canDelete) {
+      try {
+        setDeletePostRequestStatus('pending');
+        const response = await dispatch(deletePost(post._id)).unwrap();
+        console.log(`post ${post._id} deleted successfully`, response.data);
+      } catch (err) {
+        console.error(`error deleting post ${post._id}`, err);
+      } finally {
+        setDeletePostRequestStatus('idle');
+      }
     }
   };
 

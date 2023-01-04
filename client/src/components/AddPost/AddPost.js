@@ -207,8 +207,6 @@ export default function AddPost({ user, setUser, setPosts, setAddPostOpened }) {
     }
   };
 
-
-
   const regions = ['Africa','Australia','Central America', 'Central Asia', 'East Asia', 'Europe', 'North Africa', 'North America', 'South America', 'Southeast Asia', 'New Zealand', 'Middle East'];
 
   return(

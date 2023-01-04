@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useToggle, upperFirst } from '@mantine/hooks';
-import { useForm } from '@mantine/form';
+import { useForm, UseFormReturnType  } from '@mantine/form';
 import {
   Modal,
   TextInput,
@@ -18,7 +18,6 @@ import {
   Stack,
   createStyles,
 } from '@mantine/core';
-//import { showNotification } from '@mantine/notifications';
 
 import AuthenticationForm from './AuthenticationForm.js';
 
@@ -212,7 +211,7 @@ export default function AuthenticateUser({ PaperProps, ButtonProps, user, setUse
         <Stack>
           <TextInput
             required
-            label="email"
+            label="Email"
             placeholder="example@gmail.com"
             value={form.values.email}
             onChange={(event) => form.setFieldValue('email', event.currentTarget.value)}

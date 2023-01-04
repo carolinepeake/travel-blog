@@ -24,8 +24,10 @@ export const addNewPost = createAsyncThunk('posts/addNewPost', async (initialPos
 
 //handle filter posts
 
-// export const deletePost = createAsyncThunk('posts/getPosts', async(postId) => {
-//    const response = await axios.delete('/posts/:postId');
+export const deletePost = createAsyncThunk('posts/deletePost', async (postId = '') => {
+   const response = await axios.delete(`/posts/${postId}`);
+   return response.data;
+});
 //     console.log(`post ${post._id} deleted successfully`, response.data);
 //     let old = [...posts];
 //     await setPosts(() => {
@@ -36,6 +38,22 @@ export const addNewPost = createAsyncThunk('posts/addNewPost', async (initialPos
 //     console.log(`error deleting post ${post._id}`, err);
 //   }
 // });
+
+// const handleDeletePost = async (post, e) => {
+//   // may not be necessary
+//   e.preventDefault();
+//   try {
+//     const response = await axios.delete(`http://localhost:3001/posts/${post._id}`);
+//     console.log(`post ${post._id} deleted successfully`, response.data);
+//     let old = [...posts];
+//     await setPosts(() => {
+//       old.splice(index, 1);
+//       return old;
+//     });
+//   } catch (err) {
+//     console.log(`error deleting post ${post._id}`, err);
+//   }
+// };
 
 const initialState = {
   posts: [],
@@ -65,8 +83,11 @@ const postsSlice = createSlice({
       })
       .addCase(addNewPost.fulfilled, (state, action) => {
         // this should all to all posts array, not filtered
-        state.posts.unshift(action.payload);
-      });
+        state.posts = state.posts.unshift(action.payload);
+      })
+      .addCase(deletePost.fulfilled, (state, action) => {
+        state.posts = state.posts.filter(post => post._id !== action.payload._id);
+      })
   }
 });
 
@@ -113,6 +134,3 @@ export const selectFilteredPostIds = createSelector(
   selectFilteredPosts,
   filteredPosts => filteredPosts.map(post => post._id)
 );
-
-// export const selectPostsByAuthor = (state, authorId) =>
-//   state.posts.posts.find(post => post.author === authorId);
