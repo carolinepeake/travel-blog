@@ -105,7 +105,7 @@ export default function UserSidebar({ user, setUser, setPosts, isLoggedIn, setIs
   const [addPostOpened, setAddPostOpened] = useState(false);
   const [editProfileImageOpened, setEditProfileImageOpened] = useState(false);
   const [avatar, setAvatar] = useState('');
-  const [finalUrl, setFinalUrl] = useState('');
+  const [imageUrlToSave, setImageUrlToSave] = useState('');
 
   const form = useForm({
     initialValues: {
@@ -131,7 +131,6 @@ export default function UserSidebar({ user, setUser, setPosts, isLoggedIn, setIs
       image: form.values.image,
     };
     try {
-      console.log('imageUrl from handleEditProfileImage: ', accountBody);
       let response = await axios.put(`http://localhost:3001/users/${user._id}/avatar`, accountBody);
       console.log('response from handleEditProfileImage', response.data);
       setUser(response.data);
@@ -148,10 +147,10 @@ export default function UserSidebar({ user, setUser, setPosts, isLoggedIn, setIs
   };
 
   useEffect(() => {
-    if (finalUrl) {
-      form.setFieldValue('image', finalUrl);
+    if (imageUrlToSave) {
+      form.setFieldValue('image', imageUrlToSave);
     }
-  }, [finalUrl]);
+  }, [imageUrlToSave]);
 
   const handleSubmit = async (values) => {
     try {
@@ -183,7 +182,7 @@ export default function UserSidebar({ user, setUser, setPosts, isLoggedIn, setIs
       onClose={() => setAddPostOpened(false)}
       title="New Post:"
       >
-      <AddPost user={user} setUser={setUser} setAddPostOpened={setAddPostOpened} setPosts={setPosts} />
+      <AddPost user={user} setUser={setUser} setAddPostOpened={setAddPostOpened} />
     </Modal>
 
     <Modal
@@ -196,7 +195,7 @@ export default function UserSidebar({ user, setUser, setPosts, isLoggedIn, setIs
         (validationErrors, _values, _event) => {console.log(validationErrors); handleError(validationErrors)})}>
         <Stack>
           <EditProfileImage
-           avatar={avatar} setAvatar={setAvatar} setFinalUrl={setFinalUrl}/>
+           avatar={avatar} setAvatar={setAvatar} setImageUrlToSave={setImageUrlToSave}/>
         </Stack>
         <br />
         <Button type="submit">Update Profile Photo</Button>

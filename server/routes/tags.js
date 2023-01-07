@@ -1,23 +1,13 @@
-// posts.js - Posts route module
 const express = require('express');
-const tags = express.Router();
 const { getTags, postTag, postTags } = require('.././controllers').TagsController;
 
-// const express = require("express");
-// const router = express.Router();
+// could maybe instantiate the different routers in index.js and then require each router to its own routes file or require each file's routes to index.js
+const tagsRouter = express.Router();
 
-// Home page route
-tags.get('/', getTags);
+tagsRouter.get('/', getTags);
 
-tags.post('/', postTag);
+tagsRouter.post('/', postTag);
 
-tags.post('/addTags', postTags);
+tagsRouter.post('/addTags', postTags);
 
-// About page route
-// PostsRouter.get("/about", function (req, res) {
-//   res.send("About this wiki");
-// });
-
-//PostsRouter.get('/posts', controllers.getPosts);
-
-module.exports = tags;
+module.exports = tagsRouter;

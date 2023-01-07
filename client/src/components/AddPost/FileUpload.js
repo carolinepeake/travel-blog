@@ -1,7 +1,6 @@
 import React, { useReducer, useState, useEffect, useRef } from "react";
 import axios from 'axios';
 import { createStyles, Select, TextInput, TextArea, Button, onSubmit, Group, Box, Center, FileInput } from '@mantine/core';
-// import { FileInput, FileInputProps, Group, Center } from '@mantine/core';
 import { IconPhoto, IconUpload } from '@tabler/icons';
 
 const useStyles = createStyles((theme) => ({

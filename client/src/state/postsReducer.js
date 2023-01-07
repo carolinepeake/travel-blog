@@ -28,32 +28,6 @@ export const deletePost = createAsyncThunk('posts/deletePost', async (postId = '
    const response = await axios.delete(`/posts/${postId}`);
    return response.data;
 });
-//     console.log(`post ${post._id} deleted successfully`, response.data);
-//     let old = [...posts];
-//     await setPosts(() => {
-//       old.splice(index, 1);
-//       return old;
-//     });
-//   } catch (err) {
-//     console.log(`error deleting post ${post._id}`, err);
-//   }
-// });
-
-// const handleDeletePost = async (post, e) => {
-//   // may not be necessary
-//   e.preventDefault();
-//   try {
-//     const response = await axios.delete(`http://localhost:3001/posts/${post._id}`);
-//     console.log(`post ${post._id} deleted successfully`, response.data);
-//     let old = [...posts];
-//     await setPosts(() => {
-//       old.splice(index, 1);
-//       return old;
-//     });
-//   } catch (err) {
-//     console.log(`error deleting post ${post._id}`, err);
-//   }
-// };
 
 const initialState = {
   posts: [],
@@ -106,7 +80,6 @@ export const selectPostIds = createSelector(
   posts => posts.map(post => post._id)
 );
 
-// can use the memoized selectPostIds as input selector in selectPostById selector
 export const selectPostById = (state, postId) => {
   return selectAllPosts(state).find(post => post._id === postId)
 };
@@ -115,11 +88,11 @@ export const selectFilteredPosts = createSelector(
   selectAllPosts,
   state => state.filter, // need to add
 
-  (posts, filter) => {
-    if (filter === {}) {
+  (posts, filter = {}) => {
+    if (Object.keys(filter).length === 0) {
       return posts;
     }
-
+    console.log('filter : ', filter);
     const { [type]: value } = filter; // correct destructing syntax // could have multiple (e.g., scuba or hiking, or hiking and mexico) filters in the future
 
     if (type === 'tags') {
@@ -133,4 +106,18 @@ export const selectFilteredPosts = createSelector(
 export const selectFilteredPostIds = createSelector(
   selectFilteredPosts,
   filteredPosts => filteredPosts.map(post => post._id)
+);
+
+export const selectFilteredPostById = (state, postId) => {
+  return selectFilteredPosts(state).find(post => post._id === postId)
+};
+
+export const selectAllTags = createSelector(
+  selectAllPosts,
+  (posts) => {
+    const nestedTags = posts.map(post => post.tags);
+    const tagsWithDuplicates = nestedTags.flat();
+    const uniqueTags = [...new Set(tagsWithDuplicates)];
+    return uniqueTags;
+  }
 );

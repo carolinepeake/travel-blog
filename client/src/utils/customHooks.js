@@ -42,7 +42,7 @@ export const useCloudinary = () => {
   const [cloudinaryImage, setCloudinaryImage] = useState({});
   const [cloudinaryErr, setCloudinaryErr] = useState('');
 
-  const uploadImage = async (fileUrl) => {
+  const uploadImageToCloudinary = async (fileUrl) => {
     if (!fileUrl) {
       setCloudinaryImage('');
       setCloudinaryErr('');
@@ -66,5 +66,5 @@ export const useCloudinary = () => {
     }
   }
 
-  return [cloudinaryImage, cloudinaryErr, uploadImage];
+  return [cloudinaryImage, cloudinaryErr, uploadImageToCloudinary];
 };

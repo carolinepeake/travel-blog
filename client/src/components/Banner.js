@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { createStyles, Overlay, Container, Title, Button, Text, Autocomplete } from '@mantine/core';
+import { fetchPosts, selectFilteredPosts } from '../state/postsReducer.js';
 import { useMapboxApi } from '../utils/customHooks.js';
-import {
-  fetchPosts
-} from '../state/postsReducer.js';
 
 const useStyles = createStyles((theme) => ({
   hero: {
@@ -110,13 +108,14 @@ const useStyles = createStyles((theme) => ({
   // make background of button transparent
 }));
 
-export default function Banner({ setPosts, handleFilterPosts, posts }) {
+export default function Banner() {
   const { classes, cx } = useStyles();
   // const [toggleAutocomplete, setToggleAutocomplete] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [autocompleteLocations, autocompleteErr, locationFetch] = useMapboxApi();
   const [isFocused, setIsFocused] = useState(false);
   const dispatch = useDispatch();
+  let posts = useSelector(selectFilteredPosts);
 
   useEffect(() => {
     setSearchTerm('');
@@ -124,16 +123,14 @@ export default function Banner({ setPosts, handleFilterPosts, posts }) {
   }, [posts]);
 
   const handleLocationChange = async (query) => {
-    console.log('event from handleLocationChange in Banner: ', query);
     setSearchTerm(query);
     if (!searchTerm) return;
 
     locationFetch(query, 'all');
   }
 
-  // text place_type logic with mexico / mexico city
+  // test place_type logic with mexico / mexico city
   const handleFilterPostsByPlaceSearch = (item) => {
-    console.log('item from handleFilterPostsByPlaceSearch: ', item);
     const smallestPlaceName = item.place_name.split(',').shift();
     let placeType;
     if (item.place_type[0] === "country") {
@@ -143,9 +140,7 @@ export default function Banner({ setPosts, handleFilterPosts, posts }) {
     } else {
       placeType = "city";
     }
-    console.log('placeType from handleFilterPostsByPlaceSearch in Banner: ', placeType, 'smallestPlaceName from handleFilterPostsByPlaceSearch in Banner: ', smallestPlaceName);
     // should maybe make async and return api response and set state here so can know if successful
-    handleFilterPosts(placeType, smallestPlaceName);
     dispatch(fetchPosts({[placeType]: smallestPlaceName}));
   };
 
@@ -160,8 +155,6 @@ export default function Banner({ setPosts, handleFilterPosts, posts }) {
       />
       <Container className={classes.container}>
         <Title className={classes.title}>let's go somewhere</Title>
-        {/* {toggleAutocomplete
-        ? */}
         <Autocomplete
           value={searchTerm}
           onChange={(query) => {handleLocationChange(query)}}
@@ -171,17 +164,9 @@ export default function Banner({ setPosts, handleFilterPosts, posts }) {
           size="xl"
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
-          // onClick={(e)=>setToggleAutocomplete(false)}
           placeholder={isFocused ? "start typing to search places" : "where would you like to go?"}
           classNames={{root: classes.control, input: classes.input, dropdown: classes.dropdown, item: classes.item}}
         />
-        {/* :
-        <Button size="xl" className={cx(classes.control, classes.button)} type="button"
-        onClick={(e)=>setToggleAutocomplete(true)}
-        >
-            where would you like to go?
-          </Button>
-} */}
       </Container>
     </div>
   );

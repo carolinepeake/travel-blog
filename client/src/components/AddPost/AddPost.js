@@ -73,7 +73,7 @@ const formReducer = function(state, action) {
   }
 };
 
-export default function AddPost({ user, setUser, setPosts, setAddPostOpened }) {
+export default function AddPost({ user, setUser, setAddPostOpened }) {
   const [formState, dispatch] = useReducer(formReducer, initialFormState);
   const [previews, setPreviews] = useState([]);
   const [imageValue, setImageValue] = useState(null);

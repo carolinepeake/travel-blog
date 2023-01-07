@@ -15,7 +15,6 @@ module.exports.controllers= {
 
   postPost: function(req, res) {
     var entry = req.body;
-    console.log('request body from postPost in controllers: ', req.body);
     // might want to use .create() instead - automatically instantiates new instance (make sure returns saved doc)
     new Post(entry).save()
     .then((savedPost) => {
@@ -29,7 +28,6 @@ module.exports.controllers= {
   },
 
   getPosts: function(req, res) {
-    console.log('get posts request query: ', req.query);
     Post.find(req.query)
     .populate('location')
     .populate('author')
@@ -43,42 +41,8 @@ module.exports.controllers= {
     })
   },
 
-  // getFilteredPosts: function(req, res) {
-  //   console.log('request params from getFilteredPosts', req.params);
-  //   let filterKey = req.params.route.toLowerCase();
-  //   let filterValue = req.params.filterTerm.toLowerCase();
-  //   Post.find({ [filterKey] : filterValue })
-  //   .populate('location')
-  //   .populate('author')
-  //   .exec()
-  //   .then((result) => {
-  //     console.log('query response from getFilteredPosts: ', result);
-  //     res.status(200).send(result);
-  //   })
-  //   .catch((err) => {
-  //     console.log('error in controller getPosts: ', err);
-  //     res.status(400).json({ error: "error retrieving posts" });
-  //   })
-  // },
-
-  // getPostsFilteredByAuthor: function(req, res) {
-  //   Post.find({author: req.params.userID})
-  //     .populate('location')
-  //     .populate('author')
-  //     .exec()
-  //     .then((posts) => {
-  //       res.status(200).send(posts);
-  //     })
-  //     .catch((err) => {
-  //       console.log('error in controller getPostsFilteredByAuthor: ', err);
-  //       res.status(400).json({ error: "error retrieving user" });
-  //     })
-  // },
-
   deletePost: function(req, res) {
-    console.log('request params from deletePost controller: ', req.params);
     const postID = req.params.postId;
-    console.log('postID from deletePost controller: ', postID);
     Post.deleteOne({ _id: postID })
     .then((result) => {
       // status code 204 if send no result data back
@@ -103,17 +67,6 @@ module.exports.controllers= {
       res.status(401).json({error : "error uplodaing image to cloudinary "});
     }
   }
-
-    // return models.saveTest(entry)
-    // // return Promise.all([savePost(entry), saveRegion(entry.region), saveTag(entry.tag)])
-    // .then((result) => {
-    //   console.log('success saving test');
-    //   res.status(201).send(result);
-    // })
-    // .catch((err) => {
-    //   console.log('error saving test', err);
-    //   res.status(401).send('error');
-    // })
 };
 
 

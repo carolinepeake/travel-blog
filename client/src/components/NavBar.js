@@ -1,20 +1,21 @@
 import { useState, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { createStyles, Header, Container, Group, Paper, Transition, Burger, Autocomplete, Button } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import axios from 'axios';
-import styled from 'styled-components';
 import SearchIcon from './SearchIcon.js';
-import {
-  fetchPosts
-} from '../state/postsReducer.js';
+import { fetchPosts, selectAllTags } from '../state/postsReducer.js';
 
 const HEADER_HEIGHT = 60;
+
+const links = ['kiteboarding', 'scuba', 'music', 'gastronomy'];
+const bucketList = {link: '/bucketlist', label: 'bucketlist'};
+const home = {link: '/home', label: 'home'};
 
 const useStyles = createStyles((theme) => ({
   root: {
     position: 'relative',
-    zIndex: 1,
+    zIndex: 101,
   },
 
   dropdown: {
@@ -22,11 +23,11 @@ const useStyles = createStyles((theme) => ({
     top: HEADER_HEIGHT,
     left: 0,
     right: 0,
-    zIndex: 0,
+    zIndex: 400,
     borderTopRightRadius: 0,
     borderTopLeftRadius: 0,
     borderTopWidth: 0,
-    overflow: 'hidden',
+    overflow: 'visible',
 
     [theme.fn.largerThan('sm')]: {
       display: 'none',
@@ -51,12 +52,6 @@ const useStyles = createStyles((theme) => ({
     [theme.fn.smallerThan('xs')]: {
       display: 'none',
     },
-  },
-
-  searchIcon: {
-    // '&:hover': {
-      cursor: 'pointer',
-    // },
   },
 
   burger: {
@@ -122,46 +117,25 @@ const useStyles = createStyles((theme) => ({
 
 }));
 
-export default function NavBar({ links, home, bucketList, setPosts, user, isLoggedIn, handleFilterPosts }) {
+export default function NavBar({ user, isLoggedIn }) {
   const [opened, { toggle, close }] = useDisclosure(false);
   const [active, setActive] = useState(home.link);
   const { classes, cx } = useStyles();
   const [search, setSearch] = useState('');
   const [hidePopUp, setHidePopUp] = useState(true);
   const [view, setView] = useState('home');
-  const [tags, setTags] = useState([]);
   const dispatch = useDispatch();
 
-    useEffect(() => {
-      axios.get('http://localhost:3001/tags')
-      .then((res) => {
-        setTags(res.data)
-      })
-      .catch((err) => {
-        console.log('error getting tags in select tags component', err);
-      })
-    }, []);
+  let tags = useSelector(selectAllTags);
 
-   // prolly don't need to link to a different page with the NavBar, but just change the state
-  // and update the posts rendered based on state.tagSelected
-
-  const handleFilterPostsByLink = async (route, link, e) => {
+  const handleFilterPosts = async (filter = {}, e) => {
     e && e.preventDefault();
     try {
-      await dispatch(fetchPosts({tags: link.label}));
-      setActive(link.link);
-      close();
-    } catch (err) {
-      console.log('error filtering posts', err);
-    }
-  };
-
-  const handleFilterPostsByActivity = async (route, filteredTerm, e) => {
-    e && e.preventDefault();
-    console.log('filtered term: ', filteredTerm);
-    try {
-      await dispatch(fetchPosts({tags: filteredTerm}));
+      dispatch(fetchPosts(filter));
+      const [filterTerm = 'home'] = Object.values(filter);
+      links.includes(filterTerm) ? setActive(filterTerm) : setActive('');
       setSearch('');
+      close();
     } catch (err) {
       console.log('error filtering posts', err);
     }
@@ -178,7 +152,7 @@ export default function NavBar({ links, home, bucketList, setPosts, user, isLogg
         const response = await axios.get(`http://localhost:3001/users/${userId}`);
         const filteredPosts = response.data.bucketList;
         console.log('response from handleFilterPosts', response.data);
-        setPosts(filteredPosts);
+        // setPosts(filteredPosts);
         setActive(bucketList.link);
         setView("bucketlist")
         close();
@@ -194,37 +168,32 @@ export default function NavBar({ links, home, bucketList, setPosts, user, isLogg
     }
   };
 
-  const handleClickHome =
-  // async
-  (e) => {
-    e.preventDefault();
-    dispatch(fetchPosts());
-    // try {
-    //   const response = await axios.get('http://localhost:3001/posts/');
-    //   const filteredPosts = response.data;
-    //   console.log('response from handleFilterPosts', response.data);
-    //   setPosts(filteredPosts);
+  const handleClickHome = async (e) => {
+    try {
+      e.preventDefault();
+      dispatch(fetchPosts());
       setActive(home.link);
       close();
-    // } catch (err) {
-    //   console.log('error returning home', err);
-    // }
+    } catch (err) {
+      console.log('error returning home', err);
+    }
   };
 
-  const items = links.map((link) => (
+  const activityLinks = links.map((link) => (
       <a
-        key={link.label}
-        href={link.link}
-        className={cx(classes.link, { [classes.linkActive]: active === link.link })}
-        onClick={(e) => handleFilterPostsByLink('tags', link, e)}
+        key={link}
+        href={`/${link}` }
+        className={cx(classes.link, { [classes.linkActive]: active === link })}
+        onClick={(e) => handleFilterPosts({tags: link}, e)}
       >
-        {link.label}
+        {link}
       </a>
   ));
 
-  // const data = regions.map((item) => ({ ...item, value: item.label }));
+  // data for autocomplete search
   let data = [];
   if (tags.length > 0) {
+    // data = tags.map(item => {value: item});
     data = tags;
   }
 
@@ -234,62 +203,47 @@ export default function NavBar({ links, home, bucketList, setPosts, user, isLogg
     <Header height={HEADER_HEIGHT} mb={40} className={classes.root}>
       <Container className={classes.header}>
           <Group spacing={10} className={classes.links}>
+
             <a
               href={home.link}
               className={cx(classes.link, { [classes.linkActive]: active === home.link })}
               onClick={(e) => handleClickHome(e)}
             >
-            {home.label}
+              {home.label}
             </a>
+
             <a
               href={bucketList.link}
               className={cx(classes.link, { [classes.linkActive]: active === bucketList.link })}
               onClick={(e) => handleFilterPostsByBucketList(e)} disabled={!isLoggedIn}
             >
-            {bucketList.label}
-            <span className={classes.popup} id="myPopup"
-            style={{ visibility: hidePopUp ? 'hidden' : 'visible', transition: 'visibility 5s' }}
-            >Must be logged in to filter by posts saved to your bucket list.</span>
+              {bucketList.label}
+              <span
+                className={classes.popup} id="myPopup"
+                style={{ visibility: hidePopUp ? 'hidden' : 'visible', transition: 'visibility 5s' }}
+              >
+                Must be logged in to filter by posts saved to your bucket list.
+              </span>
             </a>
 
-            {items}
+            {activityLinks}
+
           </Group>
-          {/* <Button>
-            component={Autocomplete}
-            classNames={{root: classes.search, icon: classes.searchIcon}}
-            placeholder="search by activity"
-            icon={<SearchIcon
-            search={search}
-            handleFilterPostsByActivity={handleFilterPostsByActivity}
-            //onClick={(e) => handleFilterPostsByActivity('tags', search, e)}
-            // size={16} stroke={1.5}
-            // className={classes.searchIcon}
-            />}
-            // zIndex={101}
-            onItemSubmit={(item) => handleFilterPostsByActivity('tags', item)}
-            data={data} // can make these dynamic to last searched for user
-            value={search}
-            onChange={setSearch}
-            onKeyPress={(e) => {if (e.key === 'Enter') {handleFilterPostsByActivity('tags', search, e)}}}
-            onItemSubmit={(search) => {handleFilterPostsByActivity('tags', search)}}
-          </Button> */}
+
           <Autocomplete
-              classNames={{root: classes.search, icon: classes.searchIcon}}
+              classNames={{root: classes.search}}
               placeholder="search by activity"
-              icon={<SearchIcon
+              rightSection={<SearchIcon
               search={search}
-              handleFilterPostsByActivity={handleFilterPostsByActivity}
-              //onClick={(e) => handleFilterPostsByActivity('tags', search, e)}
-              // size={16} stroke={1.5}
-              className={classes.searchIcon}
+              handleFilterPosts={handleFilterPosts}
               />}
-              // zIndex={101}
+              zIndex={101}
               data={data} // can make these dynamic to last searched for user -- think may automatically be
               value={search}
+              positionDependencies={[active]}
               onChange={setSearch}
-              onKeyPress={(e) => {if (e.key === 'Enter') {handleFilterPostsByActivity('tags', search, e)}}}
-              //onItemSubmit={(searchTerm) => {handleFilterPostsByActivity('tags', searchTerm)}}
-              onItemSubmit={(item) => {let searchTerm = item.value; handleFilterPostsByActivity('tags', searchTerm)}}
+              onKeyPress={(e) => {if (e.key === 'Enter') {handleFilterPosts({tags: search}, e)}}}
+              onItemSubmit={item => {const searchTerm = item.value; handleFilterPosts({tags: searchTerm})}}
             />
 
           <Burger opened={opened} onClick={toggle} title="Open navigation" aria-label="Open navigation" className={classes.burger} size="sm" />
@@ -311,7 +265,7 @@ export default function NavBar({ links, home, bucketList, setPosts, user, isLogg
                 >
                 {bucketList.label}
                 </a>
-                {items}
+                {activityLinks}
               </Paper>
             )}
           </Transition>

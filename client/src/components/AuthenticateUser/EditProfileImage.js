@@ -32,7 +32,7 @@ export default function EditProfileImage({ avatar, setAvatar, setImageUrlToSave 
   const [errorMessage, setErrorMessage] = useState('');
   const [base64image, setbase64image] = useState('');
 
-  const [cloudinaryImage, cloudinaryErr, uploadImage] = useCloudinary();
+  const [cloudinaryImage, cloudinaryErr, uploadImageToCloudinary] = useCloudinary();
 
   const handleAddImage = (event) => {
     setFileUploadValue(event);
@@ -43,27 +43,27 @@ export default function EditProfileImage({ avatar, setAvatar, setImageUrlToSave 
       reader.onloadend = () => {
         let base64image = reader.result;
         setbase64image(base64image);
-        setAvatar(base64image);
-        uploadImage(base64image);
+        // setAvatar(base64image);
+        // uploadImageToCloudinary(base64image);
       };
     } else {
       setbase64image('');
-      setAvatar('');
-      uploadImage();
+      // setAvatar('');
+      // uploadImageToCloudinary();
     }
   };
 
   useEffect(() => {
     if (base64image) {
-      uploadImage(base64image)
+      uploadImageToCloudinary(base64image)
       .then(() => setAvatar(base64image))
       .catch((err) => {
         console.log('error uploading or setting avatar to base64image: ', err);
         setAvatar('');
-        uploadImage();
+        uploadImageToCloudinary();
       });
     } else {
-      uploadImage();
+      uploadImageToCloudinary();
       setAvatar('');
     }
   }, [base64image]);

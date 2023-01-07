@@ -1,25 +1,17 @@
 // posts.js - Posts route module
 const express = require('express');
-const posts = express.Router();
-const { getPosts, postPost, deletePost, uploadImage, getFilteredPosts,
-getPostsFilteredByAuthor } = require('.././controllers').PostsController;
-
-// const express = require("express");
-// const router = express.Router();
+const postsRouter = express.Router();
+const { getPosts, postPost, deletePost, uploadImage } = require('.././controllers').PostsController;
 
 // Home page route
-posts.get('/', getPosts);
+postsRouter.get('/', getPosts);
 
-// posts.get('/filter/:route/:filterTerm', getFilteredPosts);
+postsRouter.post('/', postPost);
 
-// posts.get('/user/:userID', getPostsFilteredByAuthor);
-
-posts.post('/', postPost);
-
-posts.delete('/:postId', deletePost);
+postsRouter.delete('/:postId', deletePost);
 
 
-posts.post('/cloudinary/upload', uploadImage);
+postsRouter.post('/cloudinary/upload', uploadImage);
 
 // About page route
 // PostsRouter.get("/about", function (req, res) {
@@ -28,4 +20,4 @@ posts.post('/cloudinary/upload', uploadImage);
 
 //PostsRouter.get('/posts', controllers.getPosts);
 
-module.exports = posts;
+module.exports = postsRouter;

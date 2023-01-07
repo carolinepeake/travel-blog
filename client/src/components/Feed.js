@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import axios from 'axios';
 import styled from 'styled-components';
 import { Post } from './Post.js';
 import {
@@ -10,7 +9,7 @@ import { Text } from '@mantine/core';
 import { StyledSpinner } from './Spinner.js';
 
 
-export default function Feed({ user, isLoggedIn, setPosts, handleFilterPosts, feed, setFeed }) {
+export default function Feed({ user, isLoggedIn }) {
   const grid = useRef();
   const [rowGap, setRowGap] = useState(0);
   const [rowHeight, setRowHeight] = useState(0);
@@ -34,18 +33,6 @@ export default function Feed({ user, isLoggedIn, setPosts, handleFilterPosts, fe
 
   let posts = useSelector(selectAllPosts);
 
-  // let feed;
-
-  // if (filtered.type === 'none' || filtered.type === undefined) {
-  //   feed = useSelector(selectAllPosts);
-  // } else if (filtered.type === 'author') {
-  //   feed = useSelector(selectPostsByAuthor(filtered.term));
-  // // } else if (filtered.type === 'tag') {
-  // //   feed = useSelector(selectPostsByTag(filtered.term));
-  // // } else if (filtered.type === '')
-  // } else {
-  //   feed = useSelector(selectAllPosts);
-  // }
 
   // const renderedPosts = posts.map(post => (
   //   <div className={classes.grid-item} key={post._id}>
@@ -53,12 +40,7 @@ export default function Feed({ user, isLoggedIn, setPosts, handleFilterPosts, fe
   //   </div>
   // ));
 
-  // useEffect(() => {
-  //   // dynamically enable filtering
-  //     axios.get('/posts')
-  //     .then((response) => setPosts(response.data))
-  //     .catch((err) => console.log('error getting posts', err))
-  //   }, []);
+
 
   const postStatus = useSelector(state => state.posts.status);
   const error = useSelector(state => state.posts.error);
@@ -88,7 +70,7 @@ export default function Feed({ user, isLoggedIn, setPosts, handleFilterPosts, fe
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 
     content = orderedPosts.map(post => (
-      <Post key={post._id} post={post} posts={posts} setPosts={setPosts} user={user} grid={grid} rowGap={rowGap} rowHeight={rowHeight} isLoggedIn={isLoggedIn}  handleFilterPosts={handleFilterPosts} feed={feed} setFeed={setFeed}/>
+      <Post key={post._id} post={post} user={user} grid={grid} rowGap={rowGap} rowHeight={rowHeight} isLoggedIn={isLoggedIn} />
     ))
   } else if (postStatus === 'failed') {
     content = <Text>Sorry, no posts match your search</Text>

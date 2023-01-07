@@ -2,10 +2,11 @@
 // const router = express.Router();
 // const { LocationsController, PostsController, TagsController, TestsController, UsersController } = require('./controllers');
 
-exports.posts = require('./posts');
-exports.locations = require('./locations');
-exports.users = require('./users');
-exports.tags = require('./tags');
+// exports.posts = require('./posts');
+// exports.locations = require('./locations');
+// exports.users = require('./users');
+// exports.tags = require('./tags');
+
 // …
 //app.use('/posts', router.posts);
 

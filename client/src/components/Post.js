@@ -156,7 +156,7 @@ const useStyles = createStyles((theme, _params, getRef) => ({
 
 }));
 
-export const Post = ({ post, index, posts, setPosts, user, grid, rowGap, rowHeight, isLoggedIn, handleFilterPosts, feed, setFeed }) => {
+export const Post = ({ post, index, user, grid, rowGap, rowHeight, isLoggedIn }) => {
   const { classes, theme, getRef } = useStyles();
   const [liked, setIsLiked] = useState(false);
   const [tooltipText, setTooltipText] = useState('add to bucket list');
@@ -167,18 +167,12 @@ export const Post = ({ post, index, posts, setPosts, user, grid, rowGap, rowHeig
   const [deletePostRequestStatus, setDeletePostRequestStatus] = useState('idle')
   const dispatch = useDispatch();
 
-
-  console.log('post: ', post, 'user', user);
-
-  // might want to move this up a level or two to make axios requests unified
-  // might not need to include post in parameters here
-
   const canDelete = user.email === post.author.email;
 
-  const handleDeletePost = async (post, e) => {
+  const handleDeletePost = async (e) => {
     // may not be necessary
     e.preventDefault();
-    console.log(post);
+    console.log(post._id);
     if (canDelete) {
       try {
         setDeletePostRequestStatus('pending');
@@ -192,50 +186,50 @@ export const Post = ({ post, index, posts, setPosts, user, grid, rowGap, rowHeig
     }
   };
 
-  const handleClickHeart = async () => {
-    if (liked) {
-      try {
-        let response = await axios.put(`http://localhost:3001/users/${user._id}/unlike/${post._id}`);
-        console.log('response from handleClickHeart', response);
-        setIsLiked(false);
-        setTooltipText('add to bucketlist');
-        if (view === 'bucketlist') {
-          let old = [...posts];
-          setPosts(() => {
-            old.splice(index, 1);
-            return old;
-          })
-        }
-      } catch (err) {
-        console.log(`error removing ${post.title} from bucket list`, err);
-      }
-    } else {
-      try {
-      let response = await axios.put(`http://localhost:3001/users/${user._id}/like/${post._id}`);
-      console.log('response from handleClickHear', response);
-       setIsLiked(true);
-       setTooltipText('remove from bucketlist');
-     } catch (err) {
-       console.log(`error adding ${post.title} to bucket list`, err);
-     }
-    }
-  };
+  // const handleClickHeart = async () => {
+  //   if (liked) {
+  //     try {
+  //       let response = await axios.put(`http://localhost:3001/users/${user._id}/unlike/${post._id}`);
+  //       console.log('response from handleClickHeart', response);
+  //       setIsLiked(false);
+  //       setTooltipText('add to bucketlist');
+  //       if (view === 'bucketlist') {
+  //         let old = [...posts];
+  //         setPosts(() => {
+  //           old.splice(index, 1);
+  //           return old;
+  //         })
+  //       }
+  //     } catch (err) {
+  //       console.log(`error removing ${post.title} from bucket list`, err);
+  //     }
+  //   } else {
+  //     try {
+  //     let response = await axios.put(`http://localhost:3001/users/${user._id}/like/${post._id}`);
+  //     console.log('response from handleClickHear', response);
+  //      setIsLiked(true);
+  //      setTooltipText('remove from bucketlist');
+  //    } catch (err) {
+  //      console.log(`error adding ${post.title} to bucket list`, err);
+  //    }
+  //   }
+  // };
 
-  useEffect(() => {
-    console.log('isLoggedIn: ', isLoggedIn);
-    if (isLoggedIn === true) {
-      console.log('getting effects');
-      let bucketListLength = user.bucketList.length;
-      for (let i = 0; i < bucketListLength; i++) {
-        if (user.bucketList[i] === post._id) {
-          setIsLiked(true);
-        }
-      }
-    }
-    if (isLoggedIn === false) {
-      setTooltipText('please log in to add posts to your bucket list');
-    }
-  }, [isLoggedIn]);
+  // useEffect(() => {
+  //   console.log('isLoggedIn: ', isLoggedIn);
+  //   if (isLoggedIn === true) {
+  //     console.log('getting effects');
+  //     let bucketListLength = user.bucketList.length;
+  //     for (let i = 0; i < bucketListLength; i++) {
+  //       if (user.bucketList[i] === post._id) {
+  //         setIsLiked(true);
+  //       }
+  //     }
+  //   }
+  //   if (isLoggedIn === false) {
+  //     setTooltipText('please log in to add posts to your bucket list');
+  //   }
+  // }, [isLoggedIn]);
 
   // could do action types scroll forward and scroll back
 
@@ -266,6 +260,21 @@ export const Post = ({ post, index, posts, setPosts, user, grid, rowGap, rowHeig
 const handleFilterByAuthor = (e) => {
   e.preventDefault();
   dispatch(fetchPosts({author: post.author._id}));
+};
+
+const handleFilterPostsByActivity = async (filter, e) => {
+  e && e.preventDefault();
+  try {
+    await dispatch(fetchPosts({tags: filter}));
+    setSearch('');
+  } catch (err) {
+    console.log('error filtering posts', err);
+  }
+};
+
+const handleFilterPosts = async (route, filterTerm, e) => {
+  e && e.preventDefault();
+  dispatch(fetchPosts({[route]: filterTerm}));
 };
 
   function resizePost() {
@@ -348,7 +357,7 @@ const handleFilterByAuthor = (e) => {
         <Group spacing={7} mt={5}>
           {post.tags &&
           post.tags.map((tag, i) => (
-            // may want to save tags separately so have id other than index (unique id)
+            // may want to save tags separately so have id other than index (unique id) // or can create unique id
             <Badge key={i} className={classes.tag} onClick={(e) => handleFilterPosts('tags', tag, e)} >{tag}</Badge>
           ))}
         </Group>
