@@ -32,7 +32,6 @@ export default function App() {
 
     // could lazy init the photos
 
-
   //const viewport = useRef<HTMLDivElement/>(null));
 
   // const scrollToBottom = () =>
@@ -51,7 +50,6 @@ export default function App() {
       <div style={{ height: 1400 }} className={classes.main}>
         <UserSidebar user={user} setUser={setUser} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn}/>
         <Aside>
-        {/* <div style={{display: 'flex', flexDirection: 'column'}}> */}
           <Banner />
           {/* <MasonaryLayout posts={posts} setPosts={setPosts} user={user} isLoggedIn={isLoggedIn}/> */}
           <Feed
@@ -59,7 +57,6 @@ export default function App() {
           />
           {/* <LgCalendar /> */}
         </Aside>
-        {/* </div> */}
       </div>
     </div>
   );

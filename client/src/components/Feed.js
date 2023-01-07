@@ -2,19 +2,17 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import { Post } from './Post.js';
-import {
-  fetchPosts, selectAllPosts
-} from '../state/postsReducer.js';
+import { fetchPosts, selectAllPosts } from '../state/postsReducer.js';
 import { Text } from '@mantine/core';
-import { StyledSpinner } from './Spinner.js';
+// import { StyledSpinner } from './Spinner.js';
 
 
 export default function Feed({ user, isLoggedIn }) {
   const grid = useRef();
   const [rowGap, setRowGap] = useState(0);
   const [rowHeight, setRowHeight] = useState(0);
-  // const [styles, setStyles] = UseState({});
   const dispatch = useDispatch();
+  const [nothingFound, setNothingFound] = useState(false);
 
   useEffect(() => {
     const computedRowGap = parseInt(window
@@ -27,10 +25,6 @@ export default function Feed({ user, isLoggedIn }) {
     setRowHeight(computedRowHeight);
   }, []);
 
-  // const [nothingFound, setNothingFound] = useState(false);
-
-  // should be caching all posts and using database to filter!!!!
-
   let posts = useSelector(selectAllPosts);
 
 
@@ -40,17 +34,8 @@ export default function Feed({ user, isLoggedIn }) {
   //   </div>
   // ));
 
-
-
   const postStatus = useSelector(state => state.posts.status);
   const error = useSelector(state => state.posts.error);
-
-  // useEffect(() => {
-  //   if (postStatus === 'idle') {
-  //     dispatch(fetchPosts())
-  //   }
-  // }, [postStatus, dispatch]);
-
 
   useEffect(() => {
     if (postStatus === 'idle') {
@@ -73,18 +58,16 @@ export default function Feed({ user, isLoggedIn }) {
       <Post key={post._id} post={post} user={user} grid={grid} rowGap={rowGap} rowHeight={rowHeight} isLoggedIn={isLoggedIn} />
     ))
   } else if (postStatus === 'failed') {
-    content = <Text>Sorry, no posts match your search</Text>
-    // content = <div>{error}</div>
+    content = <div>{error}</div>
   };
 
-
-  // useEffect(() => {
-  //   if (!(posts.length >= 1)) {
-  //     setNothingFound(true);
-  //     return;
-  //   }
-  //   setNothingFound(false);
-  // }, [posts]);
+  useEffect(() => {
+    if (postStatus === 'succeeded' && !(posts.length >= 1)) {
+      setNothingFound(true);
+      return;
+    }
+    setNothingFound(false);
+  }, [posts]);
 
   // !!may want to do this way instead to avoid entire feed re-rendering every time a post changes (https://redux.js.org/tutorials/fundamentals/part-7-standard-patterns)
   // import { selectPostIds } from './postsReducer';
@@ -94,12 +77,7 @@ export default function Feed({ user, isLoggedIn }) {
 
   return (
     <Container ref={grid} style={{ display: 'grid', gridGap: '16px', gridAutoRows: '25px'}}>
-       {/* {nothingFound && <Text>Sorry, no posts match your search</Text>} */}
-          {/* {posts.map((post, i) => (
-          <Post
-          key={post._id} post={post} index={i} posts={posts} setPosts={setPosts} user={user} grid={grid} rowGap={rowGap} rowHeight={rowHeight} isLoggedIn={isLoggedIn}  handleFilterPosts={handleFilterPosts}></Post>
-        ))} */}
-        {content}
+       {nothingFound ? <Text>Sorry, no posts match your search</Text> : content}
     </Container>
   );
 };
