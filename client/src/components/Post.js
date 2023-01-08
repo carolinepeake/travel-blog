@@ -186,34 +186,34 @@ export const Post = ({ post, index, user, grid, rowGap, rowHeight, isLoggedIn })
     }
   };
 
-  // const handleClickHeart = async () => {
-  //   if (liked) {
-  //     try {
-  //       let response = await axios.put(`http://localhost:3001/users/${user._id}/unlike/${post._id}`);
-  //       console.log('response from handleClickHeart', response);
-  //       setIsLiked(false);
-  //       setTooltipText('add to bucketlist');
-  //       if (view === 'bucketlist') {
-  //         let old = [...posts];
-  //         setPosts(() => {
-  //           old.splice(index, 1);
-  //           return old;
-  //         })
-  //       }
-  //     } catch (err) {
-  //       console.log(`error removing ${post.title} from bucket list`, err);
-  //     }
-  //   } else {
-  //     try {
-  //     let response = await axios.put(`http://localhost:3001/users/${user._id}/like/${post._id}`);
-  //     console.log('response from handleClickHear', response);
-  //      setIsLiked(true);
-  //      setTooltipText('remove from bucketlist');
-  //    } catch (err) {
-  //      console.log(`error adding ${post.title} to bucket list`, err);
-  //    }
-  //   }
-  // };
+  const handleClickHeart = async () => {
+    if (liked) {
+      try {
+        let response = await axios.put(`http://localhost:3001/users/${user._id}/unlike/${post._id}`);
+        console.log('response from handleClickHeart', response);
+        setIsLiked(false);
+        setTooltipText('add to bucketlist');
+        if (view === 'bucketlist') {
+          let old = [...posts];
+          setPosts(() => {
+            old.splice(index, 1);
+            return old;
+          })
+        }
+      } catch (err) {
+        console.log(`error removing ${post.title} from bucket list`, err);
+      }
+    } else {
+      try {
+      let response = await axios.put(`http://localhost:3001/users/${user._id}/like/${post._id}`);
+      console.log('response from handleClickHear', response);
+       setIsLiked(true);
+       setTooltipText('remove from bucketlist');
+     } catch (err) {
+       console.log(`error adding ${post.title} to bucket list`, err);
+     }
+    }
+  };
 
   // useEffect(() => {
   //   console.log('isLoggedIn: ', isLoggedIn);
@@ -257,25 +257,25 @@ export const Post = ({ post, index, user, grid, rowGap, rowHeight, isLoggedIn })
 // }
 
 
-const handleFilterByAuthor = (e) => {
-  e.preventDefault();
-  dispatch(fetchPosts({author: post.author._id}));
-};
+  const handleFilterByAuthor = (e) => {
+    e.preventDefault();
+    dispatch(fetchPosts({author: post.author._id}));
+  };
 
-const handleFilterPostsByActivity = async (filter, e) => {
-  e && e.preventDefault();
-  try {
-    await dispatch(fetchPosts({tags: filter}));
-    setSearch('');
-  } catch (err) {
-    console.log('error filtering posts', err);
-  }
-};
+  const handleFilterPostsByActivity = async (filter, e) => {
+    e && e.preventDefault();
+    try {
+      await dispatch(fetchPosts({tags: filter}));
+      setSearch('');
+    } catch (err) {
+      console.log('error filtering posts', err);
+    }
+  };
 
-const handleFilterPosts = async (route, filterTerm, e) => {
-  e && e.preventDefault();
-  dispatch(fetchPosts({[route]: filterTerm}));
-};
+  const handleFilterPosts = async (route, filterTerm, e) => {
+    e && e.preventDefault();
+    dispatch(fetchPosts({[route]: filterTerm}));
+  };
 
   function resizePost() {
     const contentHeight = parseInt(window

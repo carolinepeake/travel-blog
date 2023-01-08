@@ -29,6 +29,11 @@ export const deletePost = createAsyncThunk('posts/deletePost', async (postId = '
    return response.data;
 });
 
+export const fetchBucketList = createAsyncThunk('posts/fetchBucketList', async (userId = '') => {
+  const response = await axios.get(`/users/${userId}`)
+  return response.data.bucketList;
+});
+
 const initialState = {
   posts: [],
   status: 'idle',
@@ -61,6 +66,9 @@ const postsSlice = createSlice({
       })
       .addCase(deletePost.fulfilled, (state, action) => {
         state.posts = state.posts.filter(post => post._id !== action.payload._id);
+      })
+      .addCase(fetchBucketList.fulfilled, (state, action) => {
+        state.posts = action.payload;
       })
   }
 });
