@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch,
+  // useSelector
+ } from 'react-redux';
 import { createStyles, Overlay, Container, Title, Button, Text, Autocomplete } from '@mantine/core';
-import { fetchPosts, selectFilteredPosts } from '../state/postsReducer.js';
+import { filterSet,
+  // selectFilteredPosts
+ } from '../state/postsSlice.js';
 import { useMapboxApi } from '../utils/customHooks.js';
 
 const useStyles = createStyles((theme) => ({
@@ -115,12 +119,12 @@ export default function Banner() {
   const [autocompleteLocations, autocompleteErr, locationFetch] = useMapboxApi();
   const [isFocused, setIsFocused] = useState(false);
   const dispatch = useDispatch();
-  let posts = useSelector(selectFilteredPosts);
+  // let posts = useSelector(selectFilteredPosts);
 
-  useEffect(() => {
-    setSearchTerm('');
-    setIsFocused(false);
-  }, [posts]);
+  // useEffect(() => {
+  //   setSearchTerm('');
+  //   setIsFocused(false);
+  // }, [posts]);
 
   const handleLocationChange = async (query) => {
     setSearchTerm(query);
@@ -141,7 +145,10 @@ export default function Banner() {
       placeType = "city";
     }
     // should maybe make async and return api response and set state here so can know if successful
-    dispatch(fetchPosts({[placeType]: smallestPlaceName}));
+    // dispatch(fetchPosts({[placeType]: smallestPlaceName}));
+    dispatch(filterSet({[placeType]: smallestPlaceName}));
+    setSearchTerm('');
+    setIsFocused(false);
   };
 
   // autocomplete input doesn't clear

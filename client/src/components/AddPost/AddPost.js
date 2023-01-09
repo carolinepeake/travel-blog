@@ -1,10 +1,10 @@
 import React, { useReducer, useState, useEffect } from "react";
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import { createStyles, Select, TextInput, Textarea, Button, onSubmit, Group, Box } from '@mantine/core';
-// import { useForm } from '@mantine/form';
 import { toUpperFirst } from '../../utils/utils.js';
-import { fetchPosts, addNewPost } from '../../state/postsReducer.js';
+import { fetchPosts, addNewPost, filterSet } from '../../state/postsSlice.js';
+import { selectUser } from '../../state/usersSlice.js';
 import FileUpload from './FileUpload.js';
 import AddTag from './AddTag.js';
 import SelectTags from './SelectTags.js';
@@ -73,12 +73,15 @@ const formReducer = function(state, action) {
   }
 };
 
-export default function AddPost({ user, setUser, setAddPostOpened }) {
+export default function AddPost({ setAddPostOpened }) {
+  // const { classes } = useStyles();
   const [formState, dispatch] = useReducer(formReducer, initialFormState);
   const [previews, setPreviews] = useState([]);
   const [imageValue, setImageValue] = useState(null);
   const [addPostRequestStatus, setAddPostRequestStatus] = useState('idle');
   const dispatchReduxAction = useDispatch();
+
+  let user = useSelector(selectUser);
 
   const locationBody = {
     region: formState.region,
@@ -194,7 +197,8 @@ export default function AddPost({ user, setUser, setAddPostOpened }) {
         const savedPost = await dispatchReduxAction(addNewPost(postBody)).unwrap();
         console.log('response from handleSubmitPost: ', savedPost);
         // would really want to reset any filters to none (maybe unless filter is author === self)
-        dispatchReduxAction(fetchPosts());
+        // dispatchReduxAction(fetchPosts());
+        dispatchReduxAction(filterSet({type: 'none'}));
         dispatch({
           type: "HANDLE SUBMIT"
         });

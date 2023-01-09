@@ -19,7 +19,14 @@ module.exports.controllers= {
     new Post(entry).save()
     .then((savedPost) => {
       console.log('success saving post: ', savedPost);
-      res.status(201).send(savedPost);
+      Post.find({_id: savedPost._id})
+      .populate('location')
+      .populate('author')
+      .exec()
+      .then((result) => {
+        res.status(201).send(result);
+      })
+      // res.status(201).send(savedPost);
     })
     .catch((err) => {
       console.log('error saving post: ', err);
@@ -28,7 +35,8 @@ module.exports.controllers= {
   },
 
   getPosts: function(req, res) {
-    Post.find(req.query)
+    // Post.find(req.query)
+    Post.find({})
     .populate('location')
     .populate('author')
     .exec()
@@ -45,6 +53,7 @@ module.exports.controllers= {
     const postID = req.params.postId;
     Post.deleteOne({ _id: postID })
     .then((result) => {
+      result.postId = postID;
       // status code 204 if send no result data back
       res.status(200).send(result);
     })

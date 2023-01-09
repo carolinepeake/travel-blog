@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { useDispatch, useSelector } from 'react-redux';
 //make alphabetical
 import { Aside, createStyles, Avatar, Stack, Button, Container, Box, Center, Modal, Text, Group, Tooltip } from '@mantine/core';
 import { Calendar } from '@mantine/dates';
 import { useForm } from '@mantine/form';
+import { selectUser, selectLoggedInState, editAvatar, logoutUser } from '../state/usersSlice.js';
 import AddPost from './AddPost/AddPost.js';
 import AuthenticateUser from './AuthenticateUser';
 import EditProfileImage from './AuthenticateUser/EditProfileImage.js';
@@ -100,12 +101,16 @@ const useStyles = createStyles((theme, _params, getRef) => ({
 
 // need to make it so shows tooltip when hovering over avatar
 
-export default function UserSidebar({ user, setUser, setPosts, isLoggedIn, setIsLoggedIn }) {
+export default function UserSidebar() {
   const { classes, cx, getRef } = useStyles();
   const [addPostOpened, setAddPostOpened] = useState(false);
   const [editProfileImageOpened, setEditProfileImageOpened] = useState(false);
   const [avatar, setAvatar] = useState('');
   const [imageUrlToSave, setImageUrlToSave] = useState('');
+  const dispatchReduxAction = useDispatch();
+
+  let user = useSelector(selectUser);
+  let isLoggedIn = useSelector(selectLoggedInState);
 
   const form = useForm({
     initialValues: {
@@ -128,14 +133,13 @@ export default function UserSidebar({ user, setUser, setPosts, isLoggedIn, setIs
 
   const handleEditProfileImage = async () => {
     let accountBody = {
+      userId: user._id,
       image: form.values.image,
     };
     try {
-      let response = await axios.put(`http://localhost:3001/users/${user._id}/avatar`, accountBody);
-      console.log('response from handleEditProfileImage', response.data);
-      setUser(response.data);
-      localStorage.setItem('user', JSON.stringify(response.data));
-      setIsLoggedIn(true);
+     let updatedImage = await dispatchReduxAction(editAvatar(accountBody));
+     console.log('updatedImage: ', updatedImage);
+      // localStorage.setItem('user', JSON.stringify(response.data));
       setEditProfileImageOpened(false);
       form.reset();
     } catch (err) {
@@ -154,9 +158,10 @@ export default function UserSidebar({ user, setUser, setPosts, isLoggedIn, setIs
 
   const handleSubmit = async (values) => {
     try {
+      // aren't including values as a parameter
       await handleEditProfileImage(values);
     } catch (err) {
-      console.log('error creating account', err);
+      console.log('error editing profile image', err);
     }
   };
 
@@ -167,9 +172,8 @@ export default function UserSidebar({ user, setUser, setPosts, isLoggedIn, setIs
    };
 
   function handleLogout(e) {
-    setIsLoggedIn(false);
-    setUser({});
-    localStorage.clear();
+    dispatchReduxAction(logoutUser());
+    // localStorage.clear();
   };
 
 
@@ -182,7 +186,8 @@ export default function UserSidebar({ user, setUser, setPosts, isLoggedIn, setIs
       onClose={() => setAddPostOpened(false)}
       title="New Post:"
       >
-      <AddPost user={user} setUser={setUser} setAddPostOpened={setAddPostOpened} />
+      <AddPost
+      setAddPostOpened={setAddPostOpened} />
     </Modal>
 
     <Modal
@@ -232,7 +237,8 @@ export default function UserSidebar({ user, setUser, setPosts, isLoggedIn, setIs
       </Aside.Section>
 
       <Aside.Section style={{ display: isLoggedIn ? 'none' : 'block' }}>
-        <AuthenticateUser user={user} setUser={setUser} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} avatar={avatar} setAvatar={setAvatar} />
+        <AuthenticateUser
+         avatar={avatar} setAvatar={setAvatar} />
       </Aside.Section>
 
       <br/>

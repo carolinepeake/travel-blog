@@ -1,7 +1,4 @@
-import React, {
-  useState,
-} from "react";
-import { useDispatch } from 'react-redux';
+import React from "react";
 import { ScrollArea, Aside, createStyles, Text } from '@mantine/core';
 import NavBar from './NavBar.js';
 import Banner from './Banner.js';
@@ -9,9 +6,6 @@ import UserSidebar from './UserSidebar.js';
 import Feed from './Feed.js';
 // import MasonaryLayout from './MasonaryLayout.js';
 // import LgCalendar from './LgCalendar.js';
-import {
-  fetchPosts
-} from '../state/postsReducer.js';
 
 const useStyles = createStyles((theme) => ({
   main: {
@@ -26,9 +20,6 @@ const useStyles = createStyles((theme) => ({
 
 export default function App() {
   const { classes } = useStyles();
-  const [user, setUser] = useState({});
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const dispatch = useDispatch();
 
     // could lazy init the photos
 
@@ -37,24 +28,17 @@ export default function App() {
   // const scrollToBottom = () =>
   //   viewport.current.scrollTo({ top: viewport.current.scrollHeight, behavior: 'smooth' });
 
-  const handleFilterPosts = async (route, filterTerm, e) => {
-    e && e.preventDefault();
-    dispatch(fetchPosts({[route]: filterTerm}));
-  };
-
   // //viewportRef={viewport} in returned DOm element (LG calendar) or maybe scrollArea?
 
   return (
     <div>
-      <NavBar user={user} isLoggedIn={isLoggedIn} />
+      <NavBar />
       <div style={{ height: 1400 }} className={classes.main}>
-        <UserSidebar user={user} setUser={setUser} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn}/>
+        <UserSidebar />
         <Aside>
           <Banner />
-          {/* <MasonaryLayout posts={posts} setPosts={setPosts} user={user} isLoggedIn={isLoggedIn}/> */}
-          <Feed
-          user={user} isLoggedIn={isLoggedIn}
-          />
+          {/* <MasonaryLayout /> */}
+          <Feed />
           {/* <LgCalendar /> */}
         </Aside>
       </div>

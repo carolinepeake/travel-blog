@@ -1,11 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useDispatch } from 'react-redux';
-import axios from 'axios';
+import { useDispatch, useSelector } from 'react-redux';
 import { createStyles, Card, Image, ActionIcon, Group, Text, Avatar, Badge } from '@mantine/core';
 import { IconHeart, IconChevronRight, IconChevronLeft} from '@tabler/icons';
-import {
-  fetchPosts, deletePost
-} from '../state/postsReducer.js';
+import { deletePost, selectFilteredPostById, filterSet, fetchPosts, selectFilter } from '../state/postsSlice.js';
+import { selectUser, selectLoggedInState, unlikePost, likePost, selectBucketList } from '../state/usersSlice.js';
 
 const useStyles = createStyles((theme, _params, getRef) => ({
 
@@ -156,27 +154,37 @@ const useStyles = createStyles((theme, _params, getRef) => ({
 
 }));
 
-export const Post = ({ post, index, user, grid, rowGap, rowHeight, isLoggedIn }) => {
+export const Post = ({ postId, grid, rowGap, rowHeight }) => {
   const { classes, theme, getRef } = useStyles();
   const [liked, setIsLiked] = useState(false);
   const [tooltipText, setTooltipText] = useState('add to bucket list');
-  const date =  new Date(post.createdAt);
+
   const content = useRef();
   const [gridRowSpan, setGridRowSpan] = useState(0);
   const [photoIndex, setPhotoIndex] = useState(0);
   const [deletePostRequestStatus, setDeletePostRequestStatus] = useState('idle')
   const dispatch = useDispatch();
 
+  const user = useSelector(selectUser);
+  const isLoggedIn = useSelector(selectLoggedInState);
+
+  const post = useSelector((state) => selectFilteredPostById(state, postId));
+  const filter = useSelector(selectFilter);
+  const bucketList = user.bucketList;
+
+
+  const date =  new Date(post.createdAt);
+
   const canDelete = user.email === post.author.email;
 
   const handleDeletePost = async (e) => {
-    // may not be necessary
     e.preventDefault();
-    console.log(post._id);
+    console.log('post id to delete: ', post._id);
     if (canDelete) {
       try {
         setDeletePostRequestStatus('pending');
         const response = await dispatch(deletePost(post._id)).unwrap();
+        // dispatch(fetchPosts());
         console.log(`post ${post._id} deleted successfully`, response.data);
       } catch (err) {
         console.error(`error deleting post ${post._id}`, err);
@@ -186,50 +194,75 @@ export const Post = ({ post, index, user, grid, rowGap, rowHeight, isLoggedIn })
     }
   };
 
-  const handleClickHeart = async () => {
-    if (liked) {
-      try {
-        let response = await axios.put(`http://localhost:3001/users/${user._id}/unlike/${post._id}`);
-        console.log('response from handleClickHeart', response);
-        setIsLiked(false);
-        setTooltipText('add to bucketlist');
-        if (view === 'bucketlist') {
-          let old = [...posts];
-          setPosts(() => {
-            old.splice(index, 1);
-            return old;
-          })
+  const canClickHeart = isLoggedIn;
+
+  const handleClickHeart = async (e) => {
+    e.preventDefault();
+    console.log('postId: ', postId);
+    if (canClickHeart) {
+      if (liked) {
+        try {
+          // isn't catching errors - need to unwrap
+         const unlikePostResponse = await dispatch(unlikePost({user: user._id, post: post._id}));
+          console.log('response from handleClickHeart',  unlikePostResponse);
+          setIsLiked(false);
+          setTooltipText('add to bucketlist');
+          // return unlikePostResponse
+          // .then((unlikePostResponse) => {
+            if (filter.type === 'bucketList') {
+              let newBucketList = unlikePostResponse.payload.bucketList;
+              dispatch(filterSet({type: 'bucketList', value: newBucketList}));
+              dispatch(fetchPosts());
+            }
+            return newBucketList;
+          // })
+          // .catch(err => console.log('error setting newbucketList: ', err))
+          // if (view === 'bucketlist') {
+          //   let old = [...posts];
+          //   setPosts(() => {
+          //     old.splice(index, 1);
+          //     return old;
+          //   })
+          // }
+        } catch (err) {
+          console.log(`error removing ${post.title} from bucket list`, err);
         }
-      } catch (err) {
-        console.log(`error removing ${post.title} from bucket list`, err);
+      } else {
+        try {
+          // isn't catching error liking post
+          // response is {type: 'users/likePost/rejected', payload: undefined, meta: ...}
+          const likePostResponse = await dispatch(likePost({user: user._id, post: postId}));
+          console.log('response from handleClickHeart',  likePostResponse);
+          setIsLiked(true);
+          setTooltipText('remove from bucketlist');
+        } catch (err) {
+          console.log(`error adding ${post.title} to bucket list`, err);
+        }
       }
-    } else {
-      try {
-      let response = await axios.put(`http://localhost:3001/users/${user._id}/like/${post._id}`);
-      console.log('response from handleClickHear', response);
-       setIsLiked(true);
-       setTooltipText('remove from bucketlist');
-     } catch (err) {
-       console.log(`error adding ${post.title} to bucket list`, err);
-     }
     }
   };
 
-  // useEffect(() => {
-  //   console.log('isLoggedIn: ', isLoggedIn);
-  //   if (isLoggedIn === true) {
-  //     console.log('getting effects');
-  //     let bucketListLength = user.bucketList.length;
-  //     for (let i = 0; i < bucketListLength; i++) {
-  //       if (user.bucketList[i] === post._id) {
-  //         setIsLiked(true);
-  //       }
-  //     }
-  //   }
-  //   if (isLoggedIn === false) {
-  //     setTooltipText('please log in to add posts to your bucket list');
-  //   }
-  // }, [isLoggedIn]);
+  useEffect(() => {
+    console.log('isLoggedIn: ', isLoggedIn);
+    if (isLoggedIn === true) {
+      console.log('getting effects');
+      let bucketListLength = user.bucketList.length;
+      for (let i = 0; i < bucketListLength; i++) {
+        if (user.bucketList[i] === post._id) {
+          setIsLiked(true);
+          setTooltipText('remove from bucket list');
+          break;
+        }
+        else {
+          setTooltipText('add to bucket list');
+        }
+      }
+    }
+    if (isLoggedIn === false) {
+      setTooltipText('please log in to add posts to your bucket list');
+      setIsLiked(false);
+    }
+  }, [isLoggedIn, user]);
 
   // could do action types scroll forward and scroll back
 
@@ -241,13 +274,6 @@ export const Post = ({ post, index, user, grid, rowGap, rowHeight, isLoggedIn })
     if (newIndex > post.photos.length -1) {
       newIndex = 0;
     }
-    // if (photoIndex < post.photos.length - 1) {
-    //   setPhotoIndex((current) => (current + 1));
-    // } else if (photoIndex === post.photos.length - 1) {
-    //   setPhotoIndex(0);
-    // } else {
-    //   setPhotoIndex(newIndex);
-    // };
     setPhotoIndex(newIndex);
   };
 
@@ -256,25 +282,14 @@ export const Post = ({ post, index, user, grid, rowGap, rowHeight, isLoggedIn })
 //   console.log('content current style: ',  content.current.style, 'content: ', content, 'type of content: ', typeof content);
 // }
 
+  // const handleFilterByAuthor = (e) => {
+  //   e.preventDefault();
+  //   dispatch(fetchPosts({author: post.author._id}));
+  // };
 
-  const handleFilterByAuthor = (e) => {
-    e.preventDefault();
-    dispatch(fetchPosts({author: post.author._id}));
-  };
-
-  const handleFilterPostsByActivity = async (filter, e) => {
+  const handleFilterPosts = (filter = {}, e) => {
     e && e.preventDefault();
-    try {
-      await dispatch(fetchPosts({tags: filter}));
-      setSearch('');
-    } catch (err) {
-      console.log('error filtering posts', err);
-    }
-  };
-
-  const handleFilterPosts = async (route, filterTerm, e) => {
-    e && e.preventDefault();
-    dispatch(fetchPosts({[route]: filterTerm}));
+    dispatch(filterSet(filter));
   };
 
   function resizePost() {
@@ -287,7 +302,7 @@ export const Post = ({ post, index, user, grid, rowGap, rowHeight, isLoggedIn })
 
   useEffect(() => {
     resizePost()
-  }, []);
+  }, [rowHeight, rowGap, content.current]);
 
   // maybe make div an article element
   return (
@@ -309,7 +324,7 @@ export const Post = ({ post, index, user, grid, rowGap, rowHeight, isLoggedIn })
       <Card.Section mb="sm" className={classes.section} style={{padding: 0}}>
         <div height={180}/>
         {user.email === post.author.email
-        && <ActionIcon className={classes.close} post={post} onClick={(e) => handleDeletePost(post, e)}>x</ActionIcon>}
+        && <ActionIcon className={classes.close} onClick={(e) => handleDeletePost(e)}>x</ActionIcon>}
         {post.photos.length > 1
         && (
             <>
@@ -330,20 +345,23 @@ export const Post = ({ post, index, user, grid, rowGap, rowHeight, isLoggedIn })
           <Text size="lg" weight={500}>
             {post.title}
           </Text>
-          <ActionIcon className={classes.like} onClick={e => handleClickHeart(e)} style={{disabled: isLoggedIn ? 'false' : 'true' }}>
+          <ActionIcon className={classes.like}
+          onClick={e => handleClickHeart(e)}
+          disabled={!isLoggedIn}
+          >
             <IconHeart className={classes.heart} size={18} color={theme.colors.red[6]} stroke={1.5} style={{ fill: liked ? theme.colors.red[6] : 'none' }}/>
             <span className={classes.tooltip}>{tooltipText}</span>
           </ActionIcon>
         </Group>
         <Group>
-          {post.location.city
-          && <Badge className={classes.tag} size="sm" onClick={() => dispatch(fetchPosts({city: post.location.city}))}>{post.location.city}</Badge>}
-          {post.location.state
-          && <Badge className={classes.tag} size="sm" onClick={() => dispatch(fetchPosts({state: post.location.state}))}>{post.location.state}</Badge>}
-          {post.location.country
-          && <Badge className={classes.tag} size="sm" onClick={() => dispatch(fetchPosts({country: post.location.country}))}>{post.location.country}</Badge>}
+          {post.city
+          && <Badge className={classes.tag} size="sm" onClick={(e) => handleFilterPosts({city: post.city}, e)}>{post.city}</Badge>}
+          {post.state
+          && <Badge className={classes.tag} size="sm" onClick={(e) => handleFilterPosts({state: post.state}, e)}>{post.state}</Badge>}
+          {post.country
+          && <Badge className={classes.tag} size="sm" onClick={(e) => handleFilterPosts({country: post.country}, e)}>{post.country}</Badge>}
           {post.region
-          && <Badge className={classes.tag} size="sm" onClick={() => dispatch(fetchPosts({region: post.region}))}>{post.region}</Badge>}
+          && <Badge className={classes.tag} size="sm" onClick={(e) => handleFilterPosts({region: post.region}, e)}>{post.region}</Badge>}
         </Group>
         <Text size="sm" mt="xs">
           {post.description}
@@ -358,7 +376,7 @@ export const Post = ({ post, index, user, grid, rowGap, rowHeight, isLoggedIn })
           {post.tags &&
           post.tags.map((tag, i) => (
             // may want to save tags separately so have id other than index (unique id) // or can create unique id
-            <Badge key={i} className={classes.tag} onClick={(e) => handleFilterPosts('tags', tag, e)} >{tag}</Badge>
+            <Badge key={i} className={classes.tag} onClick={(e) => handleFilterPosts({tags: tag}, e)} >{tag}</Badge>
           ))}
         </Group>
       </Card.Section>
@@ -372,8 +390,8 @@ export const Post = ({ post, index, user, grid, rowGap, rowHeight, isLoggedIn })
               <Avatar
             // can make avatar HOC
             src={post.author.image} radius="sm" alt={post.author.name} classNames={{ root: classes.avatarContainer, image: classes.avatarImage }}
-            onClick={(e) => handleFilterByAuthor(e)}/>
-            <Text weight={200} onClick={(e) => handleFilterByAuthor(e)} className={classes.authorName}>{post.author.name} </Text>
+            onClick={(e) => handleFilterPosts({author: post.author._id}, e)}/>
+            <Text weight={200} onClick={(e) => handleFilterPosts({author: post.author._id}, e)} className={classes.authorName}>{post.author.name} </Text>
             </>
             )}
 

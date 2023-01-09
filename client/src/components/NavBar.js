@@ -2,14 +2,14 @@ import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { createStyles, Header, Container, Group, Paper, Transition, Burger, Autocomplete, Button } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import axios from 'axios';
 import SearchIcon from './SearchIcon.js';
-import { fetchPosts, selectAllTags } from '../state/postsReducer.js';
+import { filterSet, selectAllTags, selectFilter } from '../state/postsSlice.js';
+import { selectBucketList, selectLoggedInState } from '../state/usersSlice.js';
 
 const HEADER_HEIGHT = 60;
 
-const links = ['kiteboarding', 'scuba', 'music', 'gastronomy'];
-const bucketList = {link: '/bucketlist', label: 'bucketlist'};
+const quickLinks = ['kiteboarding', 'scuba', 'music', 'gastronomy'];
+const bucketListLink = {link: '/bucketlist', label: 'bucketlist'};
 const home = {link: '/home', label: 'home'};
 
 const useStyles = createStyles((theme) => ({
@@ -117,7 +117,7 @@ const useStyles = createStyles((theme) => ({
 
 }));
 
-export default function NavBar({ user, isLoggedIn }) {
+export default function NavBar() {
   const [opened, { toggle, close }] = useDisclosure(false);
   const [active, setActive] = useState(home.link);
   const { classes, cx } = useStyles();
@@ -127,14 +127,36 @@ export default function NavBar({ user, isLoggedIn }) {
   const dispatch = useDispatch();
 
   let tags = useSelector(selectAllTags);
+  let bucketList = useSelector(selectBucketList);
+  let isLoggedIn = useSelector(selectLoggedInState);
+  let filter = useSelector(selectFilter);
 
-  const handleFilterPosts = async (filter = {}, e) => {
+  // const [filterTerm = 'home'] = Object.values(filter);
+  // const [filterType] = Object.keys(filter);
+  // if (filter.type === 'none') {
+  //   setActive('home');
+  // } else if (filter.type === 'bucketList') {
+  //      setActive('bucketList');
+  //    } else if (quicklinks.includes(filter.value)) {
+  //     setActive(filter.value);
+  //    } else {
+  //     setActive('');
+  //    }
+    // links.includes(filterTerm)) {
+  //   setActive(filterTerm);
+  // } else {
+  //   setActive('');
+  // }
+  // filterType === 'bucketlist' ? setActive(bucketListLink.link) : links.includes(filterTerm) ? setActive(filterTerm) : setActive('');
+
+  // async?
+  const handleFilterPosts = async (filter = {type: 'none'}, e) => {
     e && e.preventDefault();
     try {
-      dispatch(fetchPosts(filter));
-      const [filterTerm = 'home'] = Object.values(filter);
-      links.includes(filterTerm) ? setActive(filterTerm) : setActive('');
-      setSearch('');
+      await dispatch(filterSet(filter));
+      const filterTerm = filter.value;
+      quickLinks.includes(filterTerm) ? setActive(filterTerm) : setActive('');
+      setTimeout(() => setSearch(''), 500);
       close();
     } catch (err) {
       console.log('error filtering posts', err);
@@ -145,16 +167,13 @@ export default function NavBar({ user, isLoggedIn }) {
 
   const handleFilterPostsByBucketList = async (e) => {
     e.preventDefault();
-    if (user.email !== undefined) {
+    if (isLoggedIn && bucketList) {
       try {
-        console.log('user: ', user);
-        const userId = user._id;
-        const response = await axios.get(`http://localhost:3001/users/${userId}`);
-        const filteredPosts = response.data.bucketList;
-        console.log('response from handleFilterPosts', response.data);
-        // setPosts(filteredPosts);
-        setActive(bucketList.link);
-        setView("bucketlist")
+        console.log('bucketList in handleFilterPostsByBucketList: ', bucketList);
+        const response = await dispatch(filterSet({ type: 'bucketList', value: bucketList }));
+        console.log('response from handleFilterPostsByBucketList', response);
+        setActive(bucketListLink.link);
+        setView("bucketList")
         close();
       } catch (err) {
         console.log('error filtering posts by bucketlist', err);
@@ -162,7 +181,7 @@ export default function NavBar({ user, isLoggedIn }) {
     } else {
      // alert("Must be logged in to filter by posts saved to your bucket list.")
        // return error need to be logged in, or disable bucketList link and make tooltip over it urging user to sign in to see
-      console.log('getting to else in handleClick');
+      console.log('error -  user not logged in to filter posts by bucketList');
       setHidePopUp(false);
       setTimeout(setHidePopUp, 5000, true);
     }
@@ -171,7 +190,7 @@ export default function NavBar({ user, isLoggedIn }) {
   const handleClickHome = async (e) => {
     try {
       e.preventDefault();
-      dispatch(fetchPosts());
+      dispatch(filterSet({type: 'none'}));
       setActive(home.link);
       close();
     } catch (err) {
@@ -179,16 +198,46 @@ export default function NavBar({ user, isLoggedIn }) {
     }
   };
 
-  const activityLinks = links.map((link) => (
+  const activityLinks = quickLinks.map((link) => (
       <a
         key={link}
-        href={`/${link}` }
+        href={`/${link}`}
         className={cx(classes.link, { [classes.linkActive]: active === link })}
-        onClick={(e) => handleFilterPosts({tags: link}, e)}
+        onClick={(e) => handleFilterPosts({type: 'tags', value: link}, e)}
       >
         {link}
       </a>
   ));
+
+  // const links = (
+  //   <>
+  //     <a
+  //       key='home'
+  //       href='/home'
+  //       className={cx(classes.link, { [classes.linkActive]: active === 'home' })}
+  //       onClick={(e) => handleClickHome(e)}
+  //     >
+  //       home
+  //     </a>
+
+  //     <a
+  //     key='bucketList'
+  //     href='/bucketList'
+  //     className={cx(classes.link, { [classes.linkActive]: active === 'bucketList' })}
+  //     onClick={(e) => handleFilterPostsByBucketList(e)} disabled={!isLoggedIn}
+  //     >
+  //     bucketlist
+  //     <span
+  //       className={classes.popup} id="myPopup"
+  //       style={{ visibility: hidePopUp ? 'hidden' : 'visible', transition: 'visibility 5s' }}
+  //     >
+  //       Must be logged in to filter by posts saved to your bucketlist.
+  //     </span>
+  //     </a>
+
+  //     {activityLinks}
+  //   </>
+  // );
 
   // data for autocomplete search
   let data = [];
@@ -213,11 +262,11 @@ export default function NavBar({ user, isLoggedIn }) {
             </a>
 
             <a
-              href={bucketList.link}
-              className={cx(classes.link, { [classes.linkActive]: active === bucketList.link })}
+              href={bucketListLink.link}
+              className={cx(classes.link, { [classes.linkActive]: active === bucketListLink.link })}
               onClick={(e) => handleFilterPostsByBucketList(e)} disabled={!isLoggedIn}
             >
-              {bucketList.label}
+              {bucketListLink.label}
               <span
                 className={classes.popup} id="myPopup"
                 style={{ visibility: hidePopUp ? 'hidden' : 'visible', transition: 'visibility 5s' }}
@@ -227,6 +276,8 @@ export default function NavBar({ user, isLoggedIn }) {
             </a>
 
             {activityLinks}
+
+            {/* {links} */}
 
           </Group>
 
@@ -242,8 +293,9 @@ export default function NavBar({ user, isLoggedIn }) {
               value={search}
               positionDependencies={[active]}
               onChange={setSearch}
-              onKeyPress={(e) => {if (e.key === 'Enter') {handleFilterPosts({tags: search}, e)}}}
-              onItemSubmit={item => {const searchTerm = item.value; handleFilterPosts({tags: searchTerm})}}
+              // onBlur={setSearch(filter.value)}
+              onKeyPress={(e) => {if (e.key === 'Enter') {handleFilterPosts({type: 'tags', value: search}, e)}}}
+              onItemSubmit={item => {const searchTerm = item.value; setSearch(searchTerm); handleFilterPosts({type: 'tags', value: searchTerm})}}
             />
 
           <Burger opened={opened} onClick={toggle} title="Open navigation" aria-label="Open navigation" className={classes.burger} size="sm" />
@@ -254,16 +306,16 @@ export default function NavBar({ user, isLoggedIn }) {
                 <a
                   href={home.link}
                   className={cx(classes.link, { [classes.linkActive]: active === home.link })}
-                  onClick={(e) => handleClickHome(home, e)}
+                  onClick={(e) => handleClickHome(e)}
                 >
                   {home.label}
                 </a>
                 <a
-                  href={bucketList.link}
-                  className={cx(classes.link, { [classes.linkActive]: active === bucketList.link })}
-                  onClick={(e) => handleFilterPostsByBucketList(bucketList, e)}
+                  href={bucketListLink.link}
+                  className={cx(classes.link, { [classes.linkActive]: active === bucketListLink.link })}
+                  onClick={(e) => handleFilterPostsByBucketList(e)}
                 >
-                {bucketList.label}
+                {bucketListLink.label}
                 </a>
                 {activityLinks}
               </Paper>

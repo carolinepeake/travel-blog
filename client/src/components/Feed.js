@@ -2,17 +2,34 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import { Post } from './Post.js';
-import { fetchPosts, selectAllPosts } from '../state/postsReducer.js';
+import { fetchPosts, selectFilteredPostIds } from '../state/postsSlice.js';
 import { Text } from '@mantine/core';
 // import { StyledSpinner } from './Spinner.js';
 
 
-export default function Feed({ user, isLoggedIn }) {
+export default function Feed({}) {
+
+  const dispatch = useDispatch();
+  const postStatus = useSelector(state => state.posts.status);
+
+  // useEffect(() => {
+  //   if (postStatus === 'idle') {
+  //     dispatch(fetchPosts())
+  //   }
+  // }, []);
+
+  useEffect(() => {
+    if (postStatus === 'idle') {
+      dispatch(fetchPosts())
+    }
+  }, [postStatus, dispatch])
+
+  const postIds = useSelector(selectFilteredPostIds);
+  const error = useSelector(state => state.posts.error);
+
   const grid = useRef();
   const [rowGap, setRowGap] = useState(0);
   const [rowHeight, setRowHeight] = useState(0);
-  const dispatch = useDispatch();
-  const [nothingFound, setNothingFound] = useState(false);
 
   useEffect(() => {
     const computedRowGap = parseInt(window
@@ -23,25 +40,17 @@ export default function Feed({ user, isLoggedIn }) {
       .getPropertyValue('grid-auto-rows'));
     setRowGap(computedRowGap);
     setRowHeight(computedRowHeight);
-  }, []);
+  }, [postIds]);
 
-  let posts = useSelector(selectAllPosts);
-
-
-  // const renderedPosts = posts.map(post => (
-  //   <div className={classes.grid-item} key={post._id}>
-  //     <Post post={post} />
-  //   </div>
-  // ));
-
-  const postStatus = useSelector(state => state.posts.status);
-  const error = useSelector(state => state.posts.error);
+  const [nothingFound, setNothingFound] = useState(false);
 
   useEffect(() => {
-    if (postStatus === 'idle') {
-      dispatch(fetchPosts())
+    if (postStatus === 'succeeded' && !(postIds.length >= 1)) {
+      setNothingFound(true);
+      return;
     }
-  }, []);
+    setNothingFound(false);
+  }, [postIds]);
 
   let content;
 
@@ -50,25 +59,30 @@ export default function Feed({ user, isLoggedIn }) {
     content = <Text>Loading...</Text>;
   } else if (postStatus === 'succeeded') {
     // Sort posts in reverse chronological order by datetime string
-    const orderedPosts = posts
-      .slice()
-      .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+    // const orderedPosts = postIds
+    //   .slice();
+      // .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 
-    content = orderedPosts.map(post => (
-      <Post key={post._id} post={post} user={user} grid={grid} rowGap={rowGap} rowHeight={rowHeight} isLoggedIn={isLoggedIn} />
+    content = postIds.map(postId => (
+      <Post
+        key={postId}
+        postId={postId}
+        grid={grid}
+        rowGap={rowGap}
+        rowHeight={rowHeight}
+       />
     ))
   } else if (postStatus === 'failed') {
     content = <div>{error}</div>
   };
 
-  useEffect(() => {
-    if (postStatus === 'succeeded' && !(posts.length >= 1)) {
-      setNothingFound(true);
-      return;
-    }
-    setNothingFound(false);
-  }, [posts]);
+    // const renderedPosts = posts.map(post => (
+  //   <div className={classes.grid-item} key={post._id}>
+  //     <Post post={post} />
+  //   </div>
+  // ));
 
+  // add to resume / interview talking points
   // !!may want to do this way instead to avoid entire feed re-rendering every time a post changes (https://redux.js.org/tutorials/fundamentals/part-7-standard-patterns)
   // import { selectPostIds } from './postsReducer';
   // const postIds = useSelector(selectPostIds);
@@ -77,7 +91,9 @@ export default function Feed({ user, isLoggedIn }) {
 
   return (
     <Container ref={grid} style={{ display: 'grid', gridGap: '16px', gridAutoRows: '25px'}}>
-       {nothingFound ? <Text>Sorry, no posts match your search</Text> : content}
+      {nothingFound
+      ? <Text>Sorry, no posts match your search</Text>
+      : content}
     </Container>
   );
 };

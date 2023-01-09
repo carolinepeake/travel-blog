@@ -85,6 +85,15 @@ spinner:
   css
 
 
+search in nav bar - if select item - should populate the search bar with the item selected value
+getting user from local localStorage
+create account form errors
+nav bar links highlited correctly
+sort posts by date
+remove from bucketlist needs to re-render posts
+
+
+
 
 
 

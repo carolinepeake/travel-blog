@@ -68,11 +68,11 @@ module.exports.controllers = {
       const postId = req.params.postId;
       console.log('request user parameter from handleLikePost controller: ', userId);
       console.log('request post parameter from handleLikePost controller: ', postId);
-      // const updatedUser = await User.findByIdAndUpdate(user, { $push: { bucketList: post }}, { returnDocument='after', timestamps=false, });
-      // const updatedUser = await User.updateOne({ _id: user, { $push: {bucketList: post} }, { returnDocument: 'after', timestamps: false, new: true });
-      const updatedUser = await User.findByIdAndUpdate(userId, { $push: { bucketList: postId }});
-      console.log('updatedUser', updatedUser);
-      res.status(200).send(updatedUser);
+      const updatedUserBucketList = await User.findByIdAndUpdate(userId, { $push: { bucketList: postId }}, {returnDocument: 'after', timestamps: true,
+      select: 'bucketList'
+    });
+      console.log('updatedUserBucketList', updatedUserBucketList);
+      res.status(200).send(updatedUserBucketList);
     } catch (err) {
       console.log('error updating user: ', err);
       res.status(404).json({ error: "unable to update user" });
@@ -86,12 +86,11 @@ module.exports.controllers = {
       const postId = req.params.postId;
       console.log('request user parameter from handleLikePost controller: ', userId);
       console.log('request post parameter from handleLikePost controller: ', postId);
-      // might be $pullAll
-      // const updatedUser = await User.findByIdAndUpdate(user, { $pull: { bucketList: post } }, { returnDocument='after', timestamps=false, new=true });
-      const updatedUser = await User.findByIdAndUpdate(userId, { $pull: { bucketList: postId }});
-      console.log('updatedUser', updatedUser);
-      // status code 204 if send no result data back
-      res.status(200).send(updatedUser);
+      const updatedUserBucketList = await User.findByIdAndUpdate(userId, { $pull: { bucketList: postId }}, {returnDocument: 'after', timestamps: true,
+      select: 'bucketList'
+    });
+      console.log('updatedUserBucketList', updatedUserBucketList);
+      res.status(200).send(updatedUserBucketList);
     } catch (err) {
       console.log('error updating user: ', err);
       res.status(404).json({ error: "unable to update user" });
@@ -105,12 +104,10 @@ module.exports.controllers = {
       const imageUrl = req.body.image;
       console.log('request user parameter from handleEditAvatar controller: ', userId);
       console.log('request imageUrl parameter from handleEditAvatar controller: ', imageUrl);
-      // there's a way you can get the updated user
-      const beforeUpdateUser = await User.findByIdAndUpdate(userId, { image: imageUrl });
-      const updatedUser = await User.findById(userId);
-      console.log('updatedUser', updatedUser);
-      // status code 204 if send no result data back
-      res.status(200).send(updatedUser);
+      const updatedUserImage = await User.findByIdAndUpdate(userId, { image: imageUrl }, {returnDocument: 'after', timestamps: true,
+      select: 'image'
+    });
+      res.status(200).send(updatedUserImage);
     } catch (err) {
       console.log('error updating user: ', err);
       res.status(404).json({ error: "unable to update user" });
