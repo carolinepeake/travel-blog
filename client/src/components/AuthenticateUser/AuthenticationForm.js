@@ -49,7 +49,7 @@ const formReducer = function(state, action) {
   }
 };
 
-export default function AuthenticationForm({ email, password, avatar, setAvatar, handleClickRegister, setIsOpened }
+export default function AuthenticationForm({ email, password, handleClickRegister, setIsOpened }
   ) {
   const { classes, cx } = useStyles();
   const [formState, dispatch] = useReducer(formReducer, initialFormState);
@@ -57,7 +57,7 @@ export default function AuthenticationForm({ email, password, avatar, setAvatar,
   const [imageUrlToSave, setImageUrlToSave] = useState('')
 
   useEffect(() => {
-    if (imageUrlToSave) {
+    if (typeof imageUrlToSave === 'string') {
       dispatch({
         type: 'HANDLE SINGLE INPUT',
         field: 'image',
@@ -95,23 +95,6 @@ export default function AuthenticationForm({ email, password, avatar, setAvatar,
       field: e.target.name,
       payload: e.target.value,
     });
-    // let formField;
-    // let fieldValue;
-    // if (event.currentTarget !== undefined) {
-    //   console.log('not undefined');
-    //   formField = event.currentTarget.name;
-    //   fieldValue = event.currentTarget.value;
-    // } else {
-    //   formField = event.target.name;
-    //   fieldValue = event.target.value;
-    // }
-    // console.log('formField: ', formField, 'formValue :', fieldValue);
-    // // formState[formField] && form.setFieldValue(formField, fieldValue);
-    // if (form) {
-    //   await form.values[formField] && form.setFieldValue(formField, fieldValue);
-    //   console.log('form from handleTextInput', form);
-    //   return form;
-    // }
   };
 
   let user = useSelector(selectUser);
@@ -119,14 +102,6 @@ export default function AuthenticationForm({ email, password, avatar, setAvatar,
 
   const handleCreateAccount = async (e) => {
     e.preventDefault();
-    // let accountBody = {
-    //   name: values.name,
-    //   email: values.email,
-    //   password: values.password,
-    //   city: values.city,
-    //   country: values.country,
-    //   image: values.image,
-    // };
     let accountBody = {
       name: formState.name,
       email: formState.email,
@@ -139,8 +114,8 @@ export default function AuthenticationForm({ email, password, avatar, setAvatar,
       const newUser = await dispatchReduxAction(addNewUser(accountBody));
       console.log('newUser: ', newUser);
 
-      // localStorage.setItem('user', JSON.stringify(user))
-      // localStorage.setItem('user', JSON.stringify(response.data))
+      localStorage.setItem('user', JSON.stringify(user._id))
+
       dispatch({
         type: "HANDLE SUBMIT"
       });
@@ -228,8 +203,7 @@ export default function AuthenticationForm({ email, password, avatar, setAvatar,
           />
 
           <EditProfileImage
-            avatar={avatar}
-            setAvatar={setAvatar} setImageUrlToSave={setImageUrlToSave}
+            setImageUrlToSave={setImageUrlToSave}
           />
 
         <PlacesAutocomplete

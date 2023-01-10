@@ -13,7 +13,7 @@ usersRouter.post('/signup', handleUserSignup);
   // should this be get?  no, b/c posting password?
 usersRouter.post('/login', handleUserLogin);
 
-usersRouter.get('/:userId', handleGetBucketList);
+usersRouter.get('/:userId', handleGetUser);
 
 usersRouter.put('/:userId/like/:postId', handleLikePost);
 

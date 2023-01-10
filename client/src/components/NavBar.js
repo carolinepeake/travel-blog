@@ -209,36 +209,6 @@ export default function NavBar() {
       </a>
   ));
 
-  // const links = (
-  //   <>
-  //     <a
-  //       key='home'
-  //       href='/home'
-  //       className={cx(classes.link, { [classes.linkActive]: active === 'home' })}
-  //       onClick={(e) => handleClickHome(e)}
-  //     >
-  //       home
-  //     </a>
-
-  //     <a
-  //     key='bucketList'
-  //     href='/bucketList'
-  //     className={cx(classes.link, { [classes.linkActive]: active === 'bucketList' })}
-  //     onClick={(e) => handleFilterPostsByBucketList(e)} disabled={!isLoggedIn}
-  //     >
-  //     bucketlist
-  //     <span
-  //       className={classes.popup} id="myPopup"
-  //       style={{ visibility: hidePopUp ? 'hidden' : 'visible', transition: 'visibility 5s' }}
-  //     >
-  //       Must be logged in to filter by posts saved to your bucketlist.
-  //     </span>
-  //     </a>
-
-  //     {activityLinks}
-  //   </>
-  // );
-
   // data for autocomplete search
   let data = [];
   if (tags.length > 0) {
@@ -277,7 +247,6 @@ export default function NavBar() {
 
             {activityLinks}
 
-            {/* {links} */}
 
           </Group>
 

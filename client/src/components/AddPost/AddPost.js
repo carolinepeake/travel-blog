@@ -74,12 +74,13 @@ const formReducer = function(state, action) {
 };
 
 export default function AddPost({ setAddPostOpened }) {
-  // const { classes } = useStyles();
+  const { classes } = useStyles();
   const [formState, dispatch] = useReducer(formReducer, initialFormState);
   const [previews, setPreviews] = useState([]);
   const [imageValue, setImageValue] = useState(null);
   const [addPostRequestStatus, setAddPostRequestStatus] = useState('idle');
   const dispatchReduxAction = useDispatch();
+  const [errors, setErrors] = useState({});
 
   let user = useSelector(selectUser);
 
@@ -113,25 +114,12 @@ export default function AddPost({ setAddPostOpened }) {
     });
   };
 
- // could make add tag feature a form element nested inside the module form
-   // add tag button could serve as submit button
-   // name could be addTag, or newTag(s)
-   // could then make handle add multiple dynamic and get rid of handleAddTag and corresponding reducer case
-
-  // can also pass down a component or element as props instead of all of that component's props
-
    function handleAddTag(item) {
     dispatch({
       type: "HANDLE MULTIPLE INPUTS",
       field: 'selectedTags',
       payload: item.value,
     });
-    // dispatch({
-    //   type: "HANDLE SINGLE INPUT",
-    //   field: 'newTag',
-    //   payload: item.value,
-    // });
-    console.log(formState.selectedTags);
   };
 
   const handleDeleteFile = (i, field, e) => {
@@ -169,27 +157,21 @@ export default function AddPost({ setAddPostOpened }) {
       field: 'selectedTags',
       payload: query,
     });
-    console.log(formState.selectedTags);
   };
 
   const canSave = postBody.author && addPostRequestStatus === 'idle';
 
   const handleSubmitForm = async (e) => {
     e.preventDefault();
-    try {
-      if (previews) {
-        const promises = [];
-        for (let i = 0; i < previews.length; i += 1) {
-          const promise = axios.post('posts/cloudinary/upload', {
-            image: previews[i],
-          });
-          promises.push(promise);
-        }
-        const uploadedPhotos = await Promise.all(promises);
+      if (formState.fileList.length > 0) {
+        formState.fileList.filter(file.hasOwnProperty('cloudinaryImageUrl'));
+        const uploadedPhotos = formState.fileList.map(file => file.cloudinaryImageUrl);
+        postBody.photos = uploadedPhotos;
+      }
         uploadedPhotos.forEach((photo) => {
           postBody.photos.push(photo.data.url);
         });
-      }
+        try {
       const savedLocation = await axios.post('/locations', locationBody);
       postBody.location = savedLocation.data._id;
       if (canSave) {
@@ -197,8 +179,9 @@ export default function AddPost({ setAddPostOpened }) {
         const savedPost = await dispatchReduxAction(addNewPost(postBody)).unwrap();
         console.log('response from handleSubmitPost: ', savedPost);
         // would really want to reset any filters to none (maybe unless filter is author === self)
-        // dispatchReduxAction(fetchPosts());
+
         dispatchReduxAction(filterSet({type: 'none'}));
+        dispatchReduxAction(fetchPosts());
         dispatch({
           type: "HANDLE SUBMIT"
         });
@@ -239,8 +222,8 @@ export default function AddPost({ setAddPostOpened }) {
         id="description"
         autosize
         onChange={(e) => handleTextChange(e)}
-        // error="character limit is"
-        // errorProps={errorProps}
+        // character limit error
+        // error={errors.descriptionError}
       ></Textarea>
 
       <br />
@@ -276,8 +259,8 @@ export default function AddPost({ setAddPostOpened }) {
         <br/>
 
       <SelectTags
-      selectedTags={formState.selectedTags}
-      handleTextChange={handleTextChange}
+        selectedTags={formState.selectedTags}
+        handleTextChange={handleTextChange}
       />
 
       <br />

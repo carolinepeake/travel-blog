@@ -36,7 +36,6 @@ const useStyles = createStyles((theme, _params, getRef) => ({
   image: {
     borderTopLeftRadius: theme.radius.md,
     borderTopRightRadius: theme.radius.md,
-    // borderRadius: `${theme.radius.md} ${theme.radius.md} 0 0`,
     //position: 'relative',
   },
 
@@ -68,24 +67,16 @@ const useStyles = createStyles((theme, _params, getRef) => ({
   heart: {
   },
 
-  scrollRight: {
+  scroll: {
     position: 'absolute',
     zIndex: '2',
-    right: '2%',
+    // use property to define whether right or left, might have to do right 98%
+    // right: '2%',
     top: '50%',
     '&:hover': {
       cursor: 'pointer',
     },
-  },
-
-  scrollLeft: {
-    position: 'absolute',
-    zIndex: '2',
-    left: '2%',
-    top: '50%',
-    '&:hover': {
-      cursor: 'pointer',
-    },
+    color: 'black',
   },
 
   tooltip: {
@@ -161,6 +152,18 @@ export const Post = ({ postId, grid, rowGap, rowHeight }) => {
 
   const content = useRef();
   const [gridRowSpan, setGridRowSpan] = useState(0);
+
+  function resizePost() {
+    const contentHeight = parseInt(window
+      .getComputedStyle(content.current)
+      .getPropertyValue("height"));
+    let rowSpan = Math.ceil((contentHeight + rowGap) / (rowHeight + rowGap));
+    setGridRowSpan(rowSpan);
+  };
+
+  useEffect(() => {
+    resizePost()
+  }, [rowHeight, rowGap, content.current]);
   const [photoIndex, setPhotoIndex] = useState(0);
   const [deletePostRequestStatus, setDeletePostRequestStatus] = useState('idle')
   const dispatch = useDispatch();
@@ -172,8 +175,29 @@ export const Post = ({ postId, grid, rowGap, rowHeight }) => {
   const filter = useSelector(selectFilter);
   const bucketList = user.bucketList;
 
-
   const date =  new Date(post.createdAt);
+
+  useEffect(() => {
+    console.log('isLoggedIn: ', isLoggedIn);
+    if (isLoggedIn === true) {
+      console.log('getting effects');
+      let bucketListLength = user.bucketList.length;
+      for (let i = 0; i < bucketListLength; i++) {
+        if (user.bucketList[i] === post._id) {
+          setIsLiked(true);
+          setTooltipText('remove from bucket list');
+          break;
+        }
+        else {
+          setTooltipText('add to bucket list');
+        }
+      }
+    }
+    if (isLoggedIn === false) {
+      setTooltipText('please log in to add posts to your bucket list');
+      setIsLiked(false);
+    }
+  }, [isLoggedIn, user]);
 
   const canDelete = user.email === post.author.email;
 
@@ -242,28 +266,6 @@ export const Post = ({ postId, grid, rowGap, rowHeight }) => {
     }
   };
 
-  useEffect(() => {
-    console.log('isLoggedIn: ', isLoggedIn);
-    if (isLoggedIn === true) {
-      console.log('getting effects');
-      let bucketListLength = user.bucketList.length;
-      for (let i = 0; i < bucketListLength; i++) {
-        if (user.bucketList[i] === post._id) {
-          setIsLiked(true);
-          setTooltipText('remove from bucket list');
-          break;
-        }
-        else {
-          setTooltipText('add to bucket list');
-        }
-      }
-    }
-    if (isLoggedIn === false) {
-      setTooltipText('please log in to add posts to your bucket list');
-      setIsLiked(false);
-    }
-  }, [isLoggedIn, user]);
-
   // could do action types scroll forward and scroll back
 
   function handleScrollPhotos(direction) {
@@ -282,29 +284,13 @@ export const Post = ({ postId, grid, rowGap, rowHeight }) => {
 //   console.log('content current style: ',  content.current.style, 'content: ', content, 'type of content: ', typeof content);
 // }
 
-  // const handleFilterByAuthor = (e) => {
-  //   e.preventDefault();
-  //   dispatch(fetchPosts({author: post.author._id}));
-  // };
-
   const handleFilterPosts = (filter = {}, e) => {
     e && e.preventDefault();
     dispatch(filterSet(filter));
   };
 
-  function resizePost() {
-    const contentHeight = parseInt(window
-      .getComputedStyle(content.current)
-      .getPropertyValue("height"));
-    let rowSpan = Math.ceil((contentHeight + rowGap) / (rowHeight + rowGap));
-    setGridRowSpan(rowSpan);
-  };
-
-  useEffect(() => {
-    resizePost()
-  }, [rowHeight, rowGap, content.current]);
-
   // maybe make div an article element
+
   return (
   <div
     // className={classes.item}
@@ -328,10 +314,10 @@ export const Post = ({ postId, grid, rowGap, rowHeight }) => {
         {post.photos.length > 1
         && (
             <>
-              <ActionIcon className={classes.scrollRight} onClick={() => handleScrollPhotos(1)}>
+              <ActionIcon className={classes.scroll} style={{right: '2%'}} onClick={() => handleScrollPhotos(1)}>
                 <IconChevronRight />
               </ActionIcon>
-              <ActionIcon className={classes.scrollLeft} onClick={() => handleScrollPhotos(-1)}>
+              <ActionIcon className={classes.scroll} style={{left: '2%'}} onClick={() => handleScrollPhotos(-1)}>
                 <IconChevronLeft />
               </ActionIcon>
             </>

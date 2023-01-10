@@ -23,7 +23,7 @@ function PlacesAutocomplete({ locality, formState, handleTextChange, label, plac
   const handleParseInputLocation = async (item, locality, form) => {
     console.log('handleParseInputLocation item :', item);
     if (item.context && item.context.length > 0) {
-      for (let index = item.context.length - 1; index >= 0; index--) {
+      for (let index = 0; index <= item.context.length - 1; index++) {
         let placeType = item.context[index].id.split('.')[0];
         console.log('placeType :', placeType);
         if (placeType === 'country') {

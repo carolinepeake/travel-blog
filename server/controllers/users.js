@@ -46,18 +46,18 @@ module.exports.controllers = {
     }
   },
 
-  handleGetBucketList: (req, res) => {
-    console.log('request params from handleGetBucketLis', req.params);
+  handleGetUser: (req, res) => {
+    console.log('request params from handleGetUser', req.params);
     User.findById(req.params.userId)
     .populate('bucketList')
     .exec()
     .then((result) => {
-      console.log('query response from handleGetBucketList: ', result);
+      console.log('query response from handleGetUser: ', result);
       res.status(200).send(result);
     })
     .catch((err) => {
-      console.log('error in controller handleGetBucketList: ', err);
-      res.status(400).json({ error: 'unable to retrieve bucket list' });
+      console.log('error in controller handleGetUser: ', err);
+      res.status(400).json({ error: 'unable to retrieve user' });
     })
   },
 

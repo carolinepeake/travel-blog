@@ -2,7 +2,7 @@ import React from "react";
 import { ScrollArea, Aside, createStyles, Text } from '@mantine/core';
 import NavBar from './NavBar.js';
 import Banner from './Banner.js';
-import UserSidebar from './UserSidebar.js';
+import LeftSidebar from './LeftSidebar.js';
 import Feed from './Feed.js';
 // import MasonaryLayout from './MasonaryLayout.js';
 // import LgCalendar from './LgCalendar.js';
@@ -34,7 +34,7 @@ export default function App() {
     <div>
       <NavBar />
       <div style={{ height: 1400 }} className={classes.main}>
-        <UserSidebar />
+        <LeftSidebar />
         <Aside>
           <Banner />
           {/* <MasonaryLayout /> */}

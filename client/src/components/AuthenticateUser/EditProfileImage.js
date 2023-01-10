@@ -25,46 +25,43 @@ const useStyles = createStyles((theme) => ({
 
 }));
 
-export default function EditProfileImage({ avatar, setAvatar, setImageUrlToSave }) {
+export default function EditProfileImage({ setImageUrlToSave }) {
   const { classes } = useStyles();
-  const fileInput = React.createRef();
+  // const fileInput = React.createRef();
   const [fileUploadValue, setFileUploadValue] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
   const [base64image, setbase64image] = useState('');
+  const [preview, setPreview] = useState('');
 
   const [cloudinaryImage, cloudinaryErr, uploadImageToCloudinary] = useCloudinary();
 
-  const handleAddImage = (event) => {
+  const handleAddImage = (event = null) => {
+    setErrorMessage('');
     setFileUploadValue(event);
     if (event !== null) {
       const file = event;
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onloadend = () => {
-        let base64image = reader.result;
-        setbase64image(base64image);
-        // setAvatar(base64image);
-        // uploadImageToCloudinary(base64image);
+        const base64imagePayload = reader.result;
+        setbase64image(base64imagePayload);
       };
     } else {
       setbase64image('');
-      // setAvatar('');
-      // uploadImageToCloudinary();
+      setImageUrlToSave('');
     }
   };
 
   useEffect(() => {
     if (base64image) {
+      // could return spinner while waiting for request to return
       uploadImageToCloudinary(base64image)
-      .then(() => setAvatar(base64image))
-      .catch((err) => {
-        console.log('error uploading or setting avatar to base64image: ', err);
-        setAvatar('');
-        uploadImageToCloudinary();
-      });
+      .then(() => {
+        setPreview(base64image);
+      })
     } else {
-      uploadImageToCloudinary();
-      setAvatar('');
+      setErrorMessage('');
+      setPreview('');
     }
   }, [base64image]);
 
@@ -74,9 +71,8 @@ export default function EditProfileImage({ avatar, setAvatar, setImageUrlToSave 
   }, [cloudinaryImage]);
 
   useEffect(() => {
-    if (cloudinaryErr) {
+    if (cloudinaryErr.response) {
       cloudinaryErr.response.status === 413 ? setErrorMessage('file size must be less than 64 MB') :  setErrorMessage('image upload failed');
-      setAvatar('');
       return;
     }
     setErrorMessage('');
@@ -86,24 +82,25 @@ export default function EditProfileImage({ avatar, setAvatar, setImageUrlToSave 
   return(
     <>
       <FileInput
-        id="avatarInput"
-        label="image"
-        placeholder="upload your photo"
+        id="imageInput"
+        label="Image"
+        placeholder="Upload your photo"
         type="file"
-        name="avatar"
+        name="preview"
         error={errorMessage}
         accept="image/png, image/jpeg"
+        capture="user"
         clearable
         icon={<IconUpload size={14} />}
-        ref={fileInput}
+        // ref={fileInput}
         value={fileUploadValue}
         onChange={e => handleAddImage(e)}
       />
 
-      {avatar
+      {preview
       && (
         <div className={classes.avatarPreview}>
-          <img src={avatar} alt="Image preview" key={avatar} className={classes.imagePreview} />
+          <img src={preview} alt="Image preview" key={preview} className={classes.imagePreview} />
         </div>
         )}
     </>

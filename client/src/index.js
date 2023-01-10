@@ -23,7 +23,7 @@ root.render(
           green: ['#f1f8e5', '#dbe9c7', '#c5d8a6', '#adc883', '#96b961', '#7d9f47', '#617c37', '#455826', '#293514', '#0b1300'],
           terracotta: ['#ffe9e4', '#f8c6bc', '#eda292', '#e47d67', '#dc583d', '#c23f23', '#98301b', '#6d2112', '#431308', '#1d0300']
         },
-        primaryColor: 'green'
+        primaryColor: 'green',
       }}
     >
       <App name="Travel Blog"/>

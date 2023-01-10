@@ -6,17 +6,10 @@ import { fetchPosts, selectFilteredPostIds } from '../state/postsSlice.js';
 import { Text } from '@mantine/core';
 // import { StyledSpinner } from './Spinner.js';
 
-
 export default function Feed({}) {
 
   const dispatch = useDispatch();
   const postStatus = useSelector(state => state.posts.status);
-
-  // useEffect(() => {
-  //   if (postStatus === 'idle') {
-  //     dispatch(fetchPosts())
-  //   }
-  // }, []);
 
   useEffect(() => {
     if (postStatus === 'idle') {
@@ -58,10 +51,6 @@ export default function Feed({}) {
     // content = <StyledSpinner text="Loading..." />
     content = <Text>Loading...</Text>;
   } else if (postStatus === 'succeeded') {
-    // Sort posts in reverse chronological order by datetime string
-    // const orderedPosts = postIds
-    //   .slice();
-      // .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 
     content = postIds.map(postId => (
       <Post

@@ -17,7 +17,7 @@ import {
   Stack,
   createStyles,
 } from '@mantine/core';
-import { selectUser, loginUser, selectLoggedInState } from '../../state/usersSlice.js';
+import { selectUser, loginUser, selectLoggedInState, getUser } from '../../state/usersSlice.js';
 import AuthenticationForm from './AuthenticationForm.js';
 
 const useStyles = createStyles((theme) => ({
@@ -52,16 +52,14 @@ const formReducer = function(state, action) {
 
 // can make a separate component for AuthenticationForm and render it as a child of the modal and as an alternative to the modal (user sidebar) and pass down props to it to make it dynamic
 
-export default function AuthenticateUser({ PaperProps, ButtonProps,
-
-
-  avatar, setAvatar }) {
+export default function UserLogin({ PaperProps, ButtonProps }) {
   const { classes, cx } = useStyles();
   const [type, toggle] = useToggle(['login', 'register']);
   const [isOpened, setIsOpened] = useState(false);
   const [formState, dispatch] = useReducer(formReducer, initialFormState);
   const dispatchReduxAction = useDispatch();
   // const [errorMessage, setErrorMessage] = useState('');
+
 
   // need to add image to validation => if wrong file type
     // validate: (values) => {
@@ -112,14 +110,12 @@ export default function AuthenticateUser({ PaperProps, ButtonProps,
   //   ],
   // });
 
-  // useEffect(() => {
-  //   const loggedInUser = localStorage.getItem("user");
-  //   if (loggedInUser) {
-  //     const foundUser = JSON.parse(loggedInUser);
-  //     setUser(foundUser);
-  //     setIsLoggedIn(true);
-  //   }
-  // }, []);
+  useEffect(() => {
+    const loggedInUser = localStorage.getItem("user");
+    if (loggedInUser) {
+      dispatch(fectchUser(loggedInUser));
+    }
+  }, []);
 
   let user = useSelector(selectUser);
   let isLoggedIn = useSelector(selectLoggedInState);
@@ -164,7 +160,7 @@ export default function AuthenticateUser({ PaperProps, ButtonProps,
     try {
       console.log('form state from handleLogin: ', formState);
       const loggedInUser = await dispatchReduxAction(loginUser(accountBody));
-      // localStorage.setItem('user', JSON.stringify(response.data));
+      localStorage.setItem('user', JSON.stringify(user._id));
       setIsOpened(false);
       dispatch({
         type: "HANDLE SUBMIT"
@@ -217,7 +213,6 @@ export default function AuthenticateUser({ PaperProps, ButtonProps,
     >
       <AuthenticationForm
       // form={form}
-      avatar={avatar} setAvatar={setAvatar}
       setIsOpened={setIsOpened}
       // handleSubmit={handleSubmit}
       // handleError={handleError}

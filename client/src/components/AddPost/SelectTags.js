@@ -1,20 +1,20 @@
 import React, { useEffect, useState } from "react";
-import axios from 'axios';
-import { createStyles, MultiSelect } from '@mantine/core';
+import { useSelector } from 'react-redux';
+import { MultiSelect } from '@mantine/core';
+import { selectAllTags } from '../../state/postsSlice.js';
 
 export default function SelectTags({ selectedTags, handleTextChange }) {
-  const [tags, setTags] = useState([]);
-  const [searchValue, onSearchChange] = useState('');
+  const [selectTags, setSelectTags] = useState([]);
+
+  const tags = useSelector(selectAllTags);
 
   useEffect(() => {
-    axios.get('http://localhost:3001/tags')
-    .then((res) => {
-      setTags(res.data)
-     })
-     .catch((err) => {
-      console.log('error getting tags in select tags component', err);
-     })
-  }, []);
+    if (tags && setSelectTags) {
+      setSelectTags(tags);
+    }
+  }, [])
+
+  const [searchValue, onSearchChange] = useState('');
 
   return (
     <MultiSelect
@@ -22,7 +22,7 @@ export default function SelectTags({ selectedTags, handleTextChange }) {
       placeholder="Select Tags"
       values={selectedTags}
       name="selectedTags"
-      data={tags}
+      data={selectTags}
       searchable
       // onSearchChange={onSearchChange}
       // searchValue={searchValue}
@@ -37,43 +37,9 @@ export default function SelectTags({ selectedTags, handleTextChange }) {
       creatable
       getCreateLabel={(query) => `+ Create ${query}`}
       onCreate={(query) => {
-        setTags((current) => [...current, query]);
+        setSelectTags((current) => [...current, query]);
         return query;
       }}
     />
-
-    // <label>
-    //     select tags:
-    //     <select
-    //     name="selectedTags"
-    //     multiple={true}
-    //     size={1}
-    //     value={formState.selectedTags}
-    //     onChange={(e) => handleSelectMultiple(e)}
-    //   >
-    //     {tags
-    //     && (tags.map((tag, i) => {
-    //       return <option
-    //         type="select"
-    //         value={tag}
-    //         key={i}
-    //         style={{width: '100px'}}
-    //         >{tag}</option>
-    //      }))
-    //     }
-    //   </select>
-    //   </label>
   );
-
-
-  // add to journal:
-    // how to make an itemized array:
-     //  const data = Array(50).fill(0).map((_, index) => `Item ${index}`);
-    // need to use 'return' when mapping an array of values into react components
-    // native HTML uses 'selected' attribute to designate an option as the default selected value, but
-    // react uses the initial state of the select value
-    // the size attribute of a select element takes a number and sets how many dropdown options display at one time when the dropdown is open
-
-    // figure out syntax for using async/await for an axios request made inside a useEffects call
-
 };

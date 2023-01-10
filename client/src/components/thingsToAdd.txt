@@ -11,6 +11,9 @@ login:
   user sidebar login button changes to register when modal is opened
 
 
+  edit profile pop up module
+  - same as authentication form with addition of old password input if changing password
+
 
 regions:
 
@@ -91,6 +94,8 @@ create account form errors
 nav bar links highlited correctly
 sort posts by date
 remove from bucketlist needs to re-render posts
+
+if select a filterTerm that is on nav bar, highlight that term
 
 
 

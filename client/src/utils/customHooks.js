@@ -26,43 +26,35 @@ export const useMapboxApi = () => {
   return [autocompleteLocations, autocompleteErr, locationFetch]; // <-- return state and fetch function
 };
 
-// export const useFilterPosts = async (route, filterTerm, e) => {
-//     e.preventDefault();
-//     try {
-//       const response = await axios.get(`http://localhost:3001/posts/filter/${route}/${filterTerm}`);
-//       let filteredPosts = response.data;
-//       console.log('response from handleFilterPosts in App component', response.data);
-//       setPosts(filteredPosts);
-//     } catch (err) {
-//       console.log('error filtering posts', err);
-//     }
-// };
 
 export const useCloudinary = () => {
   const [cloudinaryImage, setCloudinaryImage] = useState({});
-  const [cloudinaryErr, setCloudinaryErr] = useState('');
+  const [cloudinaryErr, setCloudinaryErr] = useState({});
 
   const uploadImageToCloudinary = async (fileUrl) => {
     if (!fileUrl) {
       setCloudinaryImage('');
       setCloudinaryErr('');
-      return;
+    //   setCloudinaryErr({
+    //     response: {
+    //       status: 404,
+    //       message: 'No file sent for upload'
+    //     }
+    //   });
+    //   throw new Error('No file sent for upload');
     }
 
     try {
       const savedImage = await axios.post('http://localhost:3001/posts/cloudinary/upload', {
         image: fileUrl,
       });
-      console.log('saved image: ', savedImage);
-      setCloudinaryImage(savedImage.data)
+      console.log('saved cloudinary image : ', savedImage);
+      setCloudinaryImage(savedImage.data);
+      // return savedImage.data;
     } catch (err) {
       console.log('error uploading cloudinary image: ', err);
-      // if (err.response.status === 413) {
-        // set to err.message or whatever it is
-        // useEffect if cloudinaryErr changes and change local error message state depending on err obj
-        //setCloudinaryErr('error uploading image, file must be less than 64 mb');
-      // }
       setCloudinaryErr(err);
+      // throw new Error(err.message);
     }
   }
 

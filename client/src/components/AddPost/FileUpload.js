@@ -1,7 +1,7 @@
-import React, { useReducer, useState, useEffect, useRef } from "react";
-import axios from 'axios';
+import React, { useState, useEffect, useRef } from "react";
 import { createStyles, Select, TextInput, TextArea, Button, onSubmit, Group, Box, Center, FileInput } from '@mantine/core';
 import { IconPhoto, IconUpload } from '@tabler/icons';
+import { useCloudinary } from '../../utils/customHooks.js';
 
 const useStyles = createStyles((theme) => ({
   root: {
@@ -19,30 +19,53 @@ const useStyles = createStyles((theme) => ({
     zIndex: 1,
   },
 
+  filesPreview: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(3, 1fr)',
+    gridGap: '2%',
+    overflow: 'hidden',
+    justifyItems: 'center',
+    justifyContent: 'stretch',
+    padding: '2%',
+    minheight: '40px',
+    gridTemplateRows: 'auto',
+  },
+
+  photoPreviews: {
+    justifySelf: 'center',
+    overflow: 'hidden',
+    alignSelf: 'center',
+    position: 'relative',
+    display: 'flex',
+    flexDirection: 'column',
+    gridArea: 'span 1 / span 1',
+
+  },
+
   fileList: {
     backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.colors.gray[1],
     fontSize: theme.fontSizes.xs,
-    padding: '3px 7px',
+    padding: '1px 1px',
     borderRadius: theme.radius.sm,
-    marginRight: '1%',
-    marginBottom: '1%',
     justifyContent: 'center',
+    overflow: 'hidden',
+    position: 'relative',
   },
 
   file: {
     backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[0],
     border: 'solid black thin',
-    borderRadius: '5px',
+    borderRadius: theme.radius.sm,
     paddingTop: theme.spacing.xs / 3,
     paddingBottom: theme.spacing.xs / 3,
     paddingLeft: theme.spacing.xs,
-    paddingRight: theme.spacing.sm,
+    paddingRight: theme.spacing.xs,
     position: 'relative',
     zIndex: 1,
     whiteSpace: 'nowrap',
     textOverflow: 'ellipsis',
     overflow: 'hidden',
-    maxWidth: 200,
+    maxWidth: '100%',
     display: 'inline-block',
   },
 
@@ -50,8 +73,8 @@ const useStyles = createStyles((theme) => ({
     position: 'absolute',
     zIndex: 2,
     fontSize: theme.fontSizes.xs,
-    right: '2px',
-    top: '1px',
+    right: '2%',
+    top: '0.5%',
     paddingTop: 0,
 
     '&:hover': {
@@ -59,62 +82,136 @@ const useStyles = createStyles((theme) => ({
     },
   },
 
-  photoPreviews: {
-   // display: 'grid',
-    //gridTemplateColumns: 'repeat(4, 1fr)',
-   // gridGap: '1%',
-   //grid-gap: 1em;
-    //position: relative;
-   // z-index: 1;
-    display: 'flex',
-   flexDirection: 'row',
-    //justifyContent: 'center',
-    flexWrap: 'wrap',
-   // gridColumn: '1 / 3',
-    overflow: 'hidden',
+  imageContainer: {
+    position: 'relative',
+    width: '100%,',
+    height: '100%',
   },
 
   //to-do: make the height/length ratio/measurement change dynamically based on if the photo is landscape or portrait
   imagePreview: {
-    // width: '20%',
-    // height: '20%',
-    marginRight: '1%',
-    flexBasis: 125,
-    positionSelf: 'center',
+    width: '100%',
+    height: '100%',
+    borderRadius: theme.radius.sm,
     objectFit: 'cover',
     aspectRatio: '1',
     overflow: 'hidden',
-    marginBottom: '1%',
+    maxWidth: '100%',
+    maxHeight: '100%',
+    positionSelf: 'center',
+    positionObject: 'center'
   },
+  //need to figure out why the error images are super big
+    // minmax auto grid
 
 }));
 
-export default function FileUpload({ formState, dispatch, handleDeleteFile, previews, setPreviews, imageValue, setImageValue }) {
+export default function FileUpload({ formState, dispatch, handleDeleteFile }) {
   const fileInput = useRef();
   const { classes, cx } = useStyles();
+  const [fileUploadValue, setFileUploadValue] = useState(null);
+  const [requestStatus, setRequestStatus] = useState('idle');
+  const [preview, setPreview] = useState('');
+  const [files, setFiles] = useState([]);
+  const [imageFiles, setImageFiles] = useState([]);
+  const [fileImage, setFileImage] = useState({});
+  const [base64image, setbase64image] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [cloudinaryImageUrlToSave, setCloudinaryImageUrlToSave] = useState('');
+  const [cloudinaryImage, cloudinaryErr, uploadImageToCloudinary] = useCloudinary();
 
-  const handleUploadFile = () => {
-    console.log('event.target: ', event.target);
-    dispatch({
+  const handleUploadImage = (event = null) => {
+    setRequestStatus('pending');
+    setErrorMessage('');
+    if (event !== null) {
+      let file;
+      if (!Array.isArray(event)) {
+        file = event;
+      }
+      event.length < files ?
+      setFiles(event)
+      : file = event[0];
+      if (file) {
+        setFileUploadValue(file);
+        setFileImage({...fileImage, name: file.name});
+        setFiles([file, ...files]);
+        console.log('files :', files);
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onloadend = () => {
+          const base64imagePayload = reader.result;
+          setbase64image(base64imagePayload);
+        };
+      }
+    } else {
+      setFiles([]);
+      setbase64image('');
+      setImageUrlToSave('');
+    }
+  };
+
+  useEffect(() => {
+    if (base64image) {
+      setFileImage({...fileImage, base64image: base64image});
+      // could return spinner while waiting for request to return
+      uploadImageToCloudinary(base64image)
+      .then(() => {
+        setPreview(base64image);
+      })
+    } else {
+      setErrorMessage('');
+      setPreview('');
+    }
+  }, [base64image]);
+
+  useEffect(() => {
+    cloudinaryImage && setCloudinaryImageUrlToSave(cloudinaryImage.url);
+    setFileImage({...fileImage, cloudinaryImageUrl: cloudinaryImage.url})
+  }, [cloudinaryImage]);
+
+  useEffect(() => {
+    if (cloudinaryErr.response) {
+      cloudinaryErr.response.status === 413 ? setErrorMessage('file size must be less than 64 MB') :  setErrorMessage('image upload failed');
+      return;
+    }
+    setErrorMessage('');
+  }, [cloudinaryErr]);
+
+  useEffect(() => {
+    if (cloudinaryImageUrlToSave) {
+       dispatch({
       type: "HANDLE MULTIPLE INPUTS",
       field: 'fileList',
-      payload: event.target.files[0],
+      payload: fileImage,
     });
-   //setImageValue(event);
-   //value={formState.fileList[formState.fileList.length - 1]}/>
-    const file = event.target.files[0];
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onloadend = () => {
-      const base64image = reader.result;
-      setPreviews([...previews, base64image]);
-    };
-	 };
+    setRequestStatus('idle');
+  }}, [cloudinaryImageUrlToSave]);
+
+  useEffect(() => {
+    if (errorMessage) {
+      setFileImage({...fileImage, cloudinaryErrMessage: errorMessage});
+      dispatch({
+        type: "HANDLE MULTIPLE INPUTS",
+        field: 'fileList',
+        payload: fileImage,
+      });
+      setRequestStatus('idle');
+  }}, [errorMessage]);
+
+  //     setPreviews([...previews, imageFile]);
+  //     setRequestStatus('idle');
 
    const handleDeleteImage = (i, field, e) => {
     handleDeleteFile(i, field, e);
-    fileInput.current?.();
-    setImageValue(null);
+    // if (files.length <= 1) {
+      setErrorMessage('');
+      setRequestStatus('idle');
+    // }
+    if (i === 0) {
+      setFileUploadValue(null);
+    }
+    // fileInput.current?.();
+    // setImageValue(null);
    };
 
    // handle deleteOne if type=image or file upload, splice previews and delete preview at index and then setpreviews
@@ -122,69 +219,59 @@ export default function FileUpload({ formState, dispatch, handleDeleteFile, prev
   return (
     <>
         <FileInput
+          classNames={{root: classes.root, input: classes.input, label: classes.label}}
           id="fileInput"
           label="Add Photos"
           placeholder="Add your photos"
-          error="file size must be less than 64 MB"
+          error={errorMessage}
           clearable
           type="file"
           name="photos"
           accept="image/png, image/jpeg"
+          capture="user"
           icon={<IconUpload size={14} />}
           multiple
           ref={fileInput}
-          onChange={handleUploadFile}
-          value={null}
-         // value={formState.fileList}
-         // onClear=
+          onChange={e => handleUploadImage(e)}
+          // value={fileUploadValue}
+          // value={files}
+          value={requestStatus === 'pending' ? fileUploadValue : null}
+          // value={formState.fileList}
+          disabled={requestStatus === 'pending'}
         />
-        <br />
-      {formState.fileList
+
+        <br/>
+
+      {formState.fileList.length > 0
       && (
-       formState.fileList.map((file, i) => {
-          return (
-            <Center
-              key={i}
-              inline
-              className={classes.fileList}
-            >
-              <IconPhoto size={14} style={{ marginRight: 5 }} />
-              <span className={classes.file}>
-                {file.name}
-                <span className={classes.close} onClick={(e) => handleDeleteImage(i, 'fileList', e)}>x</span>
-              </span>
-            </Center>
-          );
-        })
-			)}
-      {previews.length > 0
-      && (
-        <>
-        <div className={classes.photoPreviews}>
-        {previews.map((photo, i) => (
-          // <div>
-          //   <span className={classes.close} onClick={(e) => handleDeleteOne(i, 'fileList', e)}>x</span>
-            <img src={photo} alt="Image preview" key={photo} className={classes.imagePreview} />
-          // </div>
-        ))}
-      </div>
-        <br />
-        </>
+          <div className={classes.filesPreview}>
+
+          {formState.fileList.map(({base64image, cloudinaryImageUrl, cloudinaryErrMessage, name}, i) => (
+
+            <div className={classes.photoPreviews} key={name} i={i}>
+
+              <Center
+                inline
+                className={classes.fileList}
+                i={i}
+              >
+                <IconPhoto size={14} style={{ marginRight: 5 }} />
+                <span className={classes.file}>
+                  {name}
+                  <span className={classes.close}  i={i} onClick={(e) => handleDeleteImage(i, 'fileList', e)}>x</span>
+                </span>
+              </Center>
+
+              <div className={classes.imageContainer} >
+                <span className={classes.close}  i={i} onClick={(e) => handleDeleteImage(i, 'fileList', e)}>x</span>
+                <img src={base64image} alt="Image preview" className={classes.imagePreview} />
+              </div>
+
+            </div>
+          ))}
+        </div>
       )}
-    </>
+     </>
   );
 };
 
-// may want to save photos obj not just url
-
- // <div key={i}>
-					// <p className={classes.file}>Filename: {photo.name}
-					{/* <p>Filetype: {photo.type}</p>
-					<p>Size in bytes: {photo.size}</p>
-					<p>
-						lastModifiedDate:{' '} */}
-						{/* {photo.lastModifiedDate.toLocaleDateString()} */}
-        //     <span className={classes.close} onClick={(e) => handleDeleteOne(i, 'photos', e)}>x</span>
-				// 	</p>
-
-				// </div>

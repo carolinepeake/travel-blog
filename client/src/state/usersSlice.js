@@ -12,6 +12,11 @@ import axios from 'axios';
 
 // ASYNC FUNCTIONS
 
+export const getUser = createAsyncThunk('users/getUser', async (userId = '') => {
+  const response = await axios.get(`/users/${userId}`);
+  return response.data;
+});
+
 export const loginUser = createAsyncThunk('users/loginUser', async (loginBody = {}) => {
   const response = await axios.post('/users/login', loginBody);
   return response.data;
@@ -71,6 +76,19 @@ const usersSlice = createSlice({
   },
   extraReducers(builder) {
     builder
+      .addCase(getUser.pending, (state, action) => {
+        state.status = 'loading';
+      })
+      .addCase(getUser.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.user = action.payload;
+        state.isLoggedIn = true;
+      })
+      .addCase(getUser.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message;
+        console.log('error fetchingUser: ', action.error.message);
+      })
       .addCase(loginUser.pending, (state, action) => {
         state.status = 'loading';
       })
@@ -84,16 +102,25 @@ const usersSlice = createSlice({
         state.error = action.error.message;
         console.log('error fetchingUser: ', action.error.message);
       })
+      .addCase(addNewUser.pending, (state, action) => {
+        state.status = 'loading';
+      })
       .addCase(addNewUser.fulfilled, (state, action) => {
+        state.status = 'succeeded';
         state.user = action.payload;
         state.isLoggedIn = true;
+      })
+      .addCase(addNewUser.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message;
+        console.log('error creatingUser: ', action.error.message);
       })
       .addCase(deleteUser.fulfilled, (state, action) => {
         state.user = {};
         state.isLoggedIn = false;
       })
       .addCase(editAvatar.fulfilled, (state, action) => {
-        state.user.avatar = action.payload.image;
+        state.user.image = action.payload.image;
       })
       // will want to make it so just adds postId to bucketList state rather than replacing bucketList state with fetched bucketList so if another post is unliked but db hasn't updated yet, is updated in state / so wrong post doesn't get deleted if quickly liking and unliking several posts
       .addCase(likePost.fulfilled, (state, action) => {
