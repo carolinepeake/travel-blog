@@ -221,7 +221,7 @@ export default function UserLogin({ PaperProps, ButtonProps }) {
       >
         <Stack>
           <TextInput
-            required
+            // required
             label="Email"
             placeholder="example@gmail.com"
             // value={form.values.email}
@@ -229,6 +229,7 @@ export default function UserLogin({ PaperProps, ButtonProps }) {
             name="email"
             // onChange={(event) => form.setFieldValue('email', event.currentTarget.value)}
             onBlur={() => setEmailErrorMessage('')}
+            onFocus={() => setEmailErrorMessage('')}
             onChange={(event) => handleTextChange(event)}
             error={emailErrorMessage}
             // error={form.errors.email && 'invalid email'}
@@ -236,13 +237,14 @@ export default function UserLogin({ PaperProps, ButtonProps }) {
           />
 
           <PasswordInput
-            required
+            // required
             label="password"
             placeholder="your password"
             // value={form.values.password}
             value={formState.password}
             name="password"
             // onChange={(event) => form.setFieldValue('password', event.currentTarget.value)}
+            onFocus={() => setPasswordErrorMessage('')}
             onBlur={() => setPasswordErrorMessage('')}
             onChange={(event) => handleTextChange(event)}
             error={passwordErrorMessage}

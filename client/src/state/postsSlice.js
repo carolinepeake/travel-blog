@@ -144,6 +144,10 @@ export const selectFilteredPosts = createSelector(
       return posts.filter(post => filter.value.includes(post._id));
     }
 
+    if (filter.type === 'author') {
+      return posts.filter(post => post.author._id === filter.value);
+    }
+
     return posts.filter(post => post[filter.type] === filter.value);
   }
 );

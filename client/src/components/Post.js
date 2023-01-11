@@ -209,7 +209,6 @@ export const Post = ({ postId, grid, rowGap, rowHeight }) => {
       try {
         setDeletePostRequestStatus('pending');
         const response = await dispatch(deletePost(post._id)).unwrap();
-        // dispatch(fetchPosts());
         console.log(`post ${post._id} deleted successfully`, response.data);
       } catch (err) {
         console.error(`error deleting post ${post._id}`, err);
@@ -390,8 +389,8 @@ export const Post = ({ postId, grid, rowGap, rowHeight }) => {
               <Avatar
             // can make avatar HOC
             src={post.author.image} radius="sm" alt={post.author.name} classNames={{ root: classes.avatarContainer, image: classes.avatarImage }}
-            onClick={(e) => handleFilterPosts({author: post.author._id}, e)}/>
-            <Text weight={200} onClick={(e) => handleFilterPosts({author: post.author._id}, e)} className={classes.authorName}>{post.author.name} </Text>
+            onClick={(e) => handleFilterPosts({type: 'author', value: post.author._id}, e)}/>
+            <Text weight={200} onClick={(e) => handleFilterPosts({type: 'author', value: post.author._id}, e)} className={classes.authorName}>{post.author.name} </Text>
             </>
             )}
 

@@ -96,8 +96,8 @@ const useStyles = createStyles((theme) => ({
     objectFit: 'cover',
     aspectRatio: '1',
     overflow: 'hidden',
-    maxWidth: '100%',
-    maxHeight: '100%',
+    maxWidth: '90%',
+    maxHeight: '90%',
     positionSelf: 'center',
     positionObject: 'center'
   },
