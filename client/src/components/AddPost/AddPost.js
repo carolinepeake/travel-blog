@@ -163,14 +163,15 @@ export default function AddPost({ setAddPostOpened }) {
 
   const handleSubmitForm = async (e) => {
     e.preventDefault();
+    // let uploadedPhotos;
       if (formState.fileList.length > 0) {
-        formState.fileList.filter(file.hasOwnProperty('cloudinaryImageUrl'));
+        formState.fileList.filter((file) => file.hasOwnProperty('cloudinaryImageUrl'));
         const uploadedPhotos = formState.fileList.map(file => file.cloudinaryImageUrl);
         postBody.photos = uploadedPhotos;
       }
-        uploadedPhotos.forEach((photo) => {
-          postBody.photos.push(photo.data.url);
-        });
+        // uploadedPhotos.forEach((photo) => {
+        //   postBody.photos.push(photo.data.url);
+        // });
         try {
       const savedLocation = await axios.post('/locations', locationBody);
       postBody.location = savedLocation.data._id;

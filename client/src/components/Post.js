@@ -65,6 +65,7 @@ const useStyles = createStyles((theme, _params, getRef) => ({
   },
 
   heart: {
+    color: theme.colors.red[6],
   },
 
   scroll: {
@@ -310,7 +311,9 @@ export const Post = ({ postId, grid, rowGap, rowHeight }) => {
       <Card.Section mb="sm" className={classes.section} style={{padding: 0}}>
         <div height={180}/>
         {user.email === post.author.email
-        && <ActionIcon className={classes.close} onClick={(e) => handleDeletePost(e)}>x</ActionIcon>}
+        &&
+        <ActionIcon className={classes.close} onClick={(e) => handleDeletePost(e)}>x</ActionIcon>}
+
         {post.photos.length > 1
         && (
             <>
@@ -328,16 +331,27 @@ export const Post = ({ postId, grid, rowGap, rowHeight }) => {
 
       <Card.Section className={classes.section} mt="md">
         <Group position="apart">
+
           <Text size="lg" weight={500}>
             {post.title}
           </Text>
-          <ActionIcon className={classes.like}
-          onClick={e => handleClickHeart(e)}
-          disabled={!isLoggedIn}
+
+          <br/>
+
+          <ActionIcon
+            className={classes.like}
+            onClick={e => handleClickHeart(e)}
+            disabled={!isLoggedIn}
           >
-            <IconHeart className={classes.heart} size={18} color={theme.colors.red[6]} stroke={1.5} style={{ fill: liked ? theme.colors.red[6] : 'none' }}/>
+            <IconHeart
+              className={classes.heart}
+              size={18}
+              stroke={1.5}
+              style={{ fill: liked ? theme.colors.red[6] : 'none' }}
+            />
             <span className={classes.tooltip}>{tooltipText}</span>
           </ActionIcon>
+
         </Group>
         <Group>
           {post.city

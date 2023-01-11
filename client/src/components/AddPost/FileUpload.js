@@ -216,6 +216,8 @@ export default function FileUpload({ formState, dispatch, handleDeleteFile }) {
 
    // handle deleteOne if type=image or file upload, splice previews and delete preview at index and then setpreviews
 
+   // can upload file directly to cloudinary and if don't use 64 base data URI type, can be bigger
+
   return (
     <>
         <FileInput
