@@ -71,7 +71,7 @@ To support the upload of user avatar pictures and post images, you will need to 
 
 <details>
   <summary> Login </summary>
-  <[Travel Blog App - Login Errors Demonstration.gif.zip](https://github.com/carolinepeake/travel-blog/files/10388921/Travel.Blog.App.-.Login.Errors.Demonstration.gif.zip)
+  
 </details>
 
 ## Screenshots
