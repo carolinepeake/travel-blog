@@ -1,6 +1,6 @@
 const express = require('express');
 
-const { getUsers, handleUserSignup, handleUserLogin, handleLikePost, handleUnlikePost, handleGetBucketList, handleEditAvatar } = require('.././controllers').UsersController;
+const { getUsers, handleUserSignup, handleUserLogin, handleLikePost, handleUnlikePost, handleGetUser, handleEditAvatar } = require('.././controllers').UsersController;
 
 const usersRouter = express.Router();
 

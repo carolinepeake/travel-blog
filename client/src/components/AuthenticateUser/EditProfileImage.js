@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { FileInput, createStyles } from '@mantine/core';
 import { IconUpload } from '@tabler/icons';
 import { useCloudinary } from '../../utils/customHooks.js';
+import { XIcon } from '../SearchIcon';
 
 const useStyles = createStyles((theme) => ({
 
@@ -27,7 +28,7 @@ const useStyles = createStyles((theme) => ({
 
 export default function EditProfileImage({ setImageUrlToSave }) {
   const { classes } = useStyles();
-  // const fileInput = React.createRef();
+  const fileInput = React.createRef();
   const [fileUploadValue, setFileUploadValue] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
   const [base64image, setbase64image] = useState('');
@@ -78,6 +79,21 @@ export default function EditProfileImage({ setImageUrlToSave }) {
     setErrorMessage('');
   }, [cloudinaryErr]);
 
+  const handleDeleteInput = (e) => {
+    e.preventDefault();
+    // prolly don't need all of this, resetting the event value might even do it, or file upload value
+    console.log('current file input: ', fileInput.current);
+    // fileInput.current?.();
+    setErrorMessage('');
+    setImageUrlToSave('');
+    uploadImageToCloudinary();
+    setbase64image('');
+    // can prolly delete one input in a multiple file upload by keeping value as array of all inputs and then filtering value to remove the deleted file
+    setFileUploadValue('');
+    setPreview('');
+  } ;
+
+  // getting an error when add an image, then delete it, then try to add it again
 
   return(
     <>
@@ -90,11 +106,12 @@ export default function EditProfileImage({ setImageUrlToSave }) {
         error={errorMessage}
         accept="image/png, image/jpeg"
         capture="user"
-        clearable
+        // clearable
         icon={<IconUpload size={14} />}
-        // ref={fileInput}
+        ref={fileInput}
         value={fileUploadValue}
         onChange={e => handleAddImage(e)}
+        rightSection={fileUploadValue ? <XIcon size={14} handleDeleteInput={handleDeleteInput}/> : null}
       />
 
       {preview

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { createStyles, Header, Container, Group, Paper, Transition, Burger, Autocomplete, Button } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import SearchIcon from './SearchIcon.js';
+import { SearchIcon} from './SearchIcon.js';
 import { filterSet, selectAllTags, selectFilter } from '../state/postsSlice.js';
 import { selectBucketList, selectLoggedInState } from '../state/usersSlice.js';
 

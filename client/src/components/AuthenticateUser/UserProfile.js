@@ -109,7 +109,7 @@ export default function UserProfile() {
   function handleLogout(e) {
     e.preventDefault();
     dispatch(logoutUser());
-    localStorage.clear();
+    // localStorage.clear();
   };
 
   return (

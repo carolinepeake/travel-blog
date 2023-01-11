@@ -22,7 +22,7 @@ const app = express();
 app.use(express.json()); // for parsing application/json
 app.use(express.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
 app.use(morgan('tiny'));
-// app.use(morgan('dev'));
+app.use(morgan('dev'));
 app.use(bodyParser.json());
 
 // Adds `req.session_id` based on the incoming cookie value.

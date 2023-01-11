@@ -17,7 +17,7 @@ import {
   Stack,
   createStyles,
 } from '@mantine/core';
-import { selectUser, loginUser, selectLoggedInState, getUser } from '../../state/usersSlice.js';
+import { selectUser, loginUser, selectLoggedInState } from '../../state/usersSlice.js';
 import AuthenticationForm from './AuthenticationForm.js';
 
 const useStyles = createStyles((theme) => ({
@@ -58,7 +58,9 @@ export default function UserLogin({ PaperProps, ButtonProps }) {
   const [isOpened, setIsOpened] = useState(false);
   const [formState, dispatch] = useReducer(formReducer, initialFormState);
   const dispatchReduxAction = useDispatch();
-  // const [errorMessage, setErrorMessage] = useState('');
+  const [emailErrorMessage, setEmailErrorMessage] = useState('');
+  const [passwordErrorMessage, setPasswordErrorMessage] = useState('');
+  const [loginRequestStatus, setLoginRequestStatus] = useState('idle');
 
 
   // need to add image to validation => if wrong file type
@@ -110,18 +112,10 @@ export default function UserLogin({ PaperProps, ButtonProps }) {
   //   ],
   // });
 
-  useEffect(() => {
-    const loggedInUser = localStorage.getItem("user");
-    if (loggedInUser) {
-      dispatch(fectchUser(loggedInUser));
-    }
-  }, []);
-
   let user = useSelector(selectUser);
   let isLoggedIn = useSelector(selectLoggedInState);
 
   function handleTextChange(e) {
-    console.log('event from handle text change: ', e);
     dispatch({
       type: "HANDLE SINGLE INPUT",
       field: e.target.name,
@@ -129,50 +123,32 @@ export default function UserLogin({ PaperProps, ButtonProps }) {
     });
   };
 
-  // const handleLogin = async (values) => {
-  //   let accountBody = {
-  //     email: values.email,
-  //     password: values.password,
-  //   };
-  //   try {
-  //     console.log('form state from handleLogin: ', form.values);
-  //     let response = await axios.post('http://localhost:3001/users/login', accountBody);
-  //     console.log('response from handleLogin', response.data);
-  //     setUser(response.data);
-  //     localStorage.setItem('user', JSON.stringify(response.data));
-  //     setIsLoggedIn(true);
-  //     setIsOpened(false);
-  //     form.reset()
-  //   } catch (err) {
-  //     console.log('error from handleLogin in Authentication component: ', err);
-  //     // setErrorMessage(err.response.data.error);
-  //     form.reset()
-  //   }
-  //   return;
-  // };
+  // can login in - client side form evaluation first
+
+  const canLogin = formState.email && formState.password;
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    let accountBody = {
-      email: formState.email,
-      password: formState.password,
-    };
+    if (canLogin) {
     try {
-      console.log('form state from handleLogin: ', formState);
-      const loggedInUser = await dispatchReduxAction(loginUser(accountBody));
-      localStorage.setItem('user', JSON.stringify(user._id));
+      setLoginRequestStatus('pending');
+      const response = await dispatchReduxAction(loginUser(formState)).unwrap();
+      console.log('response from login user: ', response);
       setIsOpened(false);
       dispatch({
         type: "HANDLE SUBMIT"
       });
+      // let userId = user._id;
+      // if (userId) {localStorage.setItem('user', JSON.stringify(userId));}
     } catch (err) {
-      console.log('error from handleLogin in Authentication component: ', err);
-      // setErrorMessage(err.response.data.error);
-      dispatch({
-        type: "HANDLE SUBMIT"
-      });
+      err.message.indexOf('401') !== -1 ? setEmailErrorMessage('username not found') : err.message.indexOf('400') !== -1 ? setPasswordErrorMessage('password incorrect') : setPasswordErrorMessage('login failed');
+      // dispatch({
+      //   type: "HANDLE SUBMIT"
+      // });
+    } finally {
+      setLoginRequestStatus('idle');
     }
-    return;
+  }
   };
 
   const handleClickRegister = () => {
@@ -252,7 +228,9 @@ export default function UserLogin({ PaperProps, ButtonProps }) {
             value={formState.email}
             name="email"
             // onChange={(event) => form.setFieldValue('email', event.currentTarget.value)}
+            onBlur={() => setEmailErrorMessage('')}
             onChange={(event) => handleTextChange(event)}
+            error={emailErrorMessage}
             // error={form.errors.email && 'invalid email'}
             // {...form.getInputProps('email')}
           />
@@ -265,10 +243,13 @@ export default function UserLogin({ PaperProps, ButtonProps }) {
             value={formState.password}
             name="password"
             // onChange={(event) => form.setFieldValue('password', event.currentTarget.value)}
+            onBlur={() => setPasswordErrorMessage('')}
             onChange={(event) => handleTextChange(event)}
+            error={passwordErrorMessage}
             // error={form.errors.password ? 'password must include at least 6 characters' : `${errorMessage}`}
           />
         </Stack>
+
 
         <Group position="apart" mt="xl">
           <Anchor

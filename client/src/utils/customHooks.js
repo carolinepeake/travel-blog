@@ -35,6 +35,7 @@ export const useCloudinary = () => {
     if (!fileUrl) {
       setCloudinaryImage('');
       setCloudinaryErr('');
+      return;
     //   setCloudinaryErr({
     //     response: {
     //       status: 404,

@@ -114,7 +114,7 @@ export default function AuthenticationForm({ email, password, handleClickRegiste
       const newUser = await dispatchReduxAction(addNewUser(accountBody));
       console.log('newUser: ', newUser);
 
-      localStorage.setItem('user', JSON.stringify(user._id))
+      // localStorage.setItem('user', JSON.stringify(user._id));
 
       dispatch({
         type: "HANDLE SUBMIT"
@@ -127,7 +127,9 @@ export default function AuthenticationForm({ email, password, handleClickRegiste
       //   type: "HANDLE SUBMIT"
       // });
       // form.reset()
-    };
+    } finally {
+
+    }
     // return;
   };
 

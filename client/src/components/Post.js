@@ -341,13 +341,13 @@ export const Post = ({ postId, grid, rowGap, rowHeight }) => {
         </Group>
         <Group>
           {post.city
-          && <Badge className={classes.tag} size="sm" onClick={(e) => handleFilterPosts({city: post.city}, e)}>{post.city}</Badge>}
+          && <Badge className={classes.tag} size="sm" onClick={(e) => handleFilterPosts({type: 'city', value: post.city}, e)}>{post.city}</Badge>}
           {post.state
-          && <Badge className={classes.tag} size="sm" onClick={(e) => handleFilterPosts({state: post.state}, e)}>{post.state}</Badge>}
+          && <Badge className={classes.tag} size="sm" onClick={(e) => handleFilterPosts({type: 'state', value: post.state}, e)}>{post.state}</Badge>}
           {post.country
-          && <Badge className={classes.tag} size="sm" onClick={(e) => handleFilterPosts({country: post.country}, e)}>{post.country}</Badge>}
+          && <Badge className={classes.tag} size="sm" onClick={(e) => handleFilterPosts({type: 'country', value: post.country}, e)}>{post.country}</Badge>}
           {post.region
-          && <Badge className={classes.tag} size="sm" onClick={(e) => handleFilterPosts({region: post.region}, e)}>{post.region}</Badge>}
+          && <Badge className={classes.tag} size="sm" onClick={(e) => handleFilterPosts({type: 'region', value: post.region}, e)}>{post.region}</Badge>}
         </Group>
         <Text size="sm" mt="xs">
           {post.description}
@@ -362,7 +362,7 @@ export const Post = ({ postId, grid, rowGap, rowHeight }) => {
           {post.tags &&
           post.tags.map((tag, i) => (
             // may want to save tags separately so have id other than index (unique id) // or can create unique id
-            <Badge key={i} className={classes.tag} onClick={(e) => handleFilterPosts({tags: tag}, e)} >{tag}</Badge>
+            <Badge key={i} className={classes.tag} onClick={(e) => handleFilterPosts({type: 'tags', value: tag}, e)} >{tag}</Badge>
           ))}
         </Group>
       </Card.Section>

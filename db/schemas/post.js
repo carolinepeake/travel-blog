@@ -12,7 +12,7 @@ const Posts = new Schema(
     city: { type: String, lowercase: true },
     state: { type: String, lowercase: true },
     country: { type: String, lowercase: true },
-    region: String,
+    region: { type: String, lowercase: true },
     photos: [String],
     // can be mongoose.Schema or Schema b/c Schema is defined above as mongoose.Schema
     tags: [{ type: String, lowercase: true, trim: true }],

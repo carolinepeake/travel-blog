@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useDispatch } from 'react-redux';
 import { ScrollArea, Aside, createStyles, Text } from '@mantine/core';
+import { getUser } from '../state/usersSlice.js';
 import NavBar from './NavBar.js';
 import Banner from './Banner.js';
 import LeftSidebar from './LeftSidebar.js';
@@ -20,6 +22,17 @@ const useStyles = createStyles((theme) => ({
 
 export default function App() {
   const { classes } = useStyles();
+
+
+  // useEffect(() => {
+  //   const loggedInUser = localStorage.getItem("user");
+  //   if (typeof loggedInUser === 'string' || typeof loggedInUser === 'object') {
+  //     const parsedUser = JSON.parse(loggedInUser);
+  //   } else {
+  //     return;
+  //   }
+  //   parsedUser.hasOwnProperty('_id') ? dispatch(getUser(parsedUser._id)) : dispatch(getUser(parsedUser));
+  // }, []);
 
     // could lazy init the photos
 

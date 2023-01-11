@@ -87,21 +87,19 @@ const usersSlice = createSlice({
       .addCase(getUser.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message;
-        console.log('error fetchingUser: ', action.error.message);
       })
-      .addCase(loginUser.pending, (state, action) => {
-        state.status = 'loading';
-      })
+      // .addCase(loginUser.pending, (state, action) => {
+      //   state.status = 'loading';
+      // })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.status = 'succeeded';
         state.user = action.payload;
         state.isLoggedIn = true;
       })
-      .addCase(loginUser.rejected, (state, action) => {
-        state.status = 'failed';
-        state.error = action.error.message;
-        console.log('error fetchingUser: ', action.error.message);
-      })
+      // .addCase(loginUser.rejected, (state, action) => {
+      //   state.status = 'failed';
+      //   state.error = action.error.message;
+      // })
       .addCase(addNewUser.pending, (state, action) => {
         state.status = 'loading';
       })
@@ -113,7 +111,6 @@ const usersSlice = createSlice({
       .addCase(addNewUser.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message;
-        console.log('error creatingUser: ', action.error.message);
       })
       .addCase(deleteUser.fulfilled, (state, action) => {
         state.user = {};
