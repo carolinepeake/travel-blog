@@ -123,6 +123,8 @@ To support the upload of user avatar pictures and post images, you will need to 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+<!--Upon logging in, the user's login inputs are sent to the Mongodb database so the password input can be checked against the hashed password using the bcrypt library. This increases the app's security by allowing it to never save passwords. If the username is not found or the passwords don't match, the server responds with a unique error, which appears to the user as either a "the username is not found" or "the password is incorrect" error message.-->
+
 
 
 
