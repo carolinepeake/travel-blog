@@ -60,11 +60,19 @@ To support the upload of user avatar pictures and post images, you will need to 
    ```js
    cp ./sample.env .env
    ```
+
 6. Run client and server each in its own terminal
    ```sh
     npm start-dev
    ```
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Gifs Demonstrating App Functionality
+
+<details>
+  <summary> Login </summary>
+  <[Travel Blog App - Login Errors Demonstration.gif.zip](https://github.com/carolinepeake/travel-blog/files/10388921/Travel.Blog.App.-.Login.Errors.Demonstration.gif.zip)
+</details>
 
 ## Screenshots
 
