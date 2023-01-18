@@ -170,8 +170,7 @@ export default function NavBar() {
     if (isLoggedIn && bucketList) {
       try {
         console.log('bucketList in handleFilterPostsByBucketList: ', bucketList);
-        const response = await dispatch(filterSet({ type: 'bucketList', value: bucketList }));
-        console.log('response from handleFilterPostsByBucketList', response);
+        await dispatch(filterSet({ type: 'bucketList', value: bucketList }));
         setActive(bucketListLink.link);
         setView("bucketList")
         close();
@@ -179,8 +178,6 @@ export default function NavBar() {
         console.log('error filtering posts by bucketlist', err);
       }
     } else {
-     // alert("Must be logged in to filter by posts saved to your bucket list.")
-       // return error need to be logged in, or disable bucketList link and make tooltip over it urging user to sign in to see
       console.log('error -  user not logged in to filter posts by bucketList');
       setHidePopUp(false);
       setTimeout(setHidePopUp, 5000, true);
@@ -208,13 +205,6 @@ export default function NavBar() {
         {link}
       </a>
   ));
-
-  // data for autocomplete search
-  let data = [];
-  if (tags.length > 0) {
-    // data = tags.map(item => {value: item});
-    data = tags;
-  }
 
   // could use switch/case for clicking on diff links
 
@@ -258,7 +248,7 @@ export default function NavBar() {
               handleFilterPosts={handleFilterPosts}
               />}
               zIndex={101}
-              data={data} // can make these dynamic to last searched for user -- think may automatically be
+              data={tags} // can make these dynamic to last searched for user -- think may automatically be
               value={search}
               positionDependencies={[active]}
               onChange={setSearch}

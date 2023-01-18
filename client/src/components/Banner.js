@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useDispatch,
-  // useSelector
- } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { createStyles, Overlay, Container, Title, Button, Text, Autocomplete } from '@mantine/core';
-import { filterSet,
-  // selectFilteredPosts
- } from '../state/postsSlice.js';
+import { filterSet } from '../state/postsSlice.js';
 import { useMapboxApi } from '../utils/customHooks.js';
+import { SearchIcon} from './SearchIcon.js';
 
 const useStyles = createStyles((theme) => ({
   hero: {
@@ -71,11 +68,11 @@ const useStyles = createStyles((theme) => ({
     borderRadius: theme.radius.xl,
     fontSize: 16,
     color: theme.white,
-    paddingLeft: theme.spacing.md * 2 - 1,
+    paddingLeft: theme.spacing.md * 1.5 - 1,
     paddingRight: theme.spacing.md * 2 - 1,
     fontWeight: 600,
     display: 'flex',
-    width: '20em',
+    width: '21rem',
     '&::placeholder': {
       color: theme.white,
       textAlign: 'center',
@@ -87,6 +84,7 @@ const useStyles = createStyles((theme) => ({
     },
     '&:focus': {
       textAlign: 'left',
+      paddingLeft: 36,
       color:  theme.colors.gray[7],
       // backgroundColor: theme.colors.green[4],
       backgroundColor: 'rgba(150,185,97,0.9)',
@@ -95,8 +93,14 @@ const useStyles = createStyles((theme) => ({
         color: theme.colors.gray[7],
         textAlign: 'left',
         fontSize: theme.fontSizes.md,
+        paddingLeft: 8,
       },
     },
+  },
+
+  withIcon: {
+    paddingLeft: 38,
+    paddingRight: 16,
   },
 
   dropdown: {
@@ -109,22 +113,15 @@ const useStyles = createStyles((theme) => ({
     fontSize: theme.fontSizes.md,
     borderRadius: theme.radius.xl,
   },
-  // make background of button transparent
+
 }));
 
 export default function Banner() {
   const { classes, cx } = useStyles();
-  // const [toggleAutocomplete, setToggleAutocomplete] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [autocompleteLocations, autocompleteErr, locationFetch] = useMapboxApi();
   const [isFocused, setIsFocused] = useState(false);
   const dispatch = useDispatch();
-  // let posts = useSelector(selectFilteredPosts);
-
-  // useEffect(() => {
-  //   setSearchTerm('');
-  //   setIsFocused(false);
-  // }, [posts]);
 
   const handleLocationChange = async (query) => {
     setSearchTerm(query);
@@ -135,7 +132,7 @@ export default function Banner() {
 
   // test place_type logic with mexico / mexico city
   const handleFilterPostsByPlaceSearch = (item) => {
-    const smallestPlaceName = item.place_name.split(',').shift();
+    const smallestPlaceName = item.place_name.split(',').shift().toLowerCase();
     let placeType;
     if (item.place_type[0] === "country") {
       placeType = "country";
@@ -144,9 +141,7 @@ export default function Banner() {
     } else {
       placeType = "city";
     }
-    // should maybe make async and return api response and set state here so can know if successful
-    // dispatch(fetchPosts({[placeType]: smallestPlaceName}));
-    dispatch(filterSet({[placeType]: smallestPlaceName}));
+    dispatch(filterSet({type: placeType, value: smallestPlaceName}));
     setSearchTerm('');
     setIsFocused(false);
   };
@@ -166,13 +161,15 @@ export default function Banner() {
           value={searchTerm}
           onChange={(query) => {handleLocationChange(query)}}
           onItemSubmit={(item) => {handleFilterPostsByPlaceSearch(item)}}
-          data={autocompleteLocations.map((item) => ({ ...item, value: item.place_name }))}
+          data={autocompleteLocations.map((location) => ({ ...location, value: location.place_name }))}
           filter={(value, item) => item}
           size="xl"
+          icon={isFocused ? '' : <SearchIcon/>}
+          //onKeyPress={(e) => {if (e.key === 'Enter') {handleFilterPostsByPlaceSearch({type: 'tags', value: search}, e)}}}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           placeholder={isFocused ? "start typing to search places" : "where would you like to go?"}
-          classNames={{root: classes.control, input: classes.input, dropdown: classes.dropdown, item: classes.item}}
+          classNames={{root: classes.control, withIcon: classes.withIcon, input: classes.input, dropdown: classes.dropdown, item: classes.item}}
         />
       </Container>
     </div>

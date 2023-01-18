@@ -47,12 +47,13 @@ const useStyles = createStyles((theme, _params, getRef) => ({
   },
 
   title: {
-    fontFamily: `Greycliff CF, ${theme.fontFamily}`,
+    width: '80%',
   },
 
   like: {
     position: 'relative',
     display: 'inline-block',
+    alignSelf: 'flex-start',
     '&:hover': {
       cursor: 'pointer',
     },
@@ -148,7 +149,7 @@ export const Post = ({ postId, grid, rowGap, rowHeight }) => {
   const [likePostRequestStatus, setLikePostRequestStatus] = useState('idle');
   const [unlikePostRequestStatus, setUnlikePostRequestStatus] = useState('idle');
 
-  //dont use filter for bucketlist, instead memoize a selector that just selects user's bucketlist based on user and then filter to tha view in feed  (same with home)
+  //dont use filter for bucketlist, instead memoize a selector that just selects user's bucketlist based on user and then filter to that view in feed  (same with home)
 
   const post = useSelector((state) => selectPostById(state, postId));
 
@@ -168,20 +169,13 @@ export const Post = ({ postId, grid, rowGap, rowHeight }) => {
     resizePost()
   }, [rowHeight, rowGap, content.current]);
 
-  const [photoIndex, setPhotoIndex] = useState(0);
-  const [deletePostRequestStatus, setDeletePostRequestStatus] = useState('idle')
+  const cardHeight = (gridRowSpan - 1) * rowHeight + (gridRowSpan - 3) * rowGap;
+
+  const [deletePostRequestStatus, setDeletePostRequestStatus] = useState('idle');
+
   const dispatch = useDispatch();
 
   const user = useSelector(selectUser);
-  const isLoggedIn = useSelector(selectLoggedInState);
-
-  const date =  new Date(post.createdAt);
-
-  // could memoize selectBucketList and select postId to create a likedPosts selector and then render conditionally with isLoggenIn
-
-  const toolTipText = !isLoggedIn ? 'please log in to add posts to your bucket list' : user.bucketList.includes(post._id) ? 'remove from bucket list' : 'add to bucket list';
-
-  const liked = !isLoggedIn ? false : user.bucketList.includes(postId) ? true : false;
 
   const canDelete = user._id === post.author._id;
 
@@ -199,6 +193,27 @@ export const Post = ({ postId, grid, rowGap, rowHeight }) => {
       }
     }
   };
+
+  const [photoIndex, setPhotoIndex] = useState(0);
+
+  function handleScrollPhotos(direction) {
+    let newIndex = photoIndex + direction;
+    if (newIndex === -1) {
+      newIndex = post.photos.length - 1;
+    }
+    if (newIndex > post.photos.length -1) {
+      newIndex = 0;
+    }
+    setPhotoIndex(newIndex);
+  };
+
+  const isLoggedIn = useSelector(selectLoggedInState);
+
+  // could memoize selectBucketList and select postId to create a likedPosts selector and then render conditionally with isLoggenIn
+
+  const toolTipText = !isLoggedIn ? 'please log in to add posts to your bucket list' : user.bucketList.includes(post._id) ? 'remove from bucket list' : 'add to bucket list';
+
+  const liked = !isLoggedIn ? false : user.bucketList.includes(postId) ? true : false;
 
   const canClickHeart = isLoggedIn && likePostRequestStatus === 'idle' && unlikePostRequestStatus === 'idle';
 
@@ -227,16 +242,7 @@ export const Post = ({ postId, grid, rowGap, rowHeight }) => {
     }
   };
 
-  function handleScrollPhotos(direction) {
-    let newIndex = photoIndex + direction;
-    if (newIndex === -1) {
-      newIndex = post.photos.length - 1;
-    }
-    if (newIndex > post.photos.length -1) {
-      newIndex = 0;
-    }
-    setPhotoIndex(newIndex);
-  };
+
 
  // journal:
 // if (content.current) {
@@ -248,15 +254,13 @@ export const Post = ({ postId, grid, rowGap, rowHeight }) => {
     dispatch(filterSet(filter));
   };
 
-
-  // const cardHeight = gridRowSpan * rowHeight + (gridRowSpan - 1) * rowGap + rowGap;
-  const cardHeight = (gridRowSpan - 1) * rowHeight + (gridRowSpan - 3) * rowGap;
+  const date =  new Date(post.createdAt);
 
   return (
   <article
      onResize={() => resizePost()}
     //  onResize={() => resizeAllGridItems()}
-    //  id={post._id}
+    // id={post._id}
     style={{ gridRowEnd: `span ${gridRowSpan}` }}
     >
 
@@ -291,18 +295,19 @@ export const Post = ({ postId, grid, rowGap, rowHeight }) => {
       </Card.Section>
 
       <Card.Section className={classes.section} mt="md">
-        <Group position="apart">
+        <Group position="apart" mb="xs">
 
-          <Text size="lg" weight={500}>
+          <Text size="lg" weight={500} mb={0} className={classes.title}>
             {post.title}
           </Text>
-
-          <br/>
 
           <ActionIcon
             className={classes.like}
             onClick={e => handleClickHeart(e)}
             disabled={!isLoggedIn}
+            sx={{
+              '&[data-disabled]': { backgroundColor: 'transparent', border: 'none', color: 'transparent' }
+            }}
           >
             <IconHeart
               className={classes.heart}
