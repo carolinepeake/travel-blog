@@ -120,13 +120,8 @@ export default function AuthenticationForm({ email, password, handleClickRegiste
         type: "HANDLE SUBMIT"
       });
       setIsOpened(false);
-      // form.reset()
     } catch(err) {
       console.log('error from handleCreateAccount in Authentication component: ', err);
-      // dispatch({
-      //   type: "HANDLE SUBMIT"
-      // });
-      // form.reset()
     } finally {
 
     }
@@ -135,9 +130,6 @@ export default function AuthenticationForm({ email, password, handleClickRegiste
 
   return (
       <form value={formState} onSubmit={(e) => handleCreateAccount(e)}
-      // onSubmit={form.onSubmit(
-      //   (values, _event) => {handleSubmit(values)},
-      //   (validationErrors, _values, _event) => {console.log(validationErrors); handleError(validationErrors)})}
       >
         <Stack>
 
@@ -146,36 +138,26 @@ export default function AuthenticationForm({ email, password, handleClickRegiste
             placeholder="Your name"
             value={formState.name}
             type="text"
-            // {...form.getInputProps('name')}
             name="name"
             onChange={(e) => handleTextChange(e)}
-            // onChange={(e) => form.setFieldValue('name', event.currentTarget.value)}
           />
 
           <TextInput
             required
             label="Email"
             placeholder="example@gmail.com"
-            // value={form.values.email}
             value={formState.email}
             name="email"
-            // {...form.getInputProps('email')}
             onChange={(e) => handleTextChange(e)}
-            // error={form.errors.email && 'invalid email'}
-            // onBlur={emailError}
-            // onChange={(e) => form.setFieldValue('email', event.currentTarget.value)}
           />
 
           <PasswordInput
             required
             label="Password"
             placeholder="Your password"
-            // value={form.values.password}
             value={formState.password}
             name="password"
-            // {...form.getInputProps('password')}
             onChange={(e) => handleTextChange(e)}
-            // onChange={(e) => form.setFieldValue('password', event.currentTarget.value)}
             // error={form.errors.password && 'password must include at least 6 characters'}
           />
 
@@ -183,24 +165,18 @@ export default function AuthenticationForm({ email, password, handleClickRegiste
             required
             label="Confirm password"
             placeholder="Confirm password"
-            // value={form.values.confirmPassword}
             value={formState.confirmPassword}
             name="confirmPassword"
-            // {...form.getInputProps('confirmPassword')}
             onChange={(e) => handleTextChange(e)}
-            // onChange={(e) => form.setFieldValue('confirmPassword', event.currentTarget.value)}
             // error={form.errors.confirmPassword && 'passwords must match'}
           />
 
           <PlacesAutocomplete
             label="City"
             placeholder="Your city"
-            // formState={form.values}
             formState={formState}
             locality="city"
             handleTextChange={handleTextChange}
-            // value={form.values.city}
-            // form={form}
             key="cityAF"
           />
 
@@ -212,11 +188,8 @@ export default function AuthenticationForm({ email, password, handleClickRegiste
           label="Country"
           placeholder="Your country"
           locality="country"
-          // formState={form.values}
           formState={formState}
-          // {...form.getInputProps('name')}
           handleTextChange={handleTextChange}
-          // form={form}
           key="countryAF"
         />
 
