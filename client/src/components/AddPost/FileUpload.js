@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
-import { createStyles, Select, TextInput, TextArea, Button, onSubmit, Group, Box, Center, FileInput } from '@mantine/core';
+import { createStyles, Center, FileInput } from '@mantine/core';
 import { IconPhoto, IconUpload } from '@tabler/icons';
 import { useCloudinary } from '../../utils/customHooks.js';
+import { XIcon } from '../SearchIcon';
 
 const useStyles = createStyles((theme) => ({
   root: {
@@ -39,6 +40,7 @@ const useStyles = createStyles((theme) => ({
     display: 'flex',
     flexDirection: 'column',
     gridArea: 'span 1 / span 1',
+    width: 'calc(374px/3)',
 
   },
 
@@ -50,6 +52,7 @@ const useStyles = createStyles((theme) => ({
     justifyContent: 'center',
     overflow: 'hidden',
     position: 'relative',
+    // width: '100px',
   },
 
   file: {
@@ -65,7 +68,8 @@ const useStyles = createStyles((theme) => ({
     whiteSpace: 'nowrap',
     textOverflow: 'ellipsis',
     overflow: 'hidden',
-    maxWidth: '100%',
+    // maxWidth: '100%',
+    width: '100px',
     display: 'inline-block',
   },
 
@@ -86,20 +90,23 @@ const useStyles = createStyles((theme) => ({
     position: 'relative',
     width: '100%,',
     height: '100%',
+    marginTop: '4%',
   },
 
   //to-do: make the height/length ratio/measurement change dynamically based on if the photo is landscape or portrait
   imagePreview: {
     width: '100%',
-    height: '100%',
+    // height: '100%',
     borderRadius: theme.radius.sm,
     objectFit: 'cover',
     aspectRatio: '1',
     overflow: 'hidden',
-    maxWidth: '90%',
-    maxHeight: '90%',
+    // maxWidth: '90%',
+    // maxHeight: '90%',
     positionSelf: 'center',
-    positionObject: 'center'
+    positionObject: 'center',
+    // height: 150,
+    // width: 150,
   },
   //need to figure out why the error images are super big
     // minmax auto grid
@@ -242,7 +249,7 @@ export default function FileUpload({ formState, dispatch, handleDeleteFile }) {
           disabled={requestStatus === 'pending'}
         />
 
-        <br/>
+        {/* <br/> */}
 
       {formState.fileList.length > 0
       && (

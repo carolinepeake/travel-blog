@@ -106,6 +106,7 @@ export default function EditProfileImage({ setImageUrlToSave }) {
         error={errorMessage}
         accept="image/png, image/jpeg"
         capture="user"
+        multiple
         // clearable
         icon={<IconUpload size={14} />}
         ref={fileInput}

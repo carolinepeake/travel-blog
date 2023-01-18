@@ -11,6 +11,12 @@ import SelectTags from './SelectTags.js';
 import PlacesAutocomplete from './PlacesAutocomplete.js';
 
 const useStyles = createStyles((theme) => ({
+  form: {
+    position: 'relative',
+    width: '100%',
+
+  },
+
   root: {
     position: 'relative',
   },
@@ -194,7 +200,7 @@ export default function AddPost({ setAddPostOpened }) {
   const regions = ['Africa','Australia','Central America', 'Central Asia', 'East Asia', 'Europe', 'North Africa', 'North America', 'South America', 'Southeast Asia', 'New Zealand', 'Middle East'];
 
   return(
-    <form value={formState} onSubmit={(e) => handleSubmitForm(e)}>
+    <form value={formState} onSubmit={(e) => handleSubmitForm(e)} className={classes.form}>
 
         <TextInput
           label="Title"
@@ -263,6 +269,8 @@ export default function AddPost({ setAddPostOpened }) {
       <br />
 
       <FileUpload formState={formState} dispatch={dispatch} handleDeleteFile={handleDeleteFile} previews={previews} setPreviews={setPreviews} imageValue={imageValue} setImageValue={setImageValue}/>
+
+      <br />
 
       <Button type="submit">Add Post!</Button>
     </form>
