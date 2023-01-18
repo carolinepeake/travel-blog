@@ -111,17 +111,17 @@ export const selectAllPosts = state => state.posts.posts;
 //   }
 // );
 
-// export const selectPostIds = createSelector(
-//   selectAllPosts,
-//   posts => {
-//     // const date =  new Date(post.createdAt);
-//     return posts.sort((a, b) => b.createdAt.localeCompare(a.createdAt)).map(post => post._id);
-//   }
-// );
+export const selectPostIds = createSelector(
+  selectAllPosts,
+  posts => posts.map(post => post._id)
+    // const date =  new Date(post.createdAt);
+    // return posts.sort((a, b) => b.createdAt.localeCompare(a.createdAt)).map(post => post._id);
 
-// export const selectPostById = (state, postId) => {
-//   return selectAllPosts(state).find(post => post._id === postId)
-// };
+);
+
+export const selectPostById = (state, postId) => {
+  return selectAllPosts(state).find(post => post._id === postId)
+};
 
 export const selectFilter = state => state.posts.filter;
 

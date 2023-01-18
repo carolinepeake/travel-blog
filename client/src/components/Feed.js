@@ -2,11 +2,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import { Post } from './Post.js';
-import { fetchPosts, selectFilteredPostIds } from '../state/postsSlice.js';
+import { fetchPosts, selectFilteredPostIds, selectFilter, selectPostIds } from '../state/postsSlice.js';
+import { selectBucketList } from '../state/usersSlice.js';
 import { Text } from '@mantine/core';
 // import { StyledSpinner } from './Spinner.js';
 
-export default function Feed({}) {
+const GRID_ROW = 8;
+
+export default function Feed() {
 
   const dispatch = useDispatch();
   const postStatus = useSelector(state => state.posts.status);
@@ -17,7 +20,14 @@ export default function Feed({}) {
     }
   }, [postStatus, dispatch])
 
-  const postIds = useSelector(selectFilteredPostIds);
+  const filter = useSelector(selectFilter);
+  const filteredPostIds = useSelector(selectFilteredPostIds);
+  const bucketList = useSelector(selectBucketList);
+  const allPostIds = useSelector(selectPostIds);
+
+  // should really make it so once post is deleted, reference is removed from all bucketLists
+  const postIds = filter.type === 'bucketList' ? bucketList.filter(postId => allPostIds.includes(postId)) : filteredPostIds;
+
   const error = useSelector(state => state.posts.error);
 
   const grid = useRef();
@@ -65,11 +75,6 @@ export default function Feed({}) {
     content = <div>{error}</div>
   };
 
-    // const renderedPosts = posts.map(post => (
-  //   <div className={classes.grid-item} key={post._id}>
-  //     <Post post={post} />
-  //   </div>
-  // ));
 
   // add to resume / interview talking points
   // !!may want to do this way instead to avoid entire feed re-rendering every time a post changes (https://redux.js.org/tutorials/fundamentals/part-7-standard-patterns)
@@ -79,7 +84,11 @@ export default function Feed({}) {
 
 
   return (
-    <Container ref={grid} style={{ display: 'grid', gridGap: '16px', gridAutoRows: '25px'}}>
+    <Container
+      ref={grid}
+      gridRow={GRID_ROW}
+      cardPadding={4 * GRID_ROW}
+    >
       {nothingFound
       ? <Text>Sorry, no posts match your search</Text>
       : content}
@@ -88,17 +97,22 @@ export default function Feed({}) {
 };
 
 const Container = styled.div`
+  display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px,1fr));
-  max-width: 960px;
+  grid-auto-rows: ${props => props.gridRow + 'px' || '16px'};
+  grid-row-gap: ${props => props.gridRow + 'px' || '16px'};
+  grid-column-gap: ${props => props.cardPadding + 'px' || '16px'};
+  max-width: 968px;
   margin-left: auto;
   margin-right: auto;
-  margin-top: 16px;
-  margin-bottom: 16px;
-  padding-left: 16px;
-  padding-right: 16px;
+  margin-top: ${props => props.cardPadding + 'px' || '16px'};
+  margin-bottom: ${props => props.cardPadding + 'px' || '16px'};
+  padding-left: ${props => props.cardPadding + 'px' || '16px'};
+  padding-right: ${props => props.cardPadding + 'px' || '16px'};
   width: 100%;
   height: 100%;
   position: relative;
   z-Index: -1;
 `;
+
 

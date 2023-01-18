@@ -1,14 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { createStyles, Card, Image, ActionIcon, Group, Text, Avatar, Badge } from '@mantine/core';
-import { IconHeart, IconChevronRight, IconChevronLeft} from '@tabler/icons';
-import { deletePost, selectFilteredPostById, filterSet, fetchPosts, selectFilter } from '../state/postsSlice.js';
-import { selectUser, selectLoggedInState, unlikePost, likePost, selectBucketList } from '../state/usersSlice.js';
+import { IconHeart, IconChevronRight, IconChevronLeft } from '@tabler/icons';
+import { deletePost, selectPostById, filterSet, fetchPosts } from '../state/postsSlice.js';
+import { selectUser, selectLoggedInState, unlikePost, likePost } from '../state/usersSlice.js';
 
 const useStyles = createStyles((theme, _params, getRef) => ({
-
-  // item: {
-  // },
 
   card: {
     backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.white,
@@ -148,8 +145,12 @@ const useStyles = createStyles((theme, _params, getRef) => ({
 
 export const Post = ({ postId, grid, rowGap, rowHeight }) => {
   const { classes, theme, getRef } = useStyles();
-  const [liked, setIsLiked] = useState(false);
-  const [tooltipText, setTooltipText] = useState('add to bucket list');
+  const [likePostRequestStatus, setLikePostRequestStatus] = useState('idle');
+  const [unlikePostRequestStatus, setUnlikePostRequestStatus] = useState('idle');
+
+  //dont use filter for bucketlist, instead memoize a selector that just selects user's bucketlist based on user and then filter to tha view in feed  (same with home)
+
+  const post = useSelector((state) => selectPostById(state, postId));
 
   const content = useRef();
   const [gridRowSpan, setGridRowSpan] = useState(0);
@@ -159,12 +160,14 @@ export const Post = ({ postId, grid, rowGap, rowHeight }) => {
       .getComputedStyle(content.current)
       .getPropertyValue("height"));
     let rowSpan = Math.ceil((contentHeight + rowGap) / (rowHeight + rowGap));
+    rowSpan++;
     setGridRowSpan(rowSpan);
   };
 
   useEffect(() => {
     resizePost()
   }, [rowHeight, rowGap, content.current]);
+
   const [photoIndex, setPhotoIndex] = useState(0);
   const [deletePostRequestStatus, setDeletePostRequestStatus] = useState('idle')
   const dispatch = useDispatch();
@@ -172,39 +175,18 @@ export const Post = ({ postId, grid, rowGap, rowHeight }) => {
   const user = useSelector(selectUser);
   const isLoggedIn = useSelector(selectLoggedInState);
 
-  const post = useSelector((state) => selectFilteredPostById(state, postId));
-  const filter = useSelector(selectFilter);
-  const bucketList = user.bucketList;
-
   const date =  new Date(post.createdAt);
 
-  useEffect(() => {
-    console.log('isLoggedIn: ', isLoggedIn);
-    if (isLoggedIn === true) {
-      console.log('getting effects');
-      let bucketListLength = user.bucketList.length;
-      for (let i = 0; i < bucketListLength; i++) {
-        if (user.bucketList[i] === post._id) {
-          setIsLiked(true);
-          setTooltipText('remove from bucket list');
-          break;
-        }
-        else {
-          setTooltipText('add to bucket list');
-        }
-      }
-    }
-    if (isLoggedIn === false) {
-      setTooltipText('please log in to add posts to your bucket list');
-      setIsLiked(false);
-    }
-  }, [isLoggedIn, user]);
+  // could memoize selectBucketList and select postId to create a likedPosts selector and then render conditionally with isLoggenIn
 
-  const canDelete = user.email === post.author.email;
+  const toolTipText = !isLoggedIn ? 'please log in to add posts to your bucket list' : user.bucketList.includes(post._id) ? 'remove from bucket list' : 'add to bucket list';
+
+  const liked = !isLoggedIn ? false : user.bucketList.includes(postId) ? true : false;
+
+  const canDelete = user._id === post.author._id;
 
   const handleDeletePost = async (e) => {
     e.preventDefault();
-    console.log('post id to delete: ', post._id);
     if (canDelete) {
       try {
         setDeletePostRequestStatus('pending');
@@ -218,55 +200,32 @@ export const Post = ({ postId, grid, rowGap, rowHeight }) => {
     }
   };
 
-  const canClickHeart = isLoggedIn;
+  const canClickHeart = isLoggedIn && likePostRequestStatus === 'idle' && unlikePostRequestStatus === 'idle';
 
   const handleClickHeart = async (e) => {
     e.preventDefault();
-    console.log('postId: ', postId);
     if (canClickHeart) {
       if (liked) {
         try {
-          // isn't catching errors - need to unwrap
-         const unlikePostResponse = await dispatch(unlikePost({user: user._id, post: post._id}));
-          console.log('response from handleClickHeart',  unlikePostResponse);
-          setIsLiked(false);
-          setTooltipText('add to bucketlist');
-          // return unlikePostResponse
-          // .then((unlikePostResponse) => {
-            if (filter.type === 'bucketList') {
-              let newBucketList = unlikePostResponse.payload.bucketList;
-              dispatch(filterSet({type: 'bucketList', value: newBucketList}));
-              dispatch(fetchPosts());
-            }
-            return newBucketList;
-          // })
-          // .catch(err => console.log('error setting newbucketList: ', err))
-          // if (view === 'bucketlist') {
-          //   let old = [...posts];
-          //   setPosts(() => {
-          //     old.splice(index, 1);
-          //     return old;
-          //   })
-          // }
+          setUnlikePostRequestStatus('pending');
+          await dispatch(unlikePost({user: user._id, post: post._id})).unwrap();
         } catch (err) {
-          console.log(`error removing ${post.title} from bucket list`, err);
+          console.log(`error removing ${post._id} from bucket list`, err);
+        } finally {
+          setUnlikePostRequestStatus('idle');
         }
       } else {
         try {
-          // isn't catching error liking post
-          // response is {type: 'users/likePost/rejected', payload: undefined, meta: ...}
-          const likePostResponse = await dispatch(likePost({user: user._id, post: postId}));
-          console.log('response from handleClickHeart',  likePostResponse);
-          setIsLiked(true);
-          setTooltipText('remove from bucketlist');
+          setLikePostRequestStatus('pending');
+          await dispatch(likePost({user: user._id, post: postId}));
         } catch (err) {
           console.log(`error adding ${post.title} to bucket list`, err);
+        } finally {
+          setLikePostRequestStatus('idle');
         }
       }
     }
   };
-
-  // could do action types scroll forward and scroll back
 
   function handleScrollPhotos(direction) {
     let newIndex = photoIndex + direction;
@@ -289,27 +248,30 @@ export const Post = ({ postId, grid, rowGap, rowHeight }) => {
     dispatch(filterSet(filter));
   };
 
-  // maybe make div an article element
+
+  // const cardHeight = gridRowSpan * rowHeight + (gridRowSpan - 1) * rowGap + rowGap;
+  const cardHeight = (gridRowSpan - 1) * rowHeight + (gridRowSpan - 3) * rowGap;
 
   return (
-  <div
-    // className={classes.item}
+  <article
      onResize={() => resizePost()}
     //  onResize={() => resizeAllGridItems()}
     //  id={post._id}
-     style={{ gridRowEnd: `span ${gridRowSpan}` }}>
+    style={{ gridRowEnd: `span ${gridRowSpan}` }}
+    >
 
     <Card
-      withBorder p="lg"
+      sx={{ height: `${cardHeight}px` }}
+      withBorder
+      p="lg"
       radius="md"
       className={classes.card}
-      // id="card"
       ref={content}
       >
 
       <Card.Section mb="sm" className={classes.section} style={{padding: 0}}>
         <div height={180}/>
-        {user.email === post.author.email
+        {user._id === post.author._id
         &&
         <ActionIcon className={classes.close} onClick={(e) => handleDeletePost(e)}>x</ActionIcon>}
 
@@ -348,10 +310,11 @@ export const Post = ({ postId, grid, rowGap, rowHeight }) => {
               stroke={1.5}
               style={{ fill: liked ? theme.colors.red[6] : 'none' }}
             />
-            <span className={classes.tooltip}>{tooltipText}</span>
+            <span className={classes.tooltip}>{toolTipText}</span>
           </ActionIcon>
 
         </Group>
+
         <Group>
           {post.city
           && <Badge className={classes.tag} size="sm" onClick={(e) => handleFilterPosts({type: 'city', value: post.city}, e)}>{post.city}</Badge>}
@@ -362,9 +325,11 @@ export const Post = ({ postId, grid, rowGap, rowHeight }) => {
           {post.region
           && <Badge className={classes.tag} size="sm" onClick={(e) => handleFilterPosts({type: 'region', value: post.region}, e)}>{post.region}</Badge>}
         </Group>
+
         <Text size="sm" mt="xs">
           {post.description}
         </Text>
+
       </Card.Section>
 
       <Card.Section className={classes.section}>
@@ -382,24 +347,35 @@ export const Post = ({ postId, grid, rowGap, rowHeight }) => {
 
       <Card.Section className={classes.footer}>
         <Group position="apart">
+
           <div>
             {post.author
             && (
               <>
-              <Avatar
-            // can make avatar HOC
-            src={post.author.image} radius="sm" alt={post.author.name} classNames={{ root: classes.avatarContainer, image: classes.avatarImage }}
-            onClick={(e) => handleFilterPosts({type: 'author', value: post.author._id}, e)}/>
-            <Text weight={200} onClick={(e) => handleFilterPosts({type: 'author', value: post.author._id}, e)} className={classes.authorName}>{post.author.name} </Text>
-            </>
+                <Avatar
+                  src={post.author.image}
+                  radius="sm"
+                  alt={post.author.name}
+                  classNames={{ root: classes.avatarContainer, image: classes.avatarImage }}
+                  onClick={(e) => handleFilterPosts({type: 'author', value: post.author._id}, e)}
+                />
+                <Text
+                  weight={200}
+                  onClick={(e) => handleFilterPosts({type: 'author', value: post.author._id}, e)}
+                  className={classes.authorName}
+                >
+                  {post.author.name}
+                </Text>
+              </>
             )}
-
           </div>
+
           <Text size="xs" color="dimmed">{date.toLocaleDateString()}</Text>
+
       </Group>
       </Card.Section>
     </Card>
-  </div>
+  </article>
   );
 };
 

@@ -1,5 +1,9 @@
 // require db connection and all models and export an instance of each model class (shouldn't need to require db connection anywhere else then)
 
+  // might be like Post = db.Post
+    // this would be similiar to querying using mongosh via CLI
+      // db.post.findOne({_id: posId});
+const db = require('./connection');
 
 const models = require('./models');
 

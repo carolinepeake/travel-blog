@@ -8,8 +8,7 @@ const db = mongoose.connect(mongoURI);
 db
   .then(db => console.log(`Connected to: ${mongoURI}`))
   .catch(err => {
-    console.log(`There was a problem connecting to mongo at: ${mongoURI}`);
-    console.log(err);
+    console.log(`There was a problem connecting to mongo at: ${mongoURI} :`, err);
   });
 
 module.exports = db;
@@ -36,6 +35,8 @@ async function main() {
     .catch(error => console.log('error connecting database', error));
 };
 
+// wouldn't I need to return the response from main to be able to catch any errors from its call on line 30
+// or is main like a function class and then catch is one of its methods that we are calling?
 
 
 

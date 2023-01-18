@@ -219,7 +219,7 @@ export default function NavBar() {
   // could use switch/case for clicking on diff links
 
   return (
-    <Header height={HEADER_HEIGHT} mb={40} className={classes.root}>
+    <Header height={HEADER_HEIGHT} mb={32} className={classes.root}>
       <Container className={classes.header}>
           <Group spacing={10} className={classes.links}>
 
