@@ -7,7 +7,7 @@ import { selectBucketList } from '../state/usersSlice.js';
 import { Text } from '@mantine/core';
 // import { StyledSpinner } from './Spinner.js';
 
-const GRID_ROW = 8;
+const GRID_ROW_HEIGHT = 8;
 
 export default function Feed() {
 
@@ -26,6 +26,8 @@ export default function Feed() {
   const allPostIds = useSelector(selectPostIds);
 
   // should really make it so once post is deleted, reference is removed from all bucketLists
+    // could also pass-on nonfiltered bucketList array of post ids and then return null from the post component if post id not found in allPostIds
+      // (but rendering no posts found based on postIds.length)
   const postIds = filter.type === 'bucketList' ? bucketList.filter(postId => allPostIds.includes(postId)) : filteredPostIds;
 
   const error = useSelector(state => state.posts.error);
@@ -60,8 +62,8 @@ export default function Feed() {
   if (postStatus === 'loading') {
     // content = <StyledSpinner text="Loading..." />
     content = <Text>Loading...</Text>;
-  } else if (postStatus === 'succeeded') {
 
+  } else if (postStatus === 'succeeded') {
     content = postIds.map(postId => (
       <Post
         key={postId}
@@ -71,23 +73,16 @@ export default function Feed() {
         rowHeight={rowHeight}
        />
     ))
+
   } else if (postStatus === 'failed') {
     content = <div>{error}</div>
   };
 
-
-  // add to resume / interview talking points
-  // !!may want to do this way instead to avoid entire feed re-rendering every time a post changes (https://redux.js.org/tutorials/fundamentals/part-7-standard-patterns)
-  // import { selectPostIds } from './postsReducer';
-  // const postIds = useSelector(selectPostIds);
-  // const renderedPosts = postIds.map(postId => <Post key={postId} id={postId}/>);
-
-
   return (
     <Container
       ref={grid}
-      gridRow={GRID_ROW}
-      cardPadding={4 * GRID_ROW}
+      gridRow={GRID_ROW_HEIGHT}
+      cardPadding={4 * GRID_ROW_HEIGHT}
     >
       {nothingFound
       ? <Text>Sorry, no posts match your search</Text>
@@ -114,5 +109,12 @@ const Container = styled.div`
   position: relative;
   z-Index: -1;
 `;
+
+// correct styles rendered given grid_row_height
+  // can delete computed row gap use effect function
+// nothing found text if no post ids
+// shows loading state
+// handles api error
+// renders posts upon startup
 
 

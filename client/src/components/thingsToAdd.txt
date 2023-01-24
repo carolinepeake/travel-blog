@@ -98,6 +98,13 @@ remove from bucketlist needs to re-render posts
 if select a filterTerm that is on nav bar, highlight that term
 
 
+separate out:
+- badge
+- tooltip
+- autocomplete
+- file input image previews
+
+
 
 
 
