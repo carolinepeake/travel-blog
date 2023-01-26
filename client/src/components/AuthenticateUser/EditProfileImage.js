@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { FileInput, createStyles } from '@mantine/core';
 import { IconUpload } from '@tabler/icons';
+
 import { useCloudinary } from '../../utils/customHooks.js';
 import { XIcon } from '../SearchIcon';
 
@@ -106,7 +107,7 @@ export default function EditProfileImage({ setImageUrlToSave }) {
         error={errorMessage}
         accept="image/png, image/jpeg"
         capture="user"
-        multiple
+        //multiple
         // clearable
         icon={<IconUpload size={14} />}
         ref={fileInput}

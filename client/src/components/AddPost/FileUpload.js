@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { createStyles, Center, FileInput } from '@mantine/core';
 import { IconPhoto, IconUpload } from '@tabler/icons';
+
 import { useCloudinary } from '../../utils/customHooks.js';
 import { XIcon } from '../SearchIcon';
 

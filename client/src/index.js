@@ -1,8 +1,9 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { MantineProvider } from '@mantine/core';
-import store from './state/store'
 import { Provider } from 'react-redux'
+import { MantineProvider } from '@mantine/core';
+
+import store from './state/store'
 
 import App from './components/App.js';
 

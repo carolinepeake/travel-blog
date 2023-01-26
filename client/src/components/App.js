@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { useDispatch } from 'react-redux';
 import { ScrollArea, Aside, createStyles, Text } from '@mantine/core';
+
 import { getUser } from '../state/usersSlice.js';
 import NavBar from './NavBar.js';
 import Banner from './Banner.js';

@@ -1,5 +1,4 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-
 import { createSelector } from 'reselect';
 import axios from 'axios';
 

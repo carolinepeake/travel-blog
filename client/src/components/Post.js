@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { createStyles, Card, Image, ActionIcon, Group, Text, Avatar, Badge } from '@mantine/core';
 import { IconHeart, IconChevronRight, IconChevronLeft } from '@tabler/icons';
+
 import { deletePost, selectPostById, filterSet, fetchPosts } from '../state/postsSlice.js';
 import { selectUser, selectLoggedInState, unlikePost, likePost } from '../state/usersSlice.js';
 

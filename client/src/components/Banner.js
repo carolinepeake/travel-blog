@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { createStyles, Overlay, Container, Title, Button, Text, Autocomplete } from '@mantine/core';
+
 import { filterSet } from '../state/postsSlice.js';
 import { useMapboxApi } from '../utils/customHooks.js';
 import { SearchIcon} from './SearchIcon.js';

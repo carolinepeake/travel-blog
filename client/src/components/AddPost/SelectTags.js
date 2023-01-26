@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from 'react-redux';
 import { MultiSelect } from '@mantine/core';
+
 import { selectAllTags } from '../../state/postsSlice.js';
 
 export default function SelectTags({ selectedTags, handleTextChange }) {

@@ -54,7 +54,12 @@ export default function AuthenticationForm({ email, password, handleClickRegiste
   const { classes, cx } = useStyles();
   const [formState, dispatch] = useReducer(formReducer, initialFormState);
   const dispatchReduxAction = useDispatch();
-  const [imageUrlToSave, setImageUrlToSave] = useState('')
+  const [imageUrlToSave, setImageUrlToSave] = useState('');
+
+  const [emailErrorMessage, setEmailErrorMessage] = useState('');
+  const [passwordErrorMessage, setPasswordErrorMessage] = useState('');
+  const [confirmPasswordErrorMessage, setConfirmPasswordErrorMessage] = useState('');
+
 
   useEffect(() => {
     if (typeof imageUrlToSave === 'string') {
@@ -97,39 +102,43 @@ export default function AuthenticationForm({ email, password, handleClickRegiste
     });
   };
 
+  const handleCheckEmail = () => {
+    /^\S+@\S+$/.test(formState.email) ? setEmailErrorMessage('') : setEmailErrorMessage('Invalid email');
+  };
+
+  const handleCheckPassword = () => {
+    formState.password.length < 6 ? setPasswordErrorMessage('Password should include at least 6 characters') : setPasswordErrorMessage('');
+  };
+
+  const handleCheckConfirmPassword = () => {
+    formState.password !== formState.confirmPassword ? setConfirmPasswordErrorMessage('Passwords do not match') : setConfirmPasswordErrorMessage('');
+  };
+
+  const canSubmit = !emailErrorMessage && !passwordErrorMessage && !confirmPasswordErrorMessage;
+
+  const handleCreateAccount = async () => {
+    e.preventDefault();
+    if (canSubmit) {
+      try {
+        const newUser = await dispatchReduxAction(addNewUser(formState));
+
+        // localStorage.setItem('user', JSON.stringify(user._id));
+
+        dispatch({
+          type: "HANDLE SUBMIT"
+        });
+        setIsOpened(false);
+      } catch(err) {
+        console.log('error from handleCreateAccount in Authentication component: ', err);
+      }
+    }
+  };
+
   let user = useSelector(selectUser);
   let isLoggedIn = useSelector(selectLoggedInState);
 
-  const handleCreateAccount = async (e) => {
-    e.preventDefault();
-    let accountBody = {
-      name: formState.name,
-      email: formState.email,
-      password: formState.password,
-      city: formState.city,
-      country: formState.country,
-      image: formState.image,
-    };
-    try {
-      const newUser = await dispatchReduxAction(addNewUser(accountBody));
-      console.log('newUser: ', newUser);
-
-      // localStorage.setItem('user', JSON.stringify(user._id));
-
-      dispatch({
-        type: "HANDLE SUBMIT"
-      });
-      setIsOpened(false);
-    } catch(err) {
-      console.log('error from handleCreateAccount in Authentication component: ', err);
-    } finally {
-
-    }
-    // return;
-  };
-
   return (
-      <form value={formState} onSubmit={(e) => handleCreateAccount(e)}
+      <form value={formState} onSubmit={handleCreateAccount}
       >
         <Stack>
 
@@ -149,6 +158,9 @@ export default function AuthenticationForm({ email, password, handleClickRegiste
             value={formState.email}
             name="email"
             onChange={(e) => handleTextChange(e)}
+            onBlur={handleCheckEmail}
+            onFocus={() => setEmailErrorMessage('')}
+            error={emailErrorMessage}
           />
 
           <PasswordInput
@@ -158,6 +170,9 @@ export default function AuthenticationForm({ email, password, handleClickRegiste
             value={formState.password}
             name="password"
             onChange={(e) => handleTextChange(e)}
+            error={passwordErrorMessage}
+            onFocus={() => setPasswordErrorMessage('')}
+            onBlur={handleCheckPassword}
             // error={form.errors.password && 'password must include at least 6 characters'}
           />
 
@@ -168,6 +183,9 @@ export default function AuthenticationForm({ email, password, handleClickRegiste
             value={formState.confirmPassword}
             name="confirmPassword"
             onChange={(e) => handleTextChange(e)}
+            onFocus={() => setConfirmPasswordErrorMessage('')}
+            onBlur={handleCheckConfirmPassword}
+            error={confirmPasswordErrorMessage}
             // error={form.errors.confirmPassword && 'passwords must match'}
           />
 

@@ -2,6 +2,7 @@ import React, { useReducer, useState, useEffect } from "react";
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import { createStyles, Select, TextInput, Textarea, Button, onSubmit, Group, Box } from '@mantine/core';
+
 import { toUpperFirst } from '../../utils/utils.js';
 import { fetchPosts, addNewPost, filterSet } from '../../state/postsSlice.js';
 import { selectUser } from '../../state/usersSlice.js';
@@ -14,7 +15,6 @@ const useStyles = createStyles((theme) => ({
   form: {
     position: 'relative',
     width: '100%',
-
   },
 
   root: {

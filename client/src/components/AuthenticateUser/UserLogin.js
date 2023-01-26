@@ -17,6 +17,7 @@ import {
   Stack,
   createStyles,
 } from '@mantine/core';
+
 import { selectUser, loginUser, selectLoggedInState } from '../../state/usersSlice.js';
 import AuthenticationForm from './AuthenticationForm.js';
 
@@ -125,7 +126,7 @@ export default function UserLogin({ PaperProps, ButtonProps }) {
 
   // can login in - client side form evaluation first
 
-  const canLogin = formState.email && formState.password;
+  const canLogin = loginRequestStatus === 'idle' && formState.email && formState.password;
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -224,10 +225,8 @@ export default function UserLogin({ PaperProps, ButtonProps }) {
             // required
             label="Email"
             placeholder="example@gmail.com"
-            // value={form.values.email}
             value={formState.email}
             name="email"
-            // onChange={(event) => form.setFieldValue('email', event.currentTarget.value)}
             onBlur={() => setEmailErrorMessage('')}
             onFocus={() => setEmailErrorMessage('')}
             onChange={(event) => handleTextChange(event)}
@@ -240,10 +239,8 @@ export default function UserLogin({ PaperProps, ButtonProps }) {
             // required
             label="password"
             placeholder="your password"
-            // value={form.values.password}
             value={formState.password}
             name="password"
-            // onChange={(event) => form.setFieldValue('password', event.currentTarget.value)}
             onFocus={() => setPasswordErrorMessage('')}
             onBlur={() => setPasswordErrorMessage('')}
             onChange={(event) => handleTextChange(event)}

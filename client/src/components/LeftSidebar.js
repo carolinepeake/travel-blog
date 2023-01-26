@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Aside, createStyles, Stack, Button, Modal } from '@mantine/core';
 import { Calendar } from '@mantine/dates';
+
 import { selectLoggedInState } from '../state/usersSlice.js';
 import AddPost from './AddPost/AddPost.js';
 import UserLogin from './AuthenticateUser/UserLogin';

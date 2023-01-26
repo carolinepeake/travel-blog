@@ -1,5 +1,6 @@
 import React from 'react';
 import { Autocomplete } from '@mantine/core';
+
 import { useMapboxApi } from '../../utils/customHooks.js';
 
 function PlacesAutocomplete({ locality, formState, handleTextChange, label, placeholder, form }) {

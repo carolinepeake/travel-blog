@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import styled from 'styled-components';
+import { Text } from '@mantine/core';
+
 import { Post } from './Post.js';
 import { fetchPosts, selectFilteredPostIds, selectFilter, selectPostIds } from '../state/postsSlice.js';
 import { selectBucketList } from '../state/usersSlice.js';
-import { Text } from '@mantine/core';
+
 // import { StyledSpinner } from './Spinner.js';
 
 const GRID_ROW_HEIGHT = 8;

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { createStyles, Avatar, Stack, Button, Box, Modal, Text, Group, Tooltip } from '@mantine/core';
-import { useForm } from '@mantine/form';
+
 import { selectUser, editAvatar, logoutUser } from '../../state/usersSlice.js';
 import EditProfileImage from './EditProfileImage.js';
 
@@ -67,31 +67,17 @@ export default function UserProfile() {
 
   const dispatch = useDispatch();
 
-  const form = useForm({
-    initialValues: {
-      image: '',
-    },
-  });
+  const canSave = user._id &&  imageUrlToSave;
 
-  useEffect(() => {
-    if (imageUrlToSave) {
-      form.setFieldValue('image', imageUrlToSave);
-      return;
-    }
-    form.setFieldValue('image', '');
-  }, [imageUrlToSave]);
-
-  let accountBody = {
-    userId: user._id,
-    image: form.values.image,
-  };
-  const canSave = accountBody.userId && accountBody.image;
-
-  const handleEditProfileImage = async () => {
+  const handleEditProfileImage = async (e) => {
+    e.preventDefault();
     if (canSave) {
       try {
         setEditAvatarRequestStatus('pending');
-        const newProfileImageResponse = await dispatch(editAvatar(accountBody)).unwrap();
+        const newProfileImageResponse = await dispatch(editAvatar({
+          userId: user._id,
+          image: imageUrlToSave
+        })).unwrap();
         console.log('newProfileImageResponse: ', newProfileImageResponse);
         console.log('updated user hopefully :', user);
         localStorage.setItem('user', JSON.stringify(user));
@@ -119,9 +105,7 @@ export default function UserProfile() {
         onClose={() => setEditProfileImageOpened(false)}
         title={!user.image ? "Add Profile Image" : "Edit Profile Image"}
       >
-        <form
-          onSubmit={form.onSubmit(() => handleEditProfileImage())}
-        >
+        <form onSubmiit={handleEditProfileImage}>
           <Stack>
             <EditProfileImage
               setImageUrlToSave={setImageUrlToSave}
