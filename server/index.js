@@ -40,7 +40,7 @@ app.use('/users', usersRouter);
 app.use('/locations', locationsRouter);
 app.use('/tags', tagsRouter);
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3001;
 
 app.listen(port, () => console.log(`Listening at http://localhost:${port}`));
 

@@ -74,26 +74,23 @@ export default function UserProfile() {
     if (canSave) {
       try {
         setEditAvatarRequestStatus('pending');
-        const newProfileImageResponse = await dispatch(editAvatar({
+        await dispatch(editAvatar({
           userId: user._id,
           image: imageUrlToSave
         })).unwrap();
-        console.log('newProfileImageResponse: ', newProfileImageResponse);
-        console.log('updated user hopefully :', user);
-        localStorage.setItem('user', JSON.stringify(user));
-        return newProfileImageResponse;
+        // localStorage.setItem('user', JSON.stringify(user));
       } catch (err) {
+        // TO-DO: show error message
         console.error('error from handleEditProfileImage in UserSidebar component: ', err);
       } finally {
-        form.reset();
+        // form.reset();
         setEditProfileImageOpened(false);
         setEditAvatarRequestStatus('idle');
       }
     }
   };
 
-  function handleLogout(e) {
-    e.preventDefault();
+  function handleLogout() {
     dispatch(logoutUser());
     // localStorage.clear();
   };
@@ -105,7 +102,7 @@ export default function UserProfile() {
         onClose={() => setEditProfileImageOpened(false)}
         title={!user.image ? "Add Profile Image" : "Edit Profile Image"}
       >
-        <form onSubmiit={handleEditProfileImage}>
+        <form onSubmit={handleEditProfileImage}>
           <Stack>
             <EditProfileImage
               setImageUrlToSave={setImageUrlToSave}
@@ -133,7 +130,7 @@ export default function UserProfile() {
         <Text
           span
           className={cx(classes.logout, classes.profile)}
-          onClick={(e) => handleLogout(e)}>Logout</Text>
+          onClick={handleLogout}>Logout</Text>
       </Group>
     </>
   );

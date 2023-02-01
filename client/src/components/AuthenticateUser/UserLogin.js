@@ -18,6 +18,7 @@ import {
   createStyles,
 } from '@mantine/core';
 
+import { formReducer, init } from '../../utils/reducers.js';
 import { selectUser, loginUser, selectLoggedInState } from '../../state/usersSlice.js';
 import AuthenticationForm from './AuthenticationForm.js';
 
@@ -35,21 +36,6 @@ const initialFormState = {
   password: '',
 };
 
-const formReducer = function(state, action) {
-  switch(action.type) {
-    case 'HANDLE SINGLE INPUT':
-      return {
-        ...state,
-        [action.field]: action.payload,
-      };
-    case 'HANDLE SUBMIT':
-      return {
-        ...initialFormState
-      };
-    default:
-      throw new Error(`Unknown action type: ${action.type}`);
-  }
-};
 
 // can make a separate component for AuthenticationForm and render it as a child of the modal and as an alternative to the modal (user sidebar) and pass down props to it to make it dynamic
 
@@ -57,7 +43,7 @@ export default function UserLogin({ PaperProps, ButtonProps }) {
   const { classes, cx } = useStyles();
   const [type, toggle] = useToggle(['login', 'register']);
   const [isOpened, setIsOpened] = useState(false);
-  const [formState, dispatch] = useReducer(formReducer, initialFormState);
+  const [formState, dispatch] = useReducer(formReducer, initialFormState, init);
   const dispatchReduxAction = useDispatch();
   const [emailErrorMessage, setEmailErrorMessage] = useState('');
   const [passwordErrorMessage, setPasswordErrorMessage] = useState('');
@@ -137,15 +123,13 @@ export default function UserLogin({ PaperProps, ButtonProps }) {
       console.log('response from login user: ', response);
       setIsOpened(false);
       dispatch({
-        type: "HANDLE SUBMIT"
+        type: "HANDLE SUBMIT",
+        payload: initialFormState
       });
       // let userId = user._id;
       // if (userId) {localStorage.setItem('user', JSON.stringify(userId));}
     } catch (err) {
       err.message.indexOf('401') !== -1 ? setEmailErrorMessage('username not found') : err.message.indexOf('400') !== -1 ? setPasswordErrorMessage('password incorrect') : setPasswordErrorMessage('login failed');
-      // dispatch({
-      //   type: "HANDLE SUBMIT"
-      // });
     } finally {
       setLoginRequestStatus('idle');
     }
@@ -189,12 +173,7 @@ export default function UserLogin({ PaperProps, ButtonProps }) {
       title={upperFirst(type)}
     >
       <AuthenticationForm
-      // form={form}
       setIsOpened={setIsOpened}
-      // handleSubmit={handleSubmit}
-      // handleError={handleError}
-      // values={form.values}
-      // errors={form.errors}
       email={formState.email}
       password={formState.password}
       handleClickRegister={handleClickRegister}

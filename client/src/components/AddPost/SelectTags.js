@@ -4,15 +4,13 @@ import { MultiSelect } from '@mantine/core';
 
 import { selectAllTags } from '../../state/postsSlice.js';
 
-export default function SelectTags({ selectedTags, handleTextChange }) {
+export default function SelectTags({ tags, handleTextChange }) {
   const [selectTags, setSelectTags] = useState([]);
 
-  const tags = useSelector(selectAllTags);
+  const allTags = useSelector(selectAllTags);
 
   useEffect(() => {
-    if (tags && setSelectTags) {
-      setSelectTags(tags);
-    }
+    allTags && setSelectTags(allTags);
   }, [])
 
   const [searchValue, onSearchChange] = useState('');
@@ -21,7 +19,7 @@ export default function SelectTags({ selectedTags, handleTextChange }) {
     <MultiSelect
       label="Activity Tags"
       placeholder="Select Tags"
-      values={selectedTags}
+      values={tags}
       name="selectedTags"
       data={selectTags}
       searchable
@@ -34,7 +32,7 @@ export default function SelectTags({ selectedTags, handleTextChange }) {
       clearable
       maxDropdownHeight={120}
       selectOnBlur
-      onChange={(query) => {handleTextChange({target: {value: query, name: 'selectedTags'}})}}
+      onChange={(query) => {handleTextChange({target: {value: query, name: 'tags'}})}}
       creatable
       getCreateLabel={(query) => `+ Create ${query}`}
       onCreate={(query) => {

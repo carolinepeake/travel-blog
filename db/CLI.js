@@ -11,7 +11,7 @@ mongodump --db=travelBlog [--dumpDbUsersAndRoles] --out=Dropbox/HackReactor/MVP/
 // scp -i [path to pem file] [path to yelp.pgsql] username@[server-ip]:[directory to copy file to]
 
 // (from /Users/carolinepeake)
-scp -r -i AWS/travel-blog-app.pem Dropbox/HackReactor/MVP/MongoDB_dump_230125.json ubuntu@52.53.170.31:/home/ubuntu
+scp -r -i AWS/travel-blog.pem Dropbox/HackReactor/MVP/MongoDB_dump_230125.json ubuntu@50.18.30.182:/home/ubuntu
 
 - scp copies folders or files to/from a remote host
 -r (recursive) copies files and folders (do not put / at end of directory)

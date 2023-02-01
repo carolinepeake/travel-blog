@@ -10,6 +10,7 @@ import {
   createStyles,
   } from '@mantine/core';
 
+import { formReducer, init } from '../../utils/reducers.js';
 import { selectUser, addNewUser, selectLoggedInState } from '../../state/usersSlice.js';
 import EditProfileImage from './EditProfileImage.js';
 import PlacesAutocomplete from '../AddPost/PlacesAutocomplete.js';
@@ -33,26 +34,10 @@ const initialFormState = {
   image: '',
 };
 
-const formReducer = function(state, action) {
-  switch(action.type) {
-    case 'HANDLE SINGLE INPUT':
-      return {
-        ...state,
-        [action.field]: action.payload,
-      };
-    case 'HANDLE SUBMIT':
-      return {
-        ...initialFormState
-      };
-    default:
-      throw new Error(`Unknown action type: ${action.type}`);
-  }
-};
-
 export default function AuthenticationForm({ email, password, handleClickRegister, setIsOpened }
   ) {
   const { classes, cx } = useStyles();
-  const [formState, dispatch] = useReducer(formReducer, initialFormState);
+  const [formState, dispatch] = useReducer(formReducer, initialFormState, init);
   const dispatchReduxAction = useDispatch();
   const [imageUrlToSave, setImageUrlToSave] = useState('');
 
@@ -94,7 +79,6 @@ export default function AuthenticationForm({ email, password, handleClickRegiste
   // will want to make it so handleParseLocation in places autocomplete doesn't override country field if user puts that input in first (and it's a country)
 
   const handleTextChange = (e) => {
-    console.log('event target from handleTextInput:', e.target);
     dispatch({
       type: "HANDLE SINGLE INPUT",
       field: e.target.name,
@@ -116,7 +100,7 @@ export default function AuthenticationForm({ email, password, handleClickRegiste
 
   const canSubmit = !emailErrorMessage && !passwordErrorMessage && !confirmPasswordErrorMessage;
 
-  const handleCreateAccount = async () => {
+  const handleCreateAccount = async (e) => {
     e.preventDefault();
     if (canSubmit) {
       try {
@@ -125,7 +109,8 @@ export default function AuthenticationForm({ email, password, handleClickRegiste
         // localStorage.setItem('user', JSON.stringify(user._id));
 
         dispatch({
-          type: "HANDLE SUBMIT"
+          type: "HANDLE SUBMIT",
+          payload: initialFormState
         });
         setIsOpened(false);
       } catch(err) {
@@ -148,7 +133,7 @@ export default function AuthenticationForm({ email, password, handleClickRegiste
             value={formState.name}
             type="text"
             name="name"
-            onChange={(e) => handleTextChange(e)}
+            onChange={handleTextChange}
           />
 
           <TextInput
@@ -157,9 +142,9 @@ export default function AuthenticationForm({ email, password, handleClickRegiste
             placeholder="example@gmail.com"
             value={formState.email}
             name="email"
-            onChange={(e) => handleTextChange(e)}
+            onChange={handleTextChange}
             onBlur={handleCheckEmail}
-            onFocus={() => setEmailErrorMessage('')}
+            onFocus={setEmailErrorMessage('')}
             error={emailErrorMessage}
           />
 
@@ -169,9 +154,9 @@ export default function AuthenticationForm({ email, password, handleClickRegiste
             placeholder="Your password"
             value={formState.password}
             name="password"
-            onChange={(e) => handleTextChange(e)}
+            onChange={handleTextChange}
             error={passwordErrorMessage}
-            onFocus={() => setPasswordErrorMessage('')}
+            onFocus={setPasswordErrorMessage}
             onBlur={handleCheckPassword}
             // error={form.errors.password && 'password must include at least 6 characters'}
           />
@@ -182,8 +167,8 @@ export default function AuthenticationForm({ email, password, handleClickRegiste
             placeholder="Confirm password"
             value={formState.confirmPassword}
             name="confirmPassword"
-            onChange={(e) => handleTextChange(e)}
-            onFocus={() => setConfirmPasswordErrorMessage('')}
+            onChange={handleTextChange}
+            onFocus={setConfirmPasswordErrorMessage}
             onBlur={handleCheckConfirmPassword}
             error={confirmPasswordErrorMessage}
             // error={form.errors.confirmPassword && 'passwords must match'}
@@ -218,7 +203,7 @@ export default function AuthenticationForm({ email, password, handleClickRegiste
             component="button"
             type="button"
             color="dimmed"
-            onClick={() => handleClickRegister()}
+            onClick={handleClickRegister}
             size="xs"
           >Already have an account? Login
           </Anchor>

@@ -30,7 +30,7 @@ const useStyles = createStyles((theme) => ({
 export default function EditProfileImage({ setImageUrlToSave }) {
   const { classes } = useStyles();
   const fileInput = React.createRef();
-  const [fileUploadValue, setFileUploadValue] = useState(null);
+  const [fileUploadValue, setFileUploadValue] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [base64image, setbase64image] = useState('');
   const [preview, setPreview] = useState('');

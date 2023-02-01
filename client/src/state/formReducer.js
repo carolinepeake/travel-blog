@@ -21,6 +21,10 @@ const initialFormState = {
   created_at: ''
 };
 
+function init(initialFormState) {
+  return initialFormState;
+}
+
 const formReducer = function(state = {}, action) {
   switch(action.type) {
     case 'HANDLE INPUT TEXT':
