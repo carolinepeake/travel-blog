@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useReducer, useEffect } from 'react';
 import axios from 'axios';
 
 export const useMapboxApi = () => {
@@ -31,43 +31,116 @@ export const useMapboxApi = () => {
   return [autocompleteLocations, autocompleteErr, locationFetch]; // <-- return state and fetch function
 };
 
-
-export const useCloudinary = () => {
-  const [cloudinaryImage, setCloudinaryImage] = useState({});
-  const [cloudinaryErr, setCloudinaryErr] = useState({});
-
-  const uploadImageToCloudinary = async (fileUrl) => {
-    if (!fileUrl) {
-      // setCloudinaryImage('');
-      // setCloudinaryErr('');
-      // return;
-    //   setCloudinaryErr({
-    //     response: {
-    //       status: 404,
-    //       message: 'No file sent for upload'
-    //     }
-    //   });
-      throw new Error({status: 404, message: 'No file sent for upload'});
-    }
-
-    try {
-      const savedImage = await axios.post('posts/cloudinary/upload', {
-        image: fileUrl,
-      });
-      console.log('saved cloudinary image : ', savedImage);
-      // setCloudinaryImage(savedImage.data);
-      return savedImage.data;
-    } catch (err) {
-      console.log('error uploading cloudinary image: ', err);
-      // setCloudinaryErr(err);
-      // throw new Error({status: err.response.status, message: err.response.statusText});
-      throw new Error(err.message);
-    }
+const reducer = (state, action) => {
+  switch (action.type) {
+    case "idle":
+      return { status: "idle", data: undefined, error: undefined };
+    case "pending":
+      return { status: "pending", data: undefined, error: undefined };
+    case "success":
+      return { status: "success", data: action.payload, error: undefined };
+    case "unsuccessful":
+      return { status: "unsuccessful", data: undefined, error: action.payload };
+    default:
+      throw new Error("invalid action: ", action.type);
   }
+};
 
-  // return [cloudinaryImage, cloudinaryErr, uploadImageToCloudinary];
-  return [uploadImageToCloudinary];
+export const useCloudinaryUpload = (event = null) => {
 
- [cloudinaryImageObj, error, uploadImageToCloudinary]
+  const initialState = {
+    status: event ? "pending" : "idle",
+    data: undefined,
+    error: undefined,
+  };
+
+  const [state, dispatch] = useReducer(reducer, initialState);
+  const [bit64Image, setBit64Image] = useState(null);
+  const [file, setFile] = useState(null);
+  const reader = new FileReader();
+
+  useEffect(() => {
+    if (!event) {
+      dispatch({ type: "idle" });
+      return;
+    }
+    dispatch({ type: "pending" });
+    const file = Array.isArray(event) ? event[0] : event;
+    console.log('file: ', file);
+    setFile(file);
+    return;
+  }, [event]);
+
+
+  useEffect(() => {
+
+    function getImageData(image) {
+      return image.data  ? { name: file.name, bit64Image: bit64Image, ...image.data } : null;
+    };
+
+    const uploadImageToCloudinary = async (bit64Image) => {
+
+      if (!bit64Image) {
+        dispatch({ type: "unsuccessful", payload: 'No file sent for upload'  });
+        return;
+      }
+
+      try {
+        const savedImage = await axios.post('posts/cloudinary/upload', {
+          image: bit64Image,
+        });
+        const data = getImageData(savedImage);
+        dispatch({ type: "success", payload: data });
+        return data;
+      } catch (err) {
+        if (err.response && err.response.status === 413) {
+          dispatch({ type: "unsuccessful", payload: 'file size must be less than 64 MB' });
+          return;
+        } else if (err.message) {
+          dispatch({ type: "unsuccessful", payload: err.message });
+          return;
+        } else {
+          dispatch({ type: "unsuccessful", payload: 'Image upload failed' });
+          return;
+        }
+      }
+    };
+
+    uploadImageToCloudinary(bit64Image);
+
+  }, [bit64Image, dispatch]);
+
+  useEffect(() => {
+    if (!file) {
+      dispatch({ type: "idle" });
+      return;
+    }
+
+    reader.readAsDataURL(file);
+
+    const handleLoadedFile = (e) => {
+      e.preventDefault();
+      const bit64Image = reader.result;
+      setBit64Image(bit64Image);
+    };
+
+    const handleLoadError = (e) => {
+      e.preventDefault();
+      const error = reader.error;
+      dispatch({ type: "unsuccessful", payload: error.type});
+    }
+
+    reader.addEventListener('load',  handleLoadedFile);
+    reader.addEventListener('error', handleLoadError);
+
+    return () => {
+      reader.removeEventListener('load', handleLoadedFile);
+      reader.removeEventListener('error', handleLoadError);
+    };
+
+  }, [file, dispatch]);
+
+  return state;
+
 };
 

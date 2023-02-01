@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { createStyles, Center, FileInput } from '@mantine/core';
 import { IconPhoto, IconUpload } from '@tabler/icons';
 
-import { useCloudinary } from '../../utils/customHooks.js';
+import { useCloudinaryUpload } from '../../utils/customHooks.js';
+
 import { XIcon } from '../SearchIcon';
 
 const useStyles = createStyles((theme) => ({
@@ -107,207 +108,31 @@ const useStyles = createStyles((theme) => ({
 
 export default function FileUpload({ formState, dispatch, handleDeleteFile }) {
   const { classes, cx } = useStyles();
-  const [fileUploadValue, setFileUploadValue] = useState(null);
-  const [requestStatus, setRequestStatus] = useState('idle');
-  // const [preview, setPreview] = useState('');
-  const [files, setFiles] = useState([]);
-  // const [imageFiles, setImageFiles] = useState([]);
-  // const [fileImage, setFileImage] = useState({});
-  // const [base64image, setbase64image] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
-  // const [cloudinaryImageUrlToSave, setCloudinaryImageUrlToSave] = useState('');
-  // const [cloudinaryImage, cloudinaryErr, uploadImageToCloudinary] = useCloudinary();
-  const [uploadImageToCloudinary] = useCloudinary();
+  const [file, setFile] = useState(null);
+  const [deleteRequestStatus, setDeleteRequestStatus] = useState('idle');
 
-  // const handleUploadImage = (event = null) => {
-  //   console.log('event from new FileReader: ', event);
-  //   // edge cases:
-  //     // gets stuck uploading
-  //     // incorrect file type
-  //     // file too large
-  //   // if input cleared
-  //     // set error message to nothing
-  //     // make submit enabled
-  //   // if input replaced
-  //     //
-  //   // if new input
-  //     // make input disabled
-  //     // make submit disabled?
-  //     // try tp upload to cloudinary
-  //       // if successful
-  //         // add to form state
-  //         // show preview
-  //         // show file name
-  //         // make input empty
-  //         // make input enabled
-  //       // if not successful
-  //         // show error message
-  //         // make input enabled
-  //   setRequestStatus('pending');
-  //   setErrorMessage('');
-  //   if (event !== null) {
-  //     let file;
-  //     if (!Array.isArray(event)) {
-  //       file = event;
-  //     }
-  //     // event.length < files ?
-  //     // setFiles(event)
-  //     event.length === 0 ?
-  //     setRequestStatus('idle')
-  //     : file = event[0];
-  //     if (file) {
-  //       setFileUploadValue(file);
-  //       setFileImage({...fileImage, name: file.name});
-  //       setFiles([file, ...files]);
-  //       console.log('files :', files);
-  //       const reader = new FileReader();
-  //       reader.readAsDataURL(file);
-  //       reader.onloadend = () => {
-  //         const base64imagePayload = reader.result;
-  //         setbase64image(base64imagePayload);
-  //         const loadError = reader.error;
-  //       };
-  //     }
-  //   } else {
-  //     setFiles([]);
-  //     setbase64image('');
-  //     setImageUrlToSave('');
-  //   }
-  // };
+  const { data, status, error } = useCloudinaryUpload(file && file);
 
-  // useEffect(() => {
-  //   if (base64image) {
-  //     setFileImage({...fileImage, base64image: base64image});
-  //     // could return spinner while waiting for request to return
-  //     uploadImageToCloudinary(base64image)
-  //     .then(() => {
-  //       setPreview(base64image);
-  //     })
-  //   } else {
-  //     setErrorMessage('');
-  //     setPreview('');
-  //   }
-  // }, [base64image]);
-
-  // useEffect(() => {
-  //   cloudinaryImage && setCloudinaryImageUrlToSave(cloudinaryImage.url);
-  //   setFileImage({...fileImage, cloudinaryImageUrl: cloudinaryImage.url})
-  // }, [cloudinaryImage]);
-
-  // useEffect(() => {
-  //   if (cloudinaryErr.response) {
-  //     cloudinaryErr.response.status === 413 ? setErrorMessage('file size must be less than 64 MB') : setErrorMessage('image upload failed');
-  //     setRequestStatus('unsuccessful');
-  //     return;
-  //   }
-  //   setErrorMessage('');
-  // }, [cloudinaryErr]);
-
-  // useEffect(() => {
-  //   if (cloudinaryImageUrlToSave) {
-  //      dispatch({
-  //     type: "HANDLE MULTIPLE INPUTS",
-  //     field: 'photos',
-  //     payload: fileImage,
-  //   });
-  //   setRequestStatus('idle');
-  // }}, [cloudinaryImageUrlToSave]);
-
-  // useEffect(() => {
-  //   if (errorMessage) {
-  //     // setFileImage({...fileImage, cloudinaryErrMessage: errorMessage});
-  //     // dispatch({
-  //     //   type: "HANDLE MULTIPLE INPUTS",
-  //     //   field: 'photos',
-  //     //   payload: fileImage,
-  //     // });
-  //     setRequestStatus('unsuccessful');
-  // }}, [errorMessage]);
-
-  //     setPreviews([...previews, imageFile]);
-  //     setRequestStatus('idle');
-
-   const handleDeleteImage = (i, field, e) => {
-    handleDeleteFile(i, field, e);
-    // if (files.length <= 1) {
-      setErrorMessage('');
-      setRequestStatus('idle');
-    // }
-    if (i === 0) {
-      setFileUploadValue(null);
+  useEffect(() => {
+    if (data) {
+      dispatch({type: 'HANDLE MULTIPLE INPUTS', payload: data, field: 'photos'});
     }
-    // fileInput.current?.();
-    // setImageValue(null);
-   };
+  }, [data]);
 
-   const uploadtoCloudinary = async (bitImage) => {
+  const canDelete = formState.photos.length > 0 && deleteRequestStatus !== 'pending' && status !== 'pending';
 
-   };
-
-   const readFile = async (file) => {
-
-   };
-
-   const handleChange = async (event = []) => {
-    let file;
-    // could move line 254 to occur after fileUploadValue is changed
-    setErrorMessage('');
-    setRequestStatus('pending');
-    if (event.length === 0) {
-      setFileUploadValue(null);
-      setRequestStatus('idle');
-      return;
-    } else if (!Array.isArray(event)) {
-      setFileUploadValue(event);
-      file = event;
-      // readFile(file);
-    } else {
-      setFileUploadValue(event[0]);
-      file = event[0];
-      // readFile(file);
-    }
-    console.log('event from handleChange: ', event,'fileupload value :', fileUploadValue, 'file: ', file);
-    // readFile(file)
-    if (file) {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = async (e) => {
-        const fileData = reader.result;
-        console.log('fileData: ', fileData, 'e: ', e);
-        e.preventDefault();
-        // uploadImageToCloudinary(fileData)
-
-        try {
-          const cloudinaryResponse = await uploadImageToCloudinary(fileData);
-          cloudinaryResponse.name = file.name;
-          cloudinaryResponse.bit64Image = fileData;
-          setFiles([cloudinaryResponse, ...files]);
-          console.log('cloudinary response: ', cloudinaryResponse);
-          dispatch({'HANDLE MULTIPLE INPUTS', payload: cloudinaryResponse, field: 'photos'});
-          setRequestStatus('idle');
-        } catch (err) {
-          console.log('err in handleChange: ', err);
-          setErrorMessage(err.message);
-          setRequestStatus('unsuccessful');
-        }
-      }
-      reader.onerror = (e) => {
-        const error = reader.error;
-        e.preventDefault();
-        console.log('error: ', error, 'e: ', e);
-        setErrorMessage(error.type);
-        setRequestStatus('unsuccessful');
+   const handleDeleteImage = async (i, field, e) => {
+    if (canDelete) {
+      try {
+        setDeleteRequestStatus('pending');
+        await handleDeleteFile(i, field, e);
+      } catch (err) {
+        console.error('error deleting image file: ', err, 'index: ', i);
+      } finally {
+        setDeleteRequestStatus('idle');
       }
     }
-  };
-
-  // requestStatus, errorMessage, fileUploadValue
-
-
-
-   // handle deleteOne if type=image or file upload, splice previews and delete preview at index and then setpreviews
-
-   // can upload file directly to cloudinary and if don't use 64 base data URI type, can be bigger
+   };
 
   return (
     <>
@@ -316,29 +141,26 @@ export default function FileUpload({ formState, dispatch, handleDeleteFile }) {
           id="fileInput"
           label="Add Photos"
           placeholder="Add your photos"
-          error={errorMessage}
-          clearable
+          error={status === 'unsuccessful' && error}
+          clearable={status === 'unsuccessful'}
           type="file"
           name="photos"
           accept="image/png, image/jpeg"
           capture="user"
           icon={<IconUpload size={14} />}
           multiple
-          // onChange={e => handleUploadImage(e)}
-          onChange={e => handleChange(e)}
-          value={requestStatus === 'idle' ? null : fileUploadValue}
-          disabled={requestStatus === 'pending'}
+          onChange={(event) => setFile(event)}
+          value={status === 'idle' || status === 'success' ? null : file}
+          disabled={status === 'pending'}
         />
 
-      {/* {formState.photos.length > 0 */}
-      {files.length > 0
+      {formState.photos.length > 0
       && (
           <div className={classes.filesPreview}>
 
-          {/* {formState.photos.map(({base64image, cloudinaryImageUrl, cloudinaryErrMessage, name}, i) => ( */}
-          {files.map((cloudinaryResponse, i) => (
+          {formState.photos.map((data, i) => (
 
-            <div className={classes.photoPreviews} key={cloudinaryResponse.name} i={i}>
+            <div className={classes.photoPreviews} key={data.asset_id} i={i}>
 
               <Center
                 inline
@@ -347,20 +169,19 @@ export default function FileUpload({ formState, dispatch, handleDeleteFile }) {
               >
                 <IconPhoto size={14} style={{ marginRight: 5 }} />
                 <span className={classes.file}>
-                  {cloudinaryResponse.name}
+                  {data.name}
                   <span className={classes.close}  i={i}
-                  // onClick={(e) => handleDeleteImage(i, 'photos', e)}
+                  onClick={(e) => handleDeleteImage(i, 'photos', e)}
                   >x</span>
                 </span>
               </Center>
 
               <div className={classes.imageContainer} >
                 <span className={classes.close}  i={i}
-                //  onClick={(e) => handleDeleteImage(i, 'photos', e)}
+                 onClick={(e) => handleDeleteImage(i, 'photos', e)}
                  >x</span>
                 <img
-                // src={base64image}
-                src={cloudinaryResponse.url}
+                src={data.bit64Image}
                 alt="Image preview" className={classes.imagePreview} />
               </div>
 

@@ -54,8 +54,6 @@ const initialFormState = {
 export default function AddPost({ setAddPostOpened }) {
   const { classes } = useStyles();
   const [formState, dispatch] = useReducer(formReducer, initialFormState, init);
-  const [previews, setPreviews] = useState([]);
-  const [imageValue, setImageValue] = useState('');
   const [addPostRequestStatus, setAddPostRequestStatus] = useState('idle');
   const dispatchReduxAction = useDispatch();
   const [errors, setErrors] = useState({});
@@ -76,27 +74,19 @@ export default function AddPost({ setAddPostOpened }) {
   //   });
   // };
 
-  const handleDeleteFile = (i, field, e) => {
+  const handleDeleteFile = (i, field) => {
     dispatch({
       type: "HANDLE DELETE INPUT",
       field: field,
       payload: i,
     });
-    setImageValue('');
-    if (field === 'photos') {
-      let old = [...previews];
-      setPreviews(() => {
-        old.splice(i, 1);
-        return old;
-      });
-      if (formState.photos.length === 0) {
-        dispatch({
-          type: "HANDLE SINGLE INPUT",
-          field: field,
-          payload: '',
-        });
-      }
-    }
+      // if (formState.photos.length === 0) {
+      //   dispatch({
+      //     type: "HANDLE SINGLE INPUT",
+      //     field: field,
+      //     payload: '',
+      //   });
+      // }
   };
 
   function handleSelectMultiple(item) {
@@ -128,7 +118,8 @@ export default function AddPost({ setAddPostOpened }) {
   const handleSubmitForm = async (e) => {
     e.preventDefault();
     if (formState.photos.length > 0) {
-      postBody.photos = formState.photos.filter((file) => file.hasOwnProperty('cloudinaryImageUrl')).map(file => file.cloudinaryImageUrl);
+      // postBody.photos = formState.photos.filter((file) => file.hasOwnProperty('cloudinaryImageUrl')).map(file => file.cloudinaryImageUrl);
+      postBody.photos = formState.photos.map(file => file.url);
     }
     try {
       const savedLocation = await axios.post('/locations', locationBody);
