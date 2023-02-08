@@ -15,14 +15,11 @@ export const useMapboxApi = () => {
 
     try {
       const res = await axios.get(`/locations/places/${searchTerm}/${locality}`);
-      console.log('response from handleLocationChange api call:', res);
       // for loop is quicker than map
       !autocompleteLocations.map(location => location.place_name).includes(searchTerm) &&
         res.data.features &&
         setAutocompleteLocations(res.data.features.map(({ place_name, context, place_type, id }) => ({ place_name, context, place_type, id })));
-        console.log('autocompleteLocations: ', autocompleteLocations, 'check fetch locations hook cause mapping to state might be redundant');
     } catch (error) {
-      // setAutocompleteErr(res.error);
       console.log('error returned from mapbox api: ', error);
       setAutocompleteErr(error.message);
     }
@@ -57,6 +54,7 @@ export const useCloudinaryUpload = (event = null) => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [bit64Image, setBit64Image] = useState(null);
   const [file, setFile] = useState(null);
+
   const reader = new FileReader();
 
   useEffect(() => {
@@ -64,11 +62,12 @@ export const useCloudinaryUpload = (event = null) => {
       dispatch({ type: "idle" });
       return;
     }
+
     dispatch({ type: "pending" });
+
     const file = Array.isArray(event) ? event[0] : event;
-    console.log('file: ', file);
     setFile(file);
-    return;
+
   }, [event]);
 
 
@@ -95,13 +94,10 @@ export const useCloudinaryUpload = (event = null) => {
       } catch (err) {
         if (err.response && err.response.status === 413) {
           dispatch({ type: "unsuccessful", payload: 'file size must be less than 64 MB' });
-          return;
         } else if (err.message) {
           dispatch({ type: "unsuccessful", payload: err.message });
-          return;
         } else {
           dispatch({ type: "unsuccessful", payload: 'Image upload failed' });
-          return;
         }
       }
     };
@@ -111,6 +107,7 @@ export const useCloudinaryUpload = (event = null) => {
   }, [bit64Image, dispatch]);
 
   useEffect(() => {
+
     if (!file) {
       dispatch({ type: "idle" });
       return;

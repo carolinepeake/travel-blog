@@ -45,6 +45,14 @@ const useStyles = createStyles((theme) => ({
 export default function AddTag({ formState, handleTextChange, handleAddTag, handleDeleteOne }) {
   const { classes, cx } = useStyles();
 
+   function handleAddTag(item) {
+    dispatch({
+      type: "HANDLE MULTIPLE INPUTS",
+      field: 'selectedTags',
+      payload: item.value,
+    });
+  };
+
   return(
     <>
       <label>
@@ -53,9 +61,9 @@ export default function AddTag({ formState, handleTextChange, handleAddTag, hand
           type="text"
           name="newTag"
           value={formState.newTag}
-          onChange={(e) => handleTextChange(e)}
+          onChange={handleTextChange}
           ></input>
-        <button type="button" onClick={(e) => handleAddTag(e)}>add tag</button>
+        <button type="button" onClick={handleAddTag}>add tag</button>
       </label>
       <br/>
       {formState.newTags

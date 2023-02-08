@@ -18,7 +18,7 @@ import {
   createStyles,
 } from '@mantine/core';
 
-import { formReducer, init } from '../../utils/reducers.js';
+import { formReducer, init, handleTextChange } from '../../utils/reducers.js';
 import { selectUser, loginUser, selectLoggedInState } from '../../state/usersSlice.js';
 import AuthenticationForm from './AuthenticationForm.js';
 
@@ -32,10 +32,9 @@ const useStyles = createStyles((theme) => ({
 }));
 
 const initialFormState = {
-  email: '',
-  password: '',
+  email: { value: "", touched: false, hasError: false, error: "" },
+  password: { value: "", touched: false, hasError: false, error: "" },
 };
-
 
 // can make a separate component for AuthenticationForm and render it as a child of the modal and as an alternative to the modal (user sidebar) and pass down props to it to make it dynamic
 
@@ -45,89 +44,36 @@ export default function UserLogin({ PaperProps, ButtonProps }) {
   const [isOpened, setIsOpened] = useState(false);
   const [formState, dispatch] = useReducer(formReducer, initialFormState, init);
   const dispatchReduxAction = useDispatch();
+  const [loginRequestStatus, setLoginRequestStatus] = useState('idle');
   const [emailErrorMessage, setEmailErrorMessage] = useState('');
   const [passwordErrorMessage, setPasswordErrorMessage] = useState('');
-  const [loginRequestStatus, setLoginRequestStatus] = useState('idle');
-
-
-  // need to add image to validation => if wrong file type
-    // validate: (values) => {
-    //   // can prolly refactor this to be DRY
-    //   if (type === 'login') {
-    //     return {
-    //       email:
-    //         /^\S+@\S+$/.test(values.email)
-    //           ? null
-    //           : 'Invalid email',
-    //       password:
-    //         values.password.length < 6
-    //           ? 'Password should include at least 6 characters'
-    //           : null,
-    //     };
-    //   }
-    //   if (type === 'register') {
-    //     return {
-    //       email:
-    //         /^\S+@\S+$/.test(values.email)
-    //           ? null
-    //           : 'Invalid email',
-    //       password:
-    //         values.password.length < 6
-    //           ? 'Password should include at least 6 characters'
-    //           : null,
-    //       confirmPassword:
-    //         values.confirmPassword !== values.password
-    //           ? 'Passwords do not match'
-    //           : null,
-    //     };
-    //   }
-    //   return {};
-      // email: (value) => (/^\S+@\S+$/.test(value) ? null : 'Invalid email'),
-      // password: (value) => (value.length < 6 ? 'Password should include at least 6 characters' : null),
-      // confirmPassword: (value, values) =>
-      // value !== values.password ? 'Passwords do not match' : null,
-    // },
-
-  //   validateInputOnChange: [
-  //     'image',
-  //   ],
-
-  //   validateInputOnBlur: [
-  //     'email',
-  //     'password',
-  //     'confirmPassword',
-  //   ],
-  // });
 
   let user = useSelector(selectUser);
   let isLoggedIn = useSelector(selectLoggedInState);
 
-  function handleTextChange(e) {
-    dispatch({
-      type: "HANDLE SINGLE INPUT",
-      field: e.target.name,
-      payload: e.target.value,
-    });
-  };
+  const onTextChange = (e) => {
+    handleTextChange(e.target.name, e.target.value, dispatch, formState);
+  }
 
   // can login in - client side form evaluation first
 
-  const canLogin = loginRequestStatus === 'idle' && formState.email && formState.password;
+  const canLogin = loginRequestStatus === 'idle' && formState.email.value && formState.password.value;
 
   const handleLogin = async (e) => {
     e.preventDefault();
     if (canLogin) {
     try {
       setLoginRequestStatus('pending');
-      const response = await dispatchReduxAction(loginUser(formState)).unwrap();
-      console.log('response from login user: ', response);
+      const loggedInUser = await dispatchReduxAction(loginUser({email: formState.email.value, password: formState.password.value})).unwrap();
       setIsOpened(false);
       dispatch({
         type: "HANDLE SUBMIT",
         payload: initialFormState
       });
-      // let userId = user._id;
-      // if (userId) {localStorage.setItem('user', JSON.stringify(userId));}
+      let userId = loggedInUser._id;
+      if (typeof userId === "string") {
+        localStorage.setItem('user', userId);
+      }
     } catch (err) {
       err.message.indexOf('401') !== -1 ? setEmailErrorMessage('username not found') : err.message.indexOf('400') !== -1 ? setPasswordErrorMessage('password incorrect') : setPasswordErrorMessage('login failed');
     } finally {
@@ -141,29 +87,7 @@ export default function UserLogin({ PaperProps, ButtonProps }) {
     toggle();
   };
 
-  // let errorMessages = {};
-
-  // const handleError = (errors) => {
-  //   if (errors.password) {
-  //     errorMessages.passwordErrorMessage = 'passwords must match and be at least 6 characters';
-  //   }
-  //   if (errors.email) {
-  //     errorMessages.emailErrorMessage = 'please provide a valid email';
-  //   }
-  //   if (errors.image) {
-  //     errorMessages.imageErrorMessage = 'image file size must not be any larger than 64 MB';
-  //   };
-  // };
-
-  // const handleSubmit = (values) => {
-  //   if (type === 'register') {
-  //     console.log('handling registration');
-  //     handleCreateAccount(values);
-  //   } else {
-  //     console.log('handling logging in');
-  //     handleLogin(values);
-  //   }
-  // };
+  // need to fix onBlur and onFocus to how it was
 
   return (
   <>
@@ -174,8 +98,8 @@ export default function UserLogin({ PaperProps, ButtonProps }) {
     >
       <AuthenticationForm
       setIsOpened={setIsOpened}
-      email={formState.email}
-      password={formState.password}
+      email={formState.email.value}
+      password={formState.password.value}
       handleClickRegister={handleClickRegister}
       onSubmit={() => setIsOpened(false)}
       />
@@ -195,36 +119,30 @@ export default function UserLogin({ PaperProps, ButtonProps }) {
       <form
         value={formState}
         onSubmit={(e) =>  handleLogin(e)}
-        // onSubmit={form.onSubmit(
-        // (values, _event) => {handleSubmit(values)},
-        // (validationErrors, _values, _event) => {console.log(validationErrors); handleError(validationErrors)})}
       >
         <Stack>
           <TextInput
             // required
             label="Email"
             placeholder="example@gmail.com"
-            value={formState.email}
+            value={formState.email.value}
             name="email"
             onBlur={() => setEmailErrorMessage('')}
-            onFocus={() => setEmailErrorMessage('')}
-            onChange={(event) => handleTextChange(event)}
+            // onBlur={e => onFocusOut(e.target.name, e.target.value, dispatch, formState)}
+            onChange={onTextChange}
             error={emailErrorMessage}
-            // error={form.errors.email && 'invalid email'}
-            // {...form.getInputProps('email')}
           />
 
           <PasswordInput
             // required
             label="password"
             placeholder="your password"
-            value={formState.password}
+            value={formState.password.value}
             name="password"
-            onFocus={() => setPasswordErrorMessage('')}
             onBlur={() => setPasswordErrorMessage('')}
-            onChange={(event) => handleTextChange(event)}
+            // onBlur={e => onFocusOut(e.target.name, e.target.value, dispatch, formState)}
+            onChange={onTextChange}
             error={passwordErrorMessage}
-            // error={form.errors.password ? 'password must include at least 6 characters' : `${errorMessage}`}
           />
         </Stack>
 

@@ -78,7 +78,6 @@ export default function UserProfile() {
           userId: user._id,
           image: imageUrlToSave
         })).unwrap();
-        // localStorage.setItem('user', JSON.stringify(user));
       } catch (err) {
         // TO-DO: show error message
         console.error('error from handleEditProfileImage in UserSidebar component: ', err);
@@ -92,7 +91,7 @@ export default function UserProfile() {
 
   function handleLogout() {
     dispatch(logoutUser());
-    // localStorage.clear();
+    localStorage.removeItem('user');
   };
 
   return (

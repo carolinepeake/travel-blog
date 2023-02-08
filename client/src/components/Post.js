@@ -186,7 +186,7 @@ export const Post = ({ postId, grid, rowGap, rowHeight }) => {
       try {
         setDeletePostRequestStatus('pending');
         const response = await dispatch(deletePost(post._id)).unwrap();
-        console.log(`post ${post._id} deleted successfully`, response.data);
+        console.log(`post ${post._id} deleted successfully`, response);
       } catch (err) {
         console.error(`error deleting post ${post._id}`, err);
       } finally {

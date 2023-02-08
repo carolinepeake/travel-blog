@@ -4,7 +4,7 @@ import axios from 'axios';
 import { createStyles, Select, TextInput, Textarea, Button, onSubmit, Group, Box } from '@mantine/core';
 
 import { toUpperFirst } from '../../utils/utils.js';
-import { formReducer, init } from '../../utils/reducers.js';
+import { formReducer, init, onFocusOut, handleTextChange, handleDeleteFile } from '../../utils/reducers.js';
 import { fetchPosts, addNewPost, filterSet } from '../../state/postsSlice.js';
 import { selectUser } from '../../state/usersSlice.js';
 import FileUpload from './FileUpload.js';
@@ -38,78 +38,47 @@ const useStyles = createStyles((theme) => ({
 }));
 
 const initialFormState = {
-  title: '',
-  tags: [],
-  city: '',
-  state: '',
-  country: '',
-  region: '',
-  description: '',
-  photos: [],
-  location: '',
-  language: 'English',
+  title: { value: "", touched: false, hasError: false, error: "" },
+  tags: { value: [], touched: false, hasError: false, error: "" },
+  city: { value: "", touched: false, hasError: false, error: "" },
+  state: { value: "", touched: false, hasError: false, error: "" },
+  country: { value: "", touched: false, hasError: false, error: "" },
+  region: { value: "", touched: false, hasError: false, error: "" },
+  description: { value: "", touched: false, hasError: false, error: "" },
+  photos: { value: [], touched: false, hasError: false, error: "" },
+  location: { value: "", touched: false, hasError: false, error: "" },
+  language: { value: "English", touched: true, hasError: false, error: "" },
 };
 
+const REGIONS = ['Africa','Australia','Central America', 'Central Asia', 'East Asia', 'Europe', 'North Africa', 'North America', 'South America', 'Southeast Asia', 'New Zealand', 'Middle East'];
 
 export default function AddPost({ setAddPostOpened }) {
   const { classes } = useStyles();
   const [formState, dispatch] = useReducer(formReducer, initialFormState, init);
   const [addPostRequestStatus, setAddPostRequestStatus] = useState('idle');
   const dispatchReduxAction = useDispatch();
-  const [errors, setErrors] = useState({});
 
-  function handleTextChange(e) {
-    dispatch({
-      type: "HANDLE SINGLE INPUT",
-      field: e.target.name,
-      payload: e.target.value,
-    });
+  const onTextChange = (e) => {
+    handleTextChange(e.target.name, e.target.value, dispatch, formState);
   };
 
-  //  function handleAddTag(item) {
-  //   dispatch({
-  //     type: "HANDLE MULTIPLE INPUTS",
-  //     field: 'selectedTags',
-  //     payload: item.value,
-  //   });
-  // };
-
-  const handleDeleteFile = (i, field) => {
-    dispatch({
-      type: "HANDLE DELETE INPUT",
-      field: field,
-      payload: i,
-    });
-      // if (formState.photos.length === 0) {
-      //   dispatch({
-      //     type: "HANDLE SINGLE INPUT",
-      //     field: field,
-      //     payload: '',
-      //   });
-      // }
-  };
-
-  function handleSelectMultiple(item) {
-    // let values = Array.from(
-    //   event.target.selectedOptions,
-    //   (option) => option.value
-    // );
-    dispatch({
-      type: "HANDLE SINGLE INPUT",
-      field: 'selectedTags',
-      payload: query,
-    });
+  const onDelete = (i, field) => {
+    handleDeleteFile(i, field, dispatch, formState);
   };
 
   const author = useSelector(selectUser)._id;
 
-  const postBody = {...formState, author};
+  let postBody = {};
+  for (const field in formState) {
+    postBody[field] = formState[field].value;
+  };
+  postBody = {...postBody, author};
 
   const locationBody = {
-    region: formState.region,
-    state: formState.state,
-    city: formState.city,
-    country: formState.country
+    region: formState.region.value,
+    state: formState.state.value,
+    city: formState.city.value,
+    country: formState.country.value
   };
 
 
@@ -117,9 +86,8 @@ export default function AddPost({ setAddPostOpened }) {
 
   const handleSubmitForm = async (e) => {
     e.preventDefault();
-    if (formState.photos.length > 0) {
-      // postBody.photos = formState.photos.filter((file) => file.hasOwnProperty('cloudinaryImageUrl')).map(file => file.cloudinaryImageUrl);
-      postBody.photos = formState.photos.map(file => file.url);
+    if (formState.photos.value.length > 0) {
+      postBody.photos = formState.photos.value.map(file => file.url);
     }
     try {
       const savedLocation = await axios.post('/locations', locationBody);
@@ -142,8 +110,6 @@ export default function AddPost({ setAddPostOpened }) {
     }
   };
 
-  const regions = ['Africa','Australia','Central America', 'Central Asia', 'East Asia', 'Europe', 'North Africa', 'North America', 'South America', 'Southeast Asia', 'New Zealand', 'Middle East'];
-
   return(
     <form value={formState} onSubmit={handleSubmitForm} className={classes.form}>
 
@@ -154,8 +120,9 @@ export default function AddPost({ setAddPostOpened }) {
           type="text"
           name="title"
           id="title"
-          value={formState.title}
-          onChange={handleTextChange}
+          value={formState.title.value}
+          onChange={onTextChange}
+          error={formState.title.value.length > 150 && "Title may not be longer than 150 characters"}
           ></TextInput>
 
      <br />
@@ -164,14 +131,13 @@ export default function AddPost({ setAddPostOpened }) {
         label="Description"
         required
         placeholder="Post description"
-        value={formState.description}
+        value={formState.description.value}
         name="description"
         type="text"
         id="description"
         autosize
-        onChange={handleTextChange}
-        // character limit error
-        // error={errors.descriptionError}
+        onChange={onTextChange}
+        error={formState.description.value.length > 1500 ? "Description may not be longer than 1500 characters" : formState.description.touched && formState.description.hasError && formState.description.error}
       ></Textarea>
 
       <br />
@@ -184,7 +150,7 @@ export default function AddPost({ setAddPostOpened }) {
               locality={locality}
               key={locality}
               formState={formState}
-              handleTextChange={handleTextChange}
+              handleTextChange={onTextChange}
               label={`Activity ${toUpperFirst(locality)}`}
               placeholder={`Activity ${locality}, if applicable`}
             />
@@ -195,11 +161,11 @@ export default function AddPost({ setAddPostOpened }) {
           label="Region"
           name="region"
           placeholder="Activity region"
-          value={formState.region}
+          value={formState.region.value}
           required
           searchable
-          data={regions}
-          onChange={(query) => handleTextChange({target: {value: query, name: 'region'}})}
+          data={REGIONS}
+          onChange={(query) => onTextChange({target: {value: query, name: 'region'}})}
         ></Select>
 
       </Group>
@@ -207,13 +173,13 @@ export default function AddPost({ setAddPostOpened }) {
         <br/>
 
       <SelectTags
-        tags={formState.tags}
-        handleTextChange={handleTextChange}
+        tags={formState.tags.value}
+        handleTextChange={onTextChange}
       />
 
       <br />
 
-      <FileUpload formState={formState} dispatch={dispatch} handleDeleteFile={handleDeleteFile}/>
+      <FileUpload formState={formState} dispatch={dispatch} handleDeleteFile={onDelete}/>
 
       <br />
 

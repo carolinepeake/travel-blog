@@ -119,7 +119,7 @@ export default function FileUpload({ formState, dispatch, handleDeleteFile }) {
     }
   }, [data]);
 
-  const canDelete = formState.photos.length > 0 && deleteRequestStatus !== 'pending' && status !== 'pending';
+  const canDelete = formState.photos.value.length > 0 && deleteRequestStatus !== 'pending' && status !== 'pending';
 
    const handleDeleteImage = async (i, field, e) => {
     if (canDelete) {
@@ -154,11 +154,11 @@ export default function FileUpload({ formState, dispatch, handleDeleteFile }) {
           disabled={status === 'pending'}
         />
 
-      {formState.photos.length > 0
+      {formState.photos.value.length > 0
       && (
           <div className={classes.filesPreview}>
 
-          {formState.photos.map((data, i) => (
+          {formState.photos.value.map((data, i) => (
 
             <div className={classes.photoPreviews} key={data.asset_id} i={i}>
 

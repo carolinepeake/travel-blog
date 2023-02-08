@@ -23,17 +23,10 @@ const useStyles = createStyles((theme) => ({
 
 export default function App() {
   const { classes } = useStyles();
+  const dispatch = useDispatch();
 
-
-  // useEffect(() => {
-  //   const loggedInUser = localStorage.getItem("user");
-  //   if (typeof loggedInUser === 'string' || typeof loggedInUser === 'object') {
-  //     const parsedUser = JSON.parse(loggedInUser);
-  //   } else {
-  //     return;
-  //   }
-  //   parsedUser.hasOwnProperty('_id') ? dispatch(getUser(parsedUser._id)) : dispatch(getUser(parsedUser));
-  // }, []);
+  const loggedInUser = localStorage.getItem("user");
+  loggedInUser && dispatch(getUser(loggedInUser));
 
     // could lazy init the photos
 
