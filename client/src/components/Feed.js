@@ -14,13 +14,13 @@ const GRID_ROW_HEIGHT = 8;
 export default function Feed() {
 
   const dispatch = useDispatch();
-  const postStatus = useSelector(state => state.posts.status);
+  const postsStatus = useSelector(state => state.posts.status);
 
   useEffect(() => {
-    if (postStatus === 'idle') {
+    if (postsStatus === 'idle') {
       dispatch(fetchPosts())
     }
-  }, [postStatus, dispatch])
+  }, [postsStatus, dispatch])
 
   const filter = useSelector(selectFilter);
   const filteredPostIds = useSelector(selectFilteredPostIds);
@@ -52,7 +52,7 @@ export default function Feed() {
   const [nothingFound, setNothingFound] = useState(false);
 
   useEffect(() => {
-    if (postStatus === 'succeeded' && !(postIds.length >= 1)) {
+    if (postsStatus === 'succeeded' && !(postIds.length >= 1)) {
       setNothingFound(true);
       return;
     }
@@ -61,11 +61,11 @@ export default function Feed() {
 
   let content;
 
-  if (postStatus === 'loading') {
+  if (postsStatus === 'loading') {
     // content = <StyledSpinner text="Loading..." />
     content = <Text>Loading...</Text>;
 
-  } else if (postStatus === 'succeeded') {
+  } else if (postsStatus === 'succeeded') {
     content = postIds.map(postId => (
       <Post
         key={postId}
@@ -76,7 +76,7 @@ export default function Feed() {
        />
     ))
 
-  } else if (postStatus === 'failed') {
+  } else if (postsStatus === 'failed') {
     content = <div>{error}</div>
   };
 

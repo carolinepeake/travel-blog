@@ -243,8 +243,6 @@ export const Post = ({ postId, grid, rowGap, rowHeight }) => {
     }
   };
 
-
-
  // journal:
 // if (content.current) {
 //   console.log('content current style: ',  content.current.style, 'content: ', content, 'type of content: ', typeof content);

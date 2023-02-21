@@ -81,7 +81,6 @@ export default function AddPost({ setAddPostOpened }) {
     country: formState.country.value
   };
 
-
   const canSave = postBody.author && addPostRequestStatus === 'idle';
 
   const handleSubmitForm = async (e) => {
