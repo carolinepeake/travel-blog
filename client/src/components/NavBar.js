@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { createStyles, Header, Container, Group, Paper, Transition, Burger, Autocomplete, Button } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
@@ -79,6 +79,16 @@ const useStyles = createStyles((theme) => ({
     [theme.fn.smallerThan('sm')]: {
       borderRadius: 0,
       padding: theme.spacing.md,
+    },
+
+    // '&[data-disabled]': {
+    //   pointerEvents: 'all',
+    //   cursor: 'not-allowed',
+    // },
+
+    '&:disabled': {
+      pointerEvents: 'all',
+      cursor: 'not-allowed',
     },
   },
 
@@ -225,12 +235,12 @@ export default function NavBar() {
             <a
               href={bucketListLink.link}
               className={cx(classes.link, { [classes.linkActive]: active === bucketListLink.link })}
-              onClick={(e) => handleFilterPostsByBucketList(e)} disabled={!isLoggedIn}
+              onClick={(e) => {e.preventDefault; handleFilterPostsByBucketList(e)}} disabled={!isLoggedIn}
             >
               {bucketListLink.label}
               <span
                 className={classes.popup} id="myPopup"
-                style={{ visibility: hidePopUp ? 'hidden' : 'visible', transition: 'visibility 5s' }}
+                style={{ visibility: hidePopUp ? 'hidden' : 'visible', transition: 'visibility 5s', display: isLoggedIn ? 'none' : 'block' }}
               >
                 Must be logged in to filter by posts saved to your bucket list.
               </span>

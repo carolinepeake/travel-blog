@@ -38,7 +38,7 @@ app.use(express.static(path.join(__dirname, '../client/dist')));
 app.use('/posts', postsRouter);
 app.use('/users', usersRouter);
 app.use('/locations', locationsRouter);
-app.use('/tags', tagsRouter);
+// app.use('/tags', tagsRouter);
 
 const port = process.env.PORT || 3001;
 

@@ -21,7 +21,7 @@ const useStyles = createStyles((theme) => ({
   }
 }));
 
-export default function App() {
+function App() {
   const { classes } = useStyles();
   const dispatch = useDispatch();
 
@@ -52,3 +52,5 @@ export default function App() {
     </div>
   );
 };
+
+export default App;

@@ -61,6 +61,13 @@ const useStyles = createStyles((theme, _params, getRef) => ({
     [`&:hover .${getRef('tooltip')}`]: {
       visibility: 'visible',
     },
+    '&[data-disabled]': {
+      pointerEvents: 'all',
+      backgroundColor: 'transparent',
+      border: 'none',
+      color: 'transparent',
+      cursor: 'not-allowed',
+    },
   },
 
   heart: {
