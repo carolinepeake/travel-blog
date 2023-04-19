@@ -71,7 +71,7 @@ To support the upload of user avatar pictures and post images, you will need to 
 
 <details>
   <summary> Login </summary>
-  
+  file:///Users/carolinepeake/Dropbox/HackReactor/MVP/Travel%20Blog%20App.webm
 </details>
 
 ## Screenshots
@@ -114,7 +114,7 @@ To support the upload of user avatar pictures and post images, you will need to 
     </td>
       <!-- LINKEDIN LINKS      -->
     <td>
-      <a href="https://www.linkedin.com/in/caroline-k-peake/">  <!-- Caroline    -->
+      <a href="https://www.linkedin.com/in/carolinepeake/">  <!-- Caroline    -->
         <img src="https://img.shields.io/badge/linkedin%20-%230077B5.svg?&style=for-the-badge&logo=linkedin&logoColor=white"/>
       </a>
     </td>
